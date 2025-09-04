@@ -12,14 +12,15 @@ import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-class ReviewRepository implements ReviewRepositoryInterface{
+class ReviewRepository implements ReviewRepositoryInterface {
   final DioClient dioClient;
   ReviewRepository({required this.dioClient});
 
   @override
   Future<ApiResponseModel> get(String productID) async {
     try {
-      final response = await dioClient.get(AppConstants.productReviewUri+productID);
+      final response =
+          await dioClient.get(AppConstants.productReviewUri + productID);
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -27,11 +28,19 @@ class ReviewRepository implements ReviewRepositoryInterface{
   }
 
   @override
-  Future<http.StreamedResponse> submitReview(ReviewBody reviewBody, List<File> files,  bool update) async {
-    http.MultipartRequest request = http.MultipartRequest('POST', Uri.parse(update?'${AppConstants.baseUrl}${AppConstants.updateOrderWiseReview}':'${AppConstants.baseUrl}${AppConstants.submitReviewUri}'));
-    request.headers.addAll(<String,String>{'Authorization': 'Bearer ${Provider.of<AuthController>(Get.context!, listen: false).getUserToken()}'});
-    for(int index=0; index <files.length ; index++) {
-      if(files[index].path.isNotEmpty) {
+  Future<http.StreamedResponse> submitReview(
+      ReviewBody reviewBody, List<File> files, bool update) async {
+    http.MultipartRequest request = http.MultipartRequest(
+        'POST',
+        Uri.parse(update
+            ? '${AppConstants.baseUrl}${AppConstants.updateOrderWiseReview}'
+            : '${AppConstants.baseUrl}${AppConstants.submitReviewUri}'));
+    request.headers.addAll(<String, String>{
+      'Authorization':
+          'Bearer ${Provider.of<AuthController>(Get.context!, listen: false).getUserToken()}'
+    });
+    for (int index = 0; index < files.length; index++) {
+      if (files[index].path.isNotEmpty) {
         request.files.add(http.MultipartFile(
           'fileUpload[$index]',
           files[index].readAsBytes().asStream(),
@@ -40,21 +49,23 @@ class ReviewRepository implements ReviewRepositoryInterface{
         ));
       }
     }
-    if(update){
+    if (update) {
       request.fields.addAll(<String, String>{
-        "id" : reviewBody.id!,
-        "order_id" : reviewBody.orderId!,
+        "id": reviewBody.id!,
+        "order_id": reviewBody.orderId!,
         'product_id': reviewBody.productId!,
         'comment': reviewBody.comment!,
-        '_method' : "put",
-        'rating': reviewBody.rating!});
-    }else{
+        '_method': "put",
+        'rating': reviewBody.rating!
+      });
+    } else {
       log("----repo===>${reviewBody.orderId}");
       request.fields.addAll(<String, String>{
-        "order_id" : reviewBody.orderId?? "100264",
+        "order_id": reviewBody.orderId ?? "100264",
         'product_id': reviewBody.productId!,
         'comment': reviewBody.comment!,
-        'rating': reviewBody.rating!});
+        'rating': reviewBody.rating!
+      });
     }
 
     log("Here is Body==> ${request.fields.toString()}===>");
@@ -63,12 +74,12 @@ class ReviewRepository implements ReviewRepositoryInterface{
     return response;
   }
 
-
-
   @override
-  Future<ApiResponseModel> getOrderWiseReview(String productID, String orderId) async {
+  Future<ApiResponseModel> getOrderWiseReview(
+      String productID, String orderId) async {
     try {
-      final response = await dioClient.get("${AppConstants.getOrderWiseReview}$productID/$orderId");
+      final response = await dioClient
+          .get("${AppConstants.getOrderWiseReview}$productID/$orderId");
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -76,22 +87,17 @@ class ReviewRepository implements ReviewRepositoryInterface{
   }
 
   @override
-  Future<ApiResponseModel> deleteOrderWiseReviewImage(String id, String name) async {
+  Future<ApiResponseModel> deleteOrderWiseReviewImage(
+      String id, String name) async {
     try {
-      final response = await dioClient.post(AppConstants.deleteOrderWiseReviewImage, data: {
-        "id" : id,
-        "name" : name,
-        "_method" : "delete"
-      });
+      final response = await dioClient.post(
+          AppConstants.deleteOrderWiseReviewImage,
+          data: {"id": id, "name": name, "_method": "delete"});
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
     }
   }
-
-
-
-
 
   @override
   Future add(value) {
@@ -104,7 +110,6 @@ class ReviewRepository implements ReviewRepositoryInterface{
     // TODO: implement delete
     throw UnimplementedError();
   }
-
 
   @override
   Future getList({int? offset = 1}) {

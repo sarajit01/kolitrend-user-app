@@ -1,4 +1,3 @@
-
 class MessageBody {
   int? _id;
   String? _message;

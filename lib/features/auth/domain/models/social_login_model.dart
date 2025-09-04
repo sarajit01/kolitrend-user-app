@@ -13,7 +13,6 @@ class SocialLoginModel {
     medium = json['medium'];
     email = json['email'];
     name = json['name'];
-
   }
 
   Map<String, dynamic> toJson() {

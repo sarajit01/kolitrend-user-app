@@ -5,14 +5,15 @@ import 'package:flutter_sixvalley_ecommerce/data/model/api_response.dart';
 import 'package:flutter_sixvalley_ecommerce/features/notification/domain/repositories/notification_repository_interface.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 
-class NotificationRepository implements NotificationRepositoryInterface{
+class NotificationRepository implements NotificationRepositoryInterface {
   final DioClient? dioClient;
   NotificationRepository({required this.dioClient});
 
   @override
-  Future<ApiResponseModel>  getList({int? offset}) async {
+  Future<ApiResponseModel> getList({int? offset}) async {
     try {
-      Response response = await dioClient!.get('${AppConstants.notificationUri}?limit=10&guest_id=1&offset=$offset');
+      Response response = await dioClient!.get(
+          '${AppConstants.notificationUri}?limit=10&guest_id=1&offset=$offset');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -20,9 +21,10 @@ class NotificationRepository implements NotificationRepositoryInterface{
   }
 
   @override
-  Future<ApiResponseModel>  seenNotification(int id) async {
+  Future<ApiResponseModel> seenNotification(int id) async {
     try {
-      Response response = await dioClient!.get('${AppConstants.seenNotificationUri}?id=$id&guest_id=1');
+      Response response = await dioClient!
+          .get('${AppConstants.seenNotificationUri}?id=$id&guest_id=1');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -46,7 +48,6 @@ class NotificationRepository implements NotificationRepositoryInterface{
     // TODO: implement get
     throw UnimplementedError();
   }
-
 
   @override
   Future update(Map<String, dynamic> body, int id) {

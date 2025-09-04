@@ -1,6 +1,5 @@
 import 'package:flutter_sixvalley_ecommerce/data/model/image_full_url.dart';
 
-
 class Brand {
   int? totalSize;
   int? limit;
@@ -30,8 +29,6 @@ class Brand {
   }
 }
 
-
-
 class BrandModel {
   int? _id;
   String? _name;
@@ -43,18 +40,17 @@ class BrandModel {
   bool? checked;
   ImageFullUrl? _imageFullUrl;
 
-
-  BrandModel(
-      {int? id,
-        String? name,
-        String? image,
-        int? status,
-        String? createdAt,
-        String? updatedAt,
-        int? brandProductsCount,
-        bool? checked,
-        ImageFullUrl? imageFullUrl,
-      }) {
+  BrandModel({
+    int? id,
+    String? name,
+    String? image,
+    int? status,
+    String? createdAt,
+    String? updatedAt,
+    int? brandProductsCount,
+    bool? checked,
+    ImageFullUrl? imageFullUrl,
+  }) {
     _id = id;
     _name = name;
     _image = image;
@@ -64,7 +60,6 @@ class BrandModel {
     _brandProductsCount = brandProductsCount;
     _imageFullUrl = imageFullUrl;
     checked = checked;
-
   }
 
   int? get id => _id;
@@ -75,7 +70,6 @@ class BrandModel {
   String? get updatedAt => _updatedAt;
   int? get brandProductsCount => _brandProductsCount;
   ImageFullUrl? get imageFullUrl => _imageFullUrl;
-
 
   BrandModel.fromJson(Map<String, dynamic> json) {
     _id = json['id'];
@@ -89,7 +83,5 @@ class BrandModel {
         ? ImageFullUrl.fromJson(json['image_full_url'])
         : null;
     checked = false;
-
   }
-
 }

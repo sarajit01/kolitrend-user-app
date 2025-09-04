@@ -21,7 +21,8 @@ class CompareRepository implements CompareRepositoryInterface {
   @override
   Future<ApiResponseModel> addCompareProductList(int id) async {
     try {
-      final response = await dioClient!.post(AppConstants.addToCompareList, data: {'product_id' : id});
+      final response = await dioClient!
+          .post(AppConstants.addToCompareList, data: {'product_id': id});
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -31,18 +32,21 @@ class CompareRepository implements CompareRepositoryInterface {
   @override
   Future<ApiResponseModel> removeAllCompareProductList() async {
     try {
-      final response = await dioClient!.post(AppConstants.removeAllFromCompareList, data: {'_method':'delete'});
+      final response = await dioClient!.post(
+          AppConstants.removeAllFromCompareList,
+          data: {'_method': 'delete'});
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
     }
   }
 
-
   @override
-  Future<ApiResponseModel> replaceCompareProductList(int compareId, int productId) async {
+  Future<ApiResponseModel> replaceCompareProductList(
+      int compareId, int productId) async {
     try {
-      final response = await dioClient!.get('${AppConstants.replaceFromCompareList}?compare_id=$compareId&product_id=$productId');
+      final response = await dioClient!.get(
+          '${AppConstants.replaceFromCompareList}?compare_id=$compareId&product_id=$productId');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -82,5 +86,4 @@ class CompareRepository implements CompareRepositoryInterface {
     // TODO: implement update
     throw UnimplementedError();
   }
-
 }

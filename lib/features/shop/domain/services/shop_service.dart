@@ -9,18 +9,25 @@ class ShopService implements ShopServiceInterface {
   ShopService({required this.shopRepositoryInterface});
 
   @override
-  Future<ApiResponseModel<T>> getMoreStore<T>({required DataSourceEnum source}) async {
+  Future<ApiResponseModel<T>> getMoreStore<T>(
+      {required DataSourceEnum source}) async {
     return await shopRepositoryInterface.getMoreStore(source: source);
   }
 
   @override
-  Future<ApiResponseModel<T>> getSellerList<T>({required String type, required int offset, required DataSourceEnum source}) async {
-    return await shopRepositoryInterface.getSellerList(source: source, type: type, offset: offset);
+  Future<ApiResponseModel<T>> getSellerList<T>(
+      {required String type,
+      required int offset,
+      required DataSourceEnum source}) async {
+    return await shopRepositoryInterface.getSellerList(
+        source: source, type: type, offset: offset);
   }
 
   @override
-  Future getClearanceShopProductList(String type, String offset, String sellerId) async{
-    return await shopRepositoryInterface.getClearanceShopProductList(type, offset, sellerId);
+  Future getClearanceShopProductList(
+      String type, String offset, String sellerId) async {
+    return await shopRepositoryInterface.getClearanceShopProductList(
+        type, offset, sellerId);
   }
 
   @override
@@ -29,8 +36,23 @@ class ShopService implements ShopServiceInterface {
   }
 
   @override
-  Future getClearanceSearchProduct(String sellerId, String offset, String productId, {String search = '', String? categoryIds, String? brandIds, String? authorIds, String? publishingIds, String? productType, String? offerType}) async {
-    return await shopRepositoryInterface.getClearanceSearchProduct(sellerId, offset, productId, search: search, categoryIds: categoryIds, brandIds: brandIds, authorIds: authorIds, publishingIds: publishingIds, productType: productType, offerType: 'clearance_sale');
+  Future getClearanceSearchProduct(
+      String sellerId, String offset, String productId,
+      {String search = '',
+      String? categoryIds,
+      String? brandIds,
+      String? authorIds,
+      String? publishingIds,
+      String? productType,
+      String? offerType}) async {
+    return await shopRepositoryInterface.getClearanceSearchProduct(
+        sellerId, offset, productId,
+        search: search,
+        categoryIds: categoryIds,
+        brandIds: brandIds,
+        authorIds: authorIds,
+        publishingIds: publishingIds,
+        productType: productType,
+        offerType: 'clearance_sale');
   }
-
 }

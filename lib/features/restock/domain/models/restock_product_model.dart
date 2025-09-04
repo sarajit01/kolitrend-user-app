@@ -1,6 +1,5 @@
 import 'package:flutter_sixvalley_ecommerce/features/product/domain/models/product_model.dart';
 
-
 class RestockProductModel {
   List<Data>? data;
   int? totalSize;
@@ -31,8 +30,6 @@ class RestockProductModel {
     data['offset'] = offset;
     return data;
   }
-
-
 }
 
 class Data {
@@ -47,13 +44,13 @@ class Data {
 
   Data(
       {this.id,
-        this.productId,
-        this.variant,
-        this.createdAt,
-        this.updatedAt,
-        this.fcmTopic,
-        this.restockProductCustomersCount,
-        this.product});
+      this.productId,
+      this.variant,
+      this.createdAt,
+      this.updatedAt,
+      this.fcmTopic,
+      this.restockProductCustomersCount,
+      this.product});
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -64,7 +61,7 @@ class Data {
     fcmTopic = json['fcm_topic'];
     restockProductCustomersCount = json['restock_product_customers_count'];
     product =
-    json['product'] != null ? Product.fromJson(json['product']) : null;
+        json['product'] != null ? Product.fromJson(json['product']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -79,9 +76,6 @@ class Data {
     return data;
   }
 }
-
-
-
 
 //
 //

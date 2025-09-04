@@ -60,8 +60,6 @@ import 'package:provider/provider.dart';
 //   }
 // }
 
-
-
 class NetworkInfo {
   final Connectivity connectivity;
   NetworkInfo(this.connectivity);
@@ -73,16 +71,22 @@ class NetworkInfo {
 
   static void checkConnectivity(BuildContext context) {
     Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
-      if(Provider.of<SplashController>(Get.context!, listen: false).firstTimeConnectionCheck) {
-        Provider.of<SplashController>(Get.context!, listen: false).setFirstTimeConnectionCheck(false);
-      }else {
+      if (Provider.of<SplashController>(Get.context!, listen: false)
+          .firstTimeConnectionCheck) {
+        Provider.of<SplashController>(Get.context!, listen: false)
+            .setFirstTimeConnectionCheck(false);
+      } else {
         bool isNotConnected = result == ConnectivityResult.none;
-        isNotConnected ? const SizedBox() : ScaffoldMessenger.of(Get.context!).hideCurrentSnackBar();
+        isNotConnected
+            ? const SizedBox()
+            : ScaffoldMessenger.of(Get.context!).hideCurrentSnackBar();
         ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
           backgroundColor: isNotConnected ? Colors.red : Colors.green,
           duration: Duration(seconds: isNotConnected ? 6000 : 3),
           content: Text(
-            isNotConnected ? getTranslated('no_connection', Get.context!)! : getTranslated('connected', Get.context!)!,
+            isNotConnected
+                ? getTranslated('no_connection', Get.context!)!
+                : getTranslated('connected', Get.context!)!,
             textAlign: TextAlign.center,
           ),
         ));
@@ -90,4 +94,3 @@ class NetworkInfo {
     });
   }
 }
-

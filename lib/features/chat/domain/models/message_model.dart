@@ -19,7 +19,6 @@ class MessageModel {
       });
     }
   }
-
 }
 
 class Message {
@@ -35,19 +34,19 @@ class Message {
   SellerInfo? sellerInfo;
   List<Attachment>? attachment;
 
-  Message(
-      {this.id,
-        this.message,
-        this.sentByCustomer,
-        this.sentBySeller,
-        this.sentByAdmin,
-        this.sentByDeliveryman,
-        this.seenByDeliveryMan,
-        this.createdAt,
-        this.deliveryMan,
-        this.sellerInfo,
-        this.attachment,
-      });
+  Message({
+    this.id,
+    this.message,
+    this.sentByCustomer,
+    this.sentBySeller,
+    this.sentByAdmin,
+    this.sentByDeliveryman,
+    this.seenByDeliveryMan,
+    this.createdAt,
+    this.deliveryMan,
+    this.sellerInfo,
+    this.attachment,
+  });
 
   Message.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -56,13 +55,17 @@ class Message {
     sentBySeller = json['sent_by_seller'];
     sentByAdmin = json['sent_by_admin'];
     sentByDeliveryman = json['sent_by_delivery_man'];
-    if(json['seen_by_delivery_man'] != null){
-      seenByDeliveryMan = json['seen_by_delivery_man']??false;
+    if (json['seen_by_delivery_man'] != null) {
+      seenByDeliveryMan = json['seen_by_delivery_man'] ?? false;
     }
 
     createdAt = json['created_at'];
-    deliveryMan = json['delivery_man'] != null ? DeliveryMan.fromJson(json['delivery_man']) : null;
-    sellerInfo = json['seller_info'] != null ? SellerInfo.fromJson(json['seller_info']) : null;
+    deliveryMan = json['delivery_man'] != null
+        ? DeliveryMan.fromJson(json['delivery_man'])
+        : null;
+    sellerInfo = json['seller_info'] != null
+        ? SellerInfo.fromJson(json['seller_info'])
+        : null;
     if (json['attachment'] != null) {
       attachment = <Attachment>[];
       json['attachment'].forEach((v) {
@@ -70,9 +73,6 @@ class Message {
       });
     }
   }
-
-
-
 }
 
 class Attachment {
@@ -99,5 +99,3 @@ class Attachment {
     return data;
   }
 }
-
-

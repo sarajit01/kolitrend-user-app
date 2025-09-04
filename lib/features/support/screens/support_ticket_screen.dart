@@ -13,7 +13,6 @@ import 'package:flutter_sixvalley_ecommerce/common/basewidget/no_internet_screen
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/not_loggedin_widget.dart';
 import 'package:provider/provider.dart';
 
-
 class SupportTicketScreen extends StatefulWidget {
   const SupportTicketScreen({super.key});
   @override
@@ -24,7 +23,8 @@ class _SupportTicketScreenState extends State<SupportTicketScreen> {
   @override
   void initState() {
     if (Provider.of<AuthController>(context, listen: false).isLoggedIn()) {
-      Provider.of<SupportTicketController>(context, listen: false).getSupportTicketList();
+      Provider.of<SupportTicketController>(context, listen: false)
+          .getSupportTicketList();
     }
     super.initState();
   }
@@ -33,41 +33,56 @@ class _SupportTicketScreenState extends State<SupportTicketScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: getTranslated('support_ticket', context)),
-      bottomNavigationBar: Provider.of<AuthController>(context, listen: false).isLoggedIn() ?
-      SizedBox(height: 70, child: Padding(
-        padding: const EdgeInsets.all(Dimensions.paddingSizeEight),
-        child: CustomButton(
-          radius: Dimensions.paddingSizeExtraSmall,
-          buttonText: getTranslated('add_new_ticket', context),
-          onTap: (){
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (con) => const SupportTicketTypeWidget(),
-            );
-          },
-        ),
-      )) : const SizedBox(),
+      bottomNavigationBar:
+          Provider.of<AuthController>(context, listen: false).isLoggedIn()
+              ? SizedBox(
+                  height: 70,
+                  child: Padding(
+                    padding: const EdgeInsets.all(Dimensions.paddingSizeEight),
+                    child: CustomButton(
+                      radius: Dimensions.paddingSizeExtraSmall,
+                      buttonText: getTranslated('add_new_ticket', context),
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (con) => const SupportTicketTypeWidget(),
+                        );
+                      },
+                    ),
+                  ))
+              : const SizedBox(),
       body: Consumer<SupportTicketController>(
         builder: (context, support, child) {
-          return Provider.of<AuthController>(context, listen: false).isLoggedIn()?
-          support.supportTicketList != null ?
-          support.supportTicketList!.isNotEmpty?
-          RefreshIndicator(
-            onRefresh: () async => await support.getSupportTicketList(),
-            child: ListView.separated(
-                itemCount: support.supportTicketList!.length,
-                itemBuilder: (context, index) => SupportTicketWidget(supportTicketModel: support.supportTicketList![index], index: index),
-              separatorBuilder: (BuildContext context, int index) => const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-            ),
-          ) : const NoInternetOrDataScreenWidget(isNoInternet: false, icon: Images.noTicket,
-            message: 'no_ticket_created') : const SupportTicketShimmer() : const NotLoggedInWidget();
+          return Provider.of<AuthController>(context, listen: false)
+                  .isLoggedIn()
+              ? support.supportTicketList != null
+                  ? support.supportTicketList!.isNotEmpty
+                      ? RefreshIndicator(
+                          onRefresh: () async =>
+                              await support.getSupportTicketList(),
+                          child: ListView.separated(
+                            itemCount: support.supportTicketList!.length,
+                            itemBuilder: (context, index) =>
+                                SupportTicketWidget(
+                                    supportTicketModel:
+                                        support.supportTicketList![index],
+                                    index: index),
+                            separatorBuilder: (BuildContext context,
+                                    int index) =>
+                                const SizedBox(
+                                    height: Dimensions.paddingSizeExtraSmall),
+                          ),
+                        )
+                      : const NoInternetOrDataScreenWidget(
+                          isNoInternet: false,
+                          icon: Images.noTicket,
+                          message: 'no_ticket_created')
+                  : const SupportTicketShimmer()
+              : const NotLoggedInWidget();
         },
       ),
     );
   }
 }
-
-
-

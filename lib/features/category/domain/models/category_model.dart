@@ -16,18 +16,17 @@ class CategoryModel {
 
   CategoryModel(
       {int? id,
-        String? name,
-        String? slug,
-        String? icon,
-        int? parentId,
-        int? position,
-        String? createdAt,
-        String? updatedAt,
-        List<SubCategory>? subCategories,
-        bool? isSelected,
-        ImageFullUrl? imageFullUrl,
-        int? totalProductCount
-      }) {
+      String? name,
+      String? slug,
+      String? icon,
+      int? parentId,
+      int? position,
+      String? createdAt,
+      String? updatedAt,
+      List<SubCategory>? subCategories,
+      bool? isSelected,
+      ImageFullUrl? imageFullUrl,
+      int? totalProductCount}) {
     _id = id;
     _name = name;
     _slug = slug;
@@ -74,7 +73,6 @@ class CategoryModel {
         : null;
     isSelected = false;
 
-
     _totalProductCount = json['product_count'];
   }
 }
@@ -94,17 +92,16 @@ class SubCategory {
 
   SubCategory(
       {int? id,
-        String? name,
-        String? slug,
-        String? icon,
-        int? parentId,
-        int? position,
-        String? createdAt,
-        String? updatedAt,
-        List<SubSubCategory>? subSubCategories,
-        bool? isSelected,
-        int? totalProductCount
-      }) {
+      String? name,
+      String? slug,
+      String? icon,
+      int? parentId,
+      int? position,
+      String? createdAt,
+      String? updatedAt,
+      List<SubSubCategory>? subSubCategories,
+      bool? isSelected,
+      int? totalProductCount}) {
     _id = id;
     _name = name;
     _slug = slug;
@@ -148,7 +145,6 @@ class SubCategory {
 
     _totalProductCount = json['sub_category_product_count'];
   }
-
 }
 
 class SubSubCategory {
@@ -164,15 +160,14 @@ class SubSubCategory {
 
   SubSubCategory(
       {int? id,
-        String? name,
-        String? slug,
-        String? icon,
-        int? parentId,
-        int? position,
-        String? createdAt,
-        String? updatedAt,
-        int? totalProductCount
-      }) {
+      String? name,
+      String? slug,
+      String? icon,
+      int? parentId,
+      int? position,
+      String? createdAt,
+      String? updatedAt,
+      int? totalProductCount}) {
     _id = id;
     _name = name;
     _slug = slug;
@@ -206,5 +201,4 @@ class SubSubCategory {
 
     _totalProductCount = json['sub_sub_category_product_count'];
   }
-
 }

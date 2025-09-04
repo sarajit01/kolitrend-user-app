@@ -12,14 +12,13 @@ class SupportReplyModel {
 
   SupportReplyModel(
       {this.id,
-        this.customerMessage,
-        this.adminMessage,
-        this.createdAt,
-        this.updatedAt,
-        this.attachment,
-        this.adminId,
-        this.attachmentFullUrl
-      });
+      this.customerMessage,
+      this.adminMessage,
+      this.createdAt,
+      this.updatedAt,
+      this.attachment,
+      this.adminId,
+      this.attachmentFullUrl});
 
   SupportReplyModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -28,9 +27,9 @@ class SupportReplyModel {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     adminId = json['admin_id'].toString();
-    if(json['attachment'] != null && json['attachment'] is !String){
+    if (json['attachment'] != null && json['attachment'] is! String) {
       attachment = json['attachment'].cast<String>();
-    }else{
+    } else {
       attachment = [];
     }
     if (json['attachment_full_url'] != null) {
@@ -40,6 +39,4 @@ class SupportReplyModel {
       });
     }
   }
-
-
 }

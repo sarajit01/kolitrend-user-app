@@ -7,20 +7,18 @@ class ReviewBody {
   List<String>? _fileUpload;
 
   ReviewBody(
-      {
-        String? id,
-        String? orderId,
-        String? productId,
-        String? comment,
-        String? rating,
-        List<String>? fileUpload}) {
+      {String? id,
+      String? orderId,
+      String? productId,
+      String? comment,
+      String? rating,
+      List<String>? fileUpload}) {
     _id = id;
     _orderId = orderId;
     _productId = productId;
     _comment = comment;
     _rating = rating;
     _fileUpload = fileUpload;
-
   }
 
   String? get id => _id;

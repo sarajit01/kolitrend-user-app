@@ -24,52 +24,59 @@ class ViewAllProductScreen extends StatefulWidget {
 class _ViewAllProductScreenState extends State<ViewAllProductScreen> {
   final ScrollController _scrollController = ScrollController();
 
-
   @override
   void initState() {
     super.initState();
 
-    Provider.of<ProductController>(context, listen: false).getAllProductModelByType(
-      offset: 1, type: widget.productType, isUpdate: false,
+    Provider.of<ProductController>(context, listen: false)
+        .getAllProductModelByType(
+      offset: 1,
+      type: widget.productType,
+      isUpdate: false,
     );
-
   }
-
 
   @override
   Widget build(BuildContext context) {
     final bool isDarkTheme = Provider.of<ThemeController>(context).darkTheme;
 
     return Scaffold(
-      backgroundColor: isDarkTheme ? Theme.of(context).scaffoldBackgroundColor : null,
+      backgroundColor:
+          isDarkTheme ? Theme.of(context).scaffoldBackgroundColor : null,
       resizeToAvoidBottomInset: false,
-      appBar: CustomAppBar(title: getTranslated(_getTitle(widget.productType), context)),
-
+      appBar: CustomAppBar(
+          title: getTranslated(_getTitle(widget.productType), context)),
       body: Consumer<ProductController>(
         builder: (context, productController, child) {
-          if (productController.allProductModel?.products?.isNotEmpty ?? false) {
-
+          if (productController.allProductModel?.products?.isNotEmpty ??
+              false) {
             return PaginatedListView(
               scrollController: _scrollController,
               onPaginate: (int? offset) async {
-                await productController.getAllProductModelByType(offset: offset ?? 1, type: widget.productType);
+                await productController.getAllProductModelByType(
+                    offset: offset ?? 1, type: widget.productType);
               },
               totalSize: productController.allProductModel?.totalSize,
               offset: productController.allProductModel?.offset,
-              itemView: Expanded(child: MasonryGridView.count(
+              itemView: Expanded(
+                  child: MasonryGridView.count(
                 controller: _scrollController,
-                itemCount: productController.allProductModel?.products?.length ?? 0,
+                itemCount:
+                    productController.allProductModel?.products?.length ?? 0,
                 crossAxisCount: ResponsiveHelper.isTab(context) ? 3 : 2,
-                padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall).copyWith(bottom: Dimensions.paddingSizeDefault),
+                padding: const EdgeInsets.symmetric(
+                        horizontal: Dimensions.paddingSizeSmall)
+                    .copyWith(bottom: Dimensions.paddingSizeDefault),
                 itemBuilder: (BuildContext context, int index) {
-                  return ProductWidget(productModel: productController.allProductModel!.products![index]);
+                  return ProductWidget(
+                      productModel:
+                          productController.allProductModel!.products![index]);
                 },
               )), // Replace with your actual item view
             );
-
-          } else if (productController.allProductModel?.products?.isEmpty ?? false) {
+          } else if (productController.allProductModel?.products?.isEmpty ??
+              false) {
             return const NoInternetOrDataScreenWidget(isNoInternet: false);
-
           } else {
             return const ProductShimmer(isHomePage: false, isEnabled: true);
           }
@@ -78,17 +85,16 @@ class _ViewAllProductScreenState extends State<ViewAllProductScreen> {
     );
   }
 
-
   String _getTitle(ProductType productType) {
     switch (productType) {
-
       case ProductType.featuredProduct:
         return 'featured_product';
 
       case ProductType.justForYou:
         return 'just_for_you';
 
-      default: return 'latest_product';
+      default:
+        return 'latest_product';
     }
   }
 }

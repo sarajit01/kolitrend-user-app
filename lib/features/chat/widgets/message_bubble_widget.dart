@@ -19,59 +19,68 @@ class MessageBubbleWidget extends StatelessWidget {
   final Message message;
   final Message? previous;
   final Message? next;
-  const MessageBubbleWidget({super.key, required this.message, this.previous, this.next});
+  const MessageBubbleWidget(
+      {super.key, required this.message, this.previous, this.next});
 
   @override
   Widget build(BuildContext context) {
-
-
     return Consumer<ChatController>(
       builder: (context, chatProvider, child) {
         final bool isMe = message.sentByCustomer!;
-        final bool isLTR = Provider.of<LocalizationController>(context, listen: false).isLtr;
+        final bool isLTR =
+            Provider.of<LocalizationController>(context, listen: false).isLtr;
 
-        final List<Attachment> images = message.attachment?.where((a) => a.type == 'media').toList() ?? [];
-        final List<Attachment> files = message.attachment?.where((a) => a.type == 'file').toList() ?? [];
+        final List<Attachment> images =
+            message.attachment?.where((a) => a.type == 'media').toList() ?? [];
+        final List<Attachment> files =
+            message.attachment?.where((a) => a.type == 'file').toList() ?? [];
 
+        String? image =
+            _getAvatarImage(userTypeIndex: chatProvider.userTypeIndex);
 
-        String? image = _getAvatarImage(userTypeIndex: chatProvider.userTypeIndex);
-
-        final String chatTime = chatProvider.getChatTime(message.createdAt!, message.createdAt);
-        final bool isSameUserWithPreviousMessage = chatProvider.isSameUserWithPreviousMessage(previous, message);
-        final bool isSameUserWithNextMessage = chatProvider.isSameUserWithNextMessage(message, next);
-        final String previousMessageHasChatTime = next != null ? chatProvider.getChatTime(next!.createdAt!, message.createdAt) : "";
+        final String chatTime =
+            chatProvider.getChatTime(message.createdAt!, message.createdAt);
+        final bool isSameUserWithPreviousMessage =
+            chatProvider.isSameUserWithPreviousMessage(previous, message);
+        final bool isSameUserWithNextMessage =
+            chatProvider.isSameUserWithNextMessage(message, next);
+        final String previousMessageHasChatTime = next != null
+            ? chatProvider.getChatTime(next!.createdAt!, message.createdAt)
+            : "";
 
         return Column(
-          crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment:
+              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+              mainAxisAlignment:
+                  isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
               children: [
-                if (_isUserAvatarActive(isMe, isSameUserWithPreviousMessage, chatProvider))
+                if (_isUserAvatarActive(
+                    isMe, isSameUserWithPreviousMessage, chatProvider))
                   _UserAvatar(image: image),
-
                 if (message.message?.isNotEmpty ?? false)
                   _MessageText(
                     message: message,
                     isMe: isMe,
                     isLTR: isLTR,
                     isSameUserWithNextMessage: isSameUserWithNextMessage,
-                    isSameUserWithPreviousMessage: isSameUserWithPreviousMessage,
+                    isSameUserWithPreviousMessage:
+                        isSameUserWithPreviousMessage,
                     chatTime: chatTime,
                     previousMessageHasChatTime: previousMessageHasChatTime,
                     chatProvider: chatProvider,
-                    isProfileAvatarActive: _isUserAvatarActive(isMe, isSameUserWithPreviousMessage, chatProvider),
+                    isProfileAvatarActive: _isUserAvatarActive(
+                        isMe, isSameUserWithPreviousMessage, chatProvider),
                   ),
               ],
             ),
-
             _MessageTime(chatProvider: chatProvider, message: message),
-
             if (images.isNotEmpty) _MediaGridWidget(images: images, isMe: isMe),
-
-            if (files.isNotEmpty) _FileGridWidget(files: files, isMe: isMe, isLTR: isLTR),
+            if (files.isNotEmpty)
+              _FileGridWidget(files: files, isMe: isMe, isLTR: isLTR),
           ],
         );
       },
@@ -81,12 +90,16 @@ class MessageBubbleWidget extends StatelessWidget {
   String? _getAvatarImage({required int userTypeIndex}) {
     return userTypeIndex != 0
         ? message.sellerInfo != null
-        ? message.sellerInfo?.shops![0].imageFullUrl?.path
-        : '' : message.deliveryMan?.imageFullUrl?.path;
+            ? message.sellerInfo?.shops![0].imageFullUrl?.path
+            : ''
+        : message.deliveryMan?.imageFullUrl?.path;
   }
 
-  bool _isUserAvatarActive(bool isMe, bool isSameUserWithPreviousMessage, ChatController chatProvider) =>
-      !isMe && (!isSameUserWithPreviousMessage || chatProvider.getChatTimeWithPrevious(message, previous).isNotEmpty);
+  bool _isUserAvatarActive(bool isMe, bool isSameUserWithPreviousMessage,
+          ChatController chatProvider) =>
+      !isMe &&
+      (!isSameUserWithPreviousMessage ||
+          chatProvider.getChatTimeWithPrevious(message, previous).isNotEmpty);
 }
 
 class _UserAvatar extends StatelessWidget {
@@ -146,12 +159,26 @@ class _MessageText extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isDarkTheme = Provider.of<ThemeController>(context).darkTheme;
 
-    return Flexible(child: InkWell(
-      onTap: () => chatProvider.toggleOnClickMessage(onMessageTimeShowID: message.id.toString()),
+    return Flexible(
+        child: InkWell(
+      onTap: () => chatProvider.toggleOnClickMessage(
+          onMessageTimeShowID: message.id.toString()),
       child: Container(
         margin: isMe && isLTR
             ? const EdgeInsets.fromLTRB(70, 5, 0, 5)
-            : EdgeInsets.fromLTRB(isMe ? 0 : isProfileAvatarActive ? 10 : 40, 5, isLTR ? 70 : isProfileAvatarActive ? 10 : 40, 5),
+            : EdgeInsets.fromLTRB(
+                isMe
+                    ? 0
+                    : isProfileAvatarActive
+                        ? 10
+                        : 40,
+                5,
+                isLTR
+                    ? 70
+                    : isProfileAvatarActive
+                        ? 10
+                        : 40,
+                5),
         // margin: EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeDefault),
         padding: const EdgeInsets.symmetric(
           horizontal: Dimensions.paddingSizeSmall,
@@ -159,17 +186,23 @@ class _MessageText extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           borderRadius: _getBorderRadius(),
-          color: isMe ? isDarkTheme
-              ? Theme.of(context).cardColor
-              : Theme.of(context).primaryColor
-              : Theme.of(context).colorScheme.tertiaryContainer.withValues(alpha: 0.35),
+          color: isMe
+              ? isDarkTheme
+                  ? Theme.of(context).cardColor
+                  : Theme.of(context).primaryColor
+              : Theme.of(context)
+                  .colorScheme
+                  .tertiaryContainer
+                  .withValues(alpha: 0.35),
         ),
         child: Text(
           message.message!,
           textAlign: TextAlign.justify,
           style: textRegular.copyWith(
             fontSize: Dimensions.fontSizeDefault,
-            color: isMe ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
+            color: isMe
+                ? Colors.white
+                : Theme.of(context).textTheme.bodyLarge?.color,
           ),
         ),
       ),
@@ -181,20 +214,47 @@ class _MessageText extends StatelessWidget {
 
     if (isMe && (isSameUserWithNextMessage || isSameUserWithPreviousMessage)) {
       return BorderRadius.only(
-        topRight: Radius.circular(isSameUserWithNextMessage && isLTR && chatTime.isEmpty ? Dimensions.radiusSmall : defaultRadius),
-        bottomRight: Radius.circular(isSameUserWithPreviousMessage && isLTR && previousMessageHasChatTime.isEmpty ? Dimensions.radiusSmall : defaultRadius),
-        topLeft: Radius.circular(isSameUserWithNextMessage && !isLTR && chatTime.isEmpty ? Dimensions.radiusSmall : defaultRadius),
-        bottomLeft: Radius.circular(isSameUserWithPreviousMessage && !isLTR && previousMessageHasChatTime.isEmpty ? Dimensions.radiusSmall : defaultRadius),
+        topRight: Radius.circular(
+            isSameUserWithNextMessage && isLTR && chatTime.isEmpty
+                ? Dimensions.radiusSmall
+                : defaultRadius),
+        bottomRight: Radius.circular(isSameUserWithPreviousMessage &&
+                isLTR &&
+                previousMessageHasChatTime.isEmpty
+            ? Dimensions.radiusSmall
+            : defaultRadius),
+        topLeft: Radius.circular(
+            isSameUserWithNextMessage && !isLTR && chatTime.isEmpty
+                ? Dimensions.radiusSmall
+                : defaultRadius),
+        bottomLeft: Radius.circular(isSameUserWithPreviousMessage &&
+                !isLTR &&
+                previousMessageHasChatTime.isEmpty
+            ? Dimensions.radiusSmall
+            : defaultRadius),
       );
-
-    } else if (!isMe && (isSameUserWithNextMessage || isSameUserWithPreviousMessage)) {
+    } else if (!isMe &&
+        (isSameUserWithNextMessage || isSameUserWithPreviousMessage)) {
       return BorderRadius.only(
-        topLeft: Radius.circular(isSameUserWithNextMessage && isLTR && chatTime.isEmpty ? Dimensions.radiusSmall : defaultRadius),
-        bottomLeft: Radius.circular(isSameUserWithPreviousMessage && isLTR && previousMessageHasChatTime.isEmpty ? Dimensions.radiusSmall : defaultRadius),
-        topRight: Radius.circular(isSameUserWithNextMessage && !isLTR && chatTime.isEmpty ? Dimensions.radiusSmall : defaultRadius),
-        bottomRight: Radius.circular(isSameUserWithPreviousMessage && !isLTR && previousMessageHasChatTime.isEmpty ? Dimensions.radiusSmall : defaultRadius),
+        topLeft: Radius.circular(
+            isSameUserWithNextMessage && isLTR && chatTime.isEmpty
+                ? Dimensions.radiusSmall
+                : defaultRadius),
+        bottomLeft: Radius.circular(isSameUserWithPreviousMessage &&
+                isLTR &&
+                previousMessageHasChatTime.isEmpty
+            ? Dimensions.radiusSmall
+            : defaultRadius),
+        topRight: Radius.circular(
+            isSameUserWithNextMessage && !isLTR && chatTime.isEmpty
+                ? Dimensions.radiusSmall
+                : defaultRadius),
+        bottomRight: Radius.circular(isSameUserWithPreviousMessage &&
+                !isLTR &&
+                previousMessageHasChatTime.isEmpty
+            ? Dimensions.radiusSmall
+            : defaultRadius),
       );
-
     } else {
       return BorderRadius.circular(defaultRadius);
     }
@@ -210,14 +270,19 @@ class _MessageTime extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
+      padding:
+          const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
       child: AnimatedContainer(
         curve: Curves.fastOutSlowIn,
         duration: const Duration(milliseconds: 500),
-        height: chatProvider.onMessageTimeShowID == message.id.toString() ? 25.0 : 0.0,
+        height: chatProvider.onMessageTimeShowID == message.id.toString()
+            ? 25.0
+            : 0.0,
         child: Padding(
           padding: EdgeInsets.only(
-            top: chatProvider.onMessageTimeShowID == message.id.toString() ? Dimensions.paddingSizeExtraSmall : 0.0,
+            top: chatProvider.onMessageTimeShowID == message.id.toString()
+                ? Dimensions.paddingSizeExtraSmall
+                : 0.0,
           ),
           child: Text(
             chatProvider.getOnPressChatTime(message) ?? "",
@@ -234,22 +299,32 @@ class _FileGridWidget extends StatelessWidget {
   final bool isMe;
   final bool isLTR;
 
-  const _FileGridWidget({required this.files, required this.isMe, required this.isLTR});
+  const _FileGridWidget(
+      {required this.files, required this.isMe, required this.isLTR});
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment:
+          isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
         Directionality(
-          textDirection: isMe && isLTR ? TextDirection.rtl : !isLTR && !isMe ? TextDirection.rtl : TextDirection.ltr,
+          textDirection: isMe && isLTR
+              ? TextDirection.rtl
+              : !isLTR && !isMe
+                  ? TextDirection.rtl
+                  : TextDirection.ltr,
           child: Padding(
-            padding: EdgeInsets.only(left: (!isMe && isLTR) ? 30 : 0, right: (!isMe && !isLTR) ? 30 : 0),
+            padding: EdgeInsets.only(
+                left: (!isMe && isLTR) ? 30 : 0,
+                right: (!isMe && !isLTR) ? 30 : 0),
             child: GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: files.length,
-              padding: files.isNotEmpty ? const EdgeInsets.only(top: Dimensions.paddingSizeSmall) : EdgeInsets.zero,
+              padding: files.isNotEmpty
+                  ? const EdgeInsets.only(top: Dimensions.paddingSizeSmall)
+                  : EdgeInsets.zero,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 mainAxisExtent: 60,
                 crossAxisCount: 2,
@@ -272,7 +347,8 @@ class _FileItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ChatController chatController = Provider.of<ChatController>(context, listen: false);
+    final ChatController chatController =
+        Provider.of<ChatController>(context, listen: false);
 
     return InkWell(
       onTap: () async {
@@ -287,44 +363,53 @@ class _FileItem extends StatelessWidget {
                 ? await getExternalStorageDirectory() // FOR ANDROID
                 : await getApplicationSupportDirectory();
           }
-          chatController.downloadFile(file.path!, directory!.path, "${directory.path}/${file.key}", "${file.key}");
-
+          chatController.downloadFile(file.path!, directory!.path,
+              "${directory.path}/${file.key}", "${file.key}");
         } else if (status.isDenied || status.isPermanentlyDenied) {
           await openAppSettings();
         }
       },
       child: Container(
-        width: 180, height: 60,
+        width: 180,
+        height: 60,
         decoration: BoxDecoration(
-          color: Theme.of(context).hintColor.withValues(alpha:0.2),
+          color: Theme.of(context).hintColor.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
         ),
         child: Padding(
           padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-          child: Directionality(textDirection: TextDirection.ltr, child: Row(
-            children: [
-              const Image(image: AssetImage(Images.fileIcon), height: 30, width: 30),
-              const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-
-              Expanded(child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
+          child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: Row(
                 children: [
-                  Text(
-                    file.key.toString(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: textBold.copyWith(fontSize: Dimensions.fontSizeDefault),
-                  ),
-                  Text(
-                    "${file.size}",
-                    style: textRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).hintColor),
-                  ),
+                  const Image(
+                      image: AssetImage(Images.fileIcon),
+                      height: 30,
+                      width: 30),
+                  const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                  Expanded(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        file.key.toString(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: textBold.copyWith(
+                            fontSize: Dimensions.fontSizeDefault),
+                      ),
+                      Text(
+                        "${file.size}",
+                        style: textRegular.copyWith(
+                            fontSize: Dimensions.fontSizeDefault,
+                            color: Theme.of(context).hintColor),
+                      ),
+                    ],
+                  )),
+                  const _DownloadButtonWidget(),
                 ],
               )),
-              const _DownloadButtonWidget(),
-            ],
-          )),
         ),
       ),
     );
@@ -360,7 +445,8 @@ class _MediaGridWidgetState extends State<_MediaGridWidget> {
   }
 
   Future<void> _generateThumbnails() async {
-    final ChatController chatController = Provider.of<ChatController>(context, listen: false);
+    final ChatController chatController =
+        Provider.of<ChatController>(context, listen: false);
     final List<String> thumbnails = [];
 
     for (Attachment image in widget.images) {
@@ -368,7 +454,8 @@ class _MediaGridWidgetState extends State<_MediaGridWidget> {
         if (_thumbnailCache.containsKey(image.path)) {
           thumbnails.add(_thumbnailCache[image.path] ?? '');
         } else {
-          final thumbnail = await chatController.generateThumbnail(image.path ?? '');
+          final thumbnail =
+              await chatController.generateThumbnail(image.path ?? '');
           _thumbnailCache[image.path ?? ''] = thumbnail;
           thumbnails.add(thumbnail ?? '');
         }
@@ -388,8 +475,10 @@ class _MediaGridWidgetState extends State<_MediaGridWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isLtr = Provider.of<LocalizationController>(context, listen: false).isLtr;
-    final ChatController chatController = Provider.of<ChatController>(context, listen: false);
+    final bool isLtr =
+        Provider.of<LocalizationController>(context, listen: false).isLtr;
+    final ChatController chatController =
+        Provider.of<ChatController>(context, listen: false);
 
     if (widget.images.isEmpty) {
       return const SizedBox.shrink();
@@ -403,7 +492,9 @@ class _MediaGridWidgetState extends State<_MediaGridWidget> {
         right: (!widget.isMe && !isLtr) ? 40 : 0,
       ),
       child: Directionality(
-        textDirection: isLtr ? (widget.isMe ? TextDirection.rtl : TextDirection.ltr) : (widget.isMe ? TextDirection.ltr : TextDirection.rtl),
+        textDirection: isLtr
+            ? (widget.isMe ? TextDirection.rtl : TextDirection.ltr)
+            : (widget.isMe ? TextDirection.ltr : TextDirection.rtl),
         child: SizedBox(
           width: MediaQuery.of(context).size.width / 2,
           child: GridView.builder(
@@ -424,20 +515,25 @@ class _MediaGridWidgetState extends State<_MediaGridWidget> {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => MediaViewerScreen(clickedIndex: index, serverMedia: widget.images),
+                        builder: (_) => MediaViewerScreen(
+                            clickedIndex: index, serverMedia: widget.images),
                       ),
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                      borderRadius:
+                          BorderRadius.circular(Dimensions.radiusDefault),
                       child: Stack(
                         children: [
-                          if (chatController.isVideoExtension(widget.images[index].path ?? '') && (_videoThumbnails?.isNotEmpty ?? false))
+                          if (chatController.isVideoExtension(
+                                  widget.images[index].path ?? '') &&
+                              (_videoThumbnails?.isNotEmpty ?? false))
                             Image.file(
                               File(_videoThumbnails?[index] ?? ''),
                               fit: BoxFit.cover,
                               height: 200,
                               width: 200,
-                              errorBuilder: (_, __, ___) => const CustomImageWidget(
+                              errorBuilder: (_, __, ___) =>
+                                  const CustomImageWidget(
                                 height: 200,
                                 width: 200,
                                 fit: BoxFit.cover,
@@ -451,12 +547,14 @@ class _MediaGridWidgetState extends State<_MediaGridWidget> {
                               fit: BoxFit.cover,
                               image: '${widget.images[index].path}',
                             ),
-                          if (chatController.isVideoExtension(widget.images[index].path ?? ''))
+                          if (chatController.isVideoExtension(
+                              widget.images[index].path ?? ''))
                             Positioned.fill(
                               child: Align(
                                 alignment: Alignment.center,
                                 child: Container(
-                                  padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
+                                  padding: const EdgeInsets.all(
+                                      Dimensions.paddingSizeExtraSmall),
                                   decoration: const BoxDecoration(
                                     color: Colors.white,
                                     shape: BoxShape.circle,
@@ -481,7 +579,9 @@ class _MediaGridWidgetState extends State<_MediaGridWidget> {
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => MediaViewerScreen(clickedIndex: index, serverMedia: widget.images),
+                              builder: (_) => MediaViewerScreen(
+                                  clickedIndex: index,
+                                  serverMedia: widget.images),
                             ),
                           ),
                           child: ClipRRect(
@@ -494,9 +594,9 @@ class _MediaGridWidgetState extends State<_MediaGridWidget> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Center(
-                                child: Text(
-                                    "+${widget.images.length - 3}",
-                                    style: textRegular.copyWith(color: Colors.white)),
+                                child: Text("+${widget.images.length - 3}",
+                                    style: textRegular.copyWith(
+                                        color: Colors.white)),
                               ),
                             ),
                           ),
@@ -525,7 +625,8 @@ class _DownloadButtonWidget extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-        child: Icon(Icons.file_download_outlined, color: Theme.of(context).primaryColor),
+        child: Icon(Icons.file_download_outlined,
+            color: Theme.of(context).primaryColor),
       ),
     );
   }

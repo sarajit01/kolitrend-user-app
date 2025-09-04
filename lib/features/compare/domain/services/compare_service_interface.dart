@@ -1,5 +1,4 @@
-
-abstract class CompareServiceInterface{
+abstract class CompareServiceInterface {
   Future<dynamic> getList();
   Future<dynamic> addCompareProductList(int id);
   Future<dynamic> removeAllCompareProductList();

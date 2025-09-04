@@ -11,28 +11,35 @@ class NotificationController extends ChangeNotifier {
 
   NotificationItemModel? notificationModel;
 
-
   Future<void> getNotificationList(int offset) async {
-    ApiResponseModel apiResponse = await notificationServiceInterface.getList(offset : offset);
-    if (apiResponse.response != null && apiResponse.response?.statusCode == 200) {
-      if(offset == 1){
-        notificationModel = NotificationItemModel.fromJson(apiResponse.response?.data);
-      }else{
-        notificationModel?.notification?.addAll(NotificationItemModel.fromJson(apiResponse.response?.data).notification!);
-        notificationModel?.offset = NotificationItemModel.fromJson(apiResponse.response?.data).offset!;
-        notificationModel?.totalSize = NotificationItemModel.fromJson(apiResponse.response?.data).totalSize!;
+    ApiResponseModel apiResponse =
+        await notificationServiceInterface.getList(offset: offset);
+    if (apiResponse.response != null &&
+        apiResponse.response?.statusCode == 200) {
+      if (offset == 1) {
+        notificationModel =
+            NotificationItemModel.fromJson(apiResponse.response?.data);
+      } else {
+        notificationModel?.notification?.addAll(
+            NotificationItemModel.fromJson(apiResponse.response?.data)
+                .notification!);
+        notificationModel?.offset =
+            NotificationItemModel.fromJson(apiResponse.response?.data).offset!;
+        notificationModel?.totalSize =
+            NotificationItemModel.fromJson(apiResponse.response?.data)
+                .totalSize!;
       }
     } else {
-      ApiChecker.checkApi( apiResponse);
+      ApiChecker.checkApi(apiResponse);
     }
     notifyListeners();
   }
 
-
-
   Future<void> seenNotification(int id) async {
-    ApiResponseModel apiResponse = await notificationServiceInterface.seenNotification(id);
-    if (apiResponse.response != null && apiResponse.response?.statusCode == 200) {
+    ApiResponseModel apiResponse =
+        await notificationServiceInterface.seenNotification(id);
+    if (apiResponse.response != null &&
+        apiResponse.response?.statusCode == 200) {
       getNotificationList(1);
     }
     notifyListeners();

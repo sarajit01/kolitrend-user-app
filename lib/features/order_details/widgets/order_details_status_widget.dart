@@ -13,54 +13,111 @@ class OrderDetailsStatusWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return
-    Consumer<OrderDetailsController>(
-      builder: (context, orderProvider, _) {
-        return  Stack(children: [
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Column(mainAxisAlignment: MainAxisAlignment.center,crossAxisAlignment: CrossAxisAlignment.center, children: [
-                    RichText(text: TextSpan(
-                        text: '${getTranslated('order', context)}# ',
-                        style: textRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color,
-                            fontSize: Dimensions.fontSizeDefault), children:[
-                          TextSpan(text: orderProvider.orders?.id.toString(),
-                              style: textBold.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color,
-                                  fontSize: Dimensions.fontSizeLarge)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: Dimensions.paddingSizeSmall,),
-
-                    RichText(text: TextSpan(
-                        text: getTranslated('your_order_is', context),
-                        style: titilliumRegular.copyWith(fontSize: Dimensions.fontSizeLarge,
-                            color: Theme.of(context).hintColor), children:[
-                          TextSpan(text: ' ${getTranslated('${orderProvider.orders?.orderStatus}', context)}',
-                              style: textBold.copyWith(fontSize: Dimensions.fontSizeLarge,
-                                  color: orderProvider.orders?.orderStatus == 'delivered'?  Theme.of(context).colorScheme.onTertiaryContainer :
-                                  orderProvider.orders?.orderStatus == 'pending'? Theme.of(context).primaryColor :
-                                  orderProvider.orders?.orderStatus == 'confirmed'? Theme.of(context).colorScheme.onTertiaryContainer
-                                      :orderProvider.orders?.orderStatus == 'processing'? Theme.of(context).colorScheme.outline :
-                                  (orderProvider.orders?.orderStatus == 'canceled' || orderProvider.orders?.orderStatus == "failed")? Theme.of(context).colorScheme.error :
-                                  Theme.of(context).colorScheme.secondary))]),),
-                    const SizedBox(height: Dimensions.paddingSizeSmall,),
-
-                    Text(DateConverter.localDateToIsoStringAMPMOrder(DateTime.parse(orderProvider.orders!.createdAt!)),
-                        style: titilliumRegular.copyWith(color: Theme.of(context).hintColor,
-                            fontSize: Dimensions.fontSizeSmall)),
-                  ],
+    return Consumer<OrderDetailsController>(
+        builder: (context, orderProvider, _) {
+      return Stack(children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    text: '${getTranslated('order', context)}# ',
+                    style: textRegular.copyWith(
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                        fontSize: Dimensions.fontSizeDefault),
+                    children: [
+                      TextSpan(
+                          text: orderProvider.orders?.id.toString(),
+                          style: textBold.copyWith(
+                              color:
+                                  Theme.of(context).textTheme.bodyLarge?.color,
+                              fontSize: Dimensions.fontSizeLarge)),
+                    ],
+                  ),
                 ),
+                const SizedBox(
+                  height: Dimensions.paddingSizeSmall,
+                ),
+                RichText(
+                  text: TextSpan(
+                      text: getTranslated('your_order_is', context),
+                      style: titilliumRegular.copyWith(
+                          fontSize: Dimensions.fontSizeLarge,
+                          color: Theme.of(context).hintColor),
+                      children: [
+                        TextSpan(
+                            text:
+                                ' ${getTranslated('${orderProvider.orders?.orderStatus}', context)}',
+                            style: textBold.copyWith(
+                                fontSize: Dimensions.fontSizeLarge,
+                                color: orderProvider.orders?.orderStatus ==
+                                        'delivered'
+                                    ? Theme.of(context)
+                                        .colorScheme
+                                        .onTertiaryContainer
+                                    : orderProvider.orders?.orderStatus ==
+                                            'pending'
+                                        ? Theme.of(context).primaryColor
+                                        : orderProvider.orders?.orderStatus ==
+                                                'confirmed'
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .onTertiaryContainer
+                                            : orderProvider
+                                                        .orders?.orderStatus ==
+                                                    'processing'
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .outline
+                                                : (orderProvider.orders
+                                                                ?.orderStatus ==
+                                                            'canceled' ||
+                                                        orderProvider.orders
+                                                                ?.orderStatus ==
+                                                            "failed")
+                                                    ? Theme.of(context)
+                                                        .colorScheme
+                                                        .error
+                                                    : Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary))
+                      ]),
+                ),
+                const SizedBox(
+                  height: Dimensions.paddingSizeSmall,
+                ),
+                Text(
+                    DateConverter.localDateToIsoStringAMPMOrder(
+                        DateTime.parse(orderProvider.orders!.createdAt!)),
+                    style: titilliumRegular.copyWith(
+                        color: Theme.of(context).hintColor,
+                        fontSize: Dimensions.fontSizeSmall)),
               ],
             ),
-            InkWell(onTap: (){
-              if(Navigator.of(context).canPop()){
+          ],
+        ),
+        InkWell(
+            onTap: () {
+              if (Navigator.of(context).canPop()) {
                 Navigator.of(context).pop();
-              }else{
-                Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => const DashBoardScreen()), (route) => false);
+              } else {
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            const DashBoardScreen()),
+                    (route) => false);
               }
-            }, child: const Padding(padding: EdgeInsets.symmetric(vertical : Dimensions.paddingSizeDefault, horizontal: Dimensions.paddingSizeDefault),
-                child: Icon(CupertinoIcons.back)))]);
-      }
-    );
+            },
+            child: const Padding(
+                padding: EdgeInsets.symmetric(
+                    vertical: Dimensions.paddingSizeDefault,
+                    horizontal: Dimensions.paddingSizeDefault),
+                child: Icon(CupertinoIcons.back)))
+      ]);
+    });
   }
 }

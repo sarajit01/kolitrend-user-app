@@ -21,9 +21,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
-
-
-
 class OrderDetailsController with ChangeNotifier {
   final OrderDetailsServiceInterface orderDetailsServiceInterface;
   OrderDetailsController({required this.orderDetailsServiceInterface});
@@ -37,33 +34,31 @@ class OrderDetailsController with ChangeNotifier {
 
   XFile? _imageFile;
   XFile? get imageFile => _imageFile;
-  List <XFile?>_refundImage = [];
+  List<XFile?> _refundImage = [];
   List<XFile?> get refundImage => _refundImage;
   List<File> reviewImages = [];
   bool _isInvoiceLoading = false;
   bool get isInvoiceLoading => _isInvoiceLoading;
 
-
-
   bool _onlyDigital = true;
   bool get onlyDigital => _onlyDigital;
 
-  void digitalOnly(bool value, {bool isUpdate = false}){
+  void digitalOnly(bool value, {bool isUpdate = false}) {
     _onlyDigital = value;
-    if(isUpdate){
+    if (isUpdate) {
       notifyListeners();
     }
   }
 
-
-
   List<OrderDetailsModel>? _orderDetails;
   List<OrderDetailsModel>? get orderDetails => _orderDetails;
 
-  Future <ApiResponseModel> getOrderDetails(String orderID) async {
+  Future<ApiResponseModel> getOrderDetails(String orderID) async {
     _orderDetails = null;
-    ApiResponseModel apiResponse = await orderDetailsServiceInterface.getOrderDetails(orderID);
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+    ApiResponseModel apiResponse =
+        await orderDetailsServiceInterface.getOrderDetails(orderID);
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
       _orderDetails = null;
       _orderDetails = [];
       apiResponse.response!.data.forEach((order) {
@@ -81,13 +76,13 @@ class OrderDetailsController with ChangeNotifier {
     notifyListeners();
   }
 
-
-
-  Future <ApiResponseModel> getOrderInvoice(String orderID, context) async {
+  Future<ApiResponseModel> getOrderInvoice(String orderID, context) async {
     _isInvoiceLoading = true;
     notifyListeners();
-    ApiResponseModel apiResponse = await orderDetailsServiceInterface.getOrderInvoice(orderID);
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+    ApiResponseModel apiResponse =
+        await orderDetailsServiceInterface.getOrderInvoice(orderID);
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
       await requestPermissions();
       final downloadsDirectory = Directory('/storage/emulated/0/Download');
       List<int> intList = List<int>.from(apiResponse.response!.data);
@@ -106,40 +101,41 @@ class OrderDetailsController with ChangeNotifier {
       final file = File(filePath);
       await file.writeAsBytes(intList);
       await OpenFile.open(filePath);
-      showCustomSnackBar(getTranslated('invoice_downloaded_successfully', context), context, isError: false);
+      showCustomSnackBar(
+          getTranslated('invoice_downloaded_successfully', context), context,
+          isError: false);
     } else {
-      showCustomSnackBar(getTranslated('invoice_download_failed', context), context);
+      showCustomSnackBar(
+          getTranslated('invoice_download_failed', context), context);
     }
     _isInvoiceLoading = false;
     notifyListeners();
     return apiResponse;
   }
 
-
-
-
   Orders? orders;
-  Future <void> getOrderFromOrderId(String orderID) async {
-    ApiResponseModel apiResponse = await orderDetailsServiceInterface.getOrderFromOrderId(orderID);
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+  Future<void> getOrderFromOrderId(String orderID) async {
+    ApiResponseModel apiResponse =
+        await orderDetailsServiceInterface.getOrderFromOrderId(orderID);
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
       orders = Orders.fromJson(apiResponse.response!.data);
     }
     notifyListeners();
   }
 
-
-
   void pickImage(bool isRemove, {bool fromReview = false}) async {
-    if(isRemove) {
+    if (isRemove) {
       _imageFile = null;
       _refundImage = [];
       reviewImages = [];
-    }else {
-      _imageFile = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 20);
+    } else {
+      _imageFile = await ImagePicker()
+          .pickImage(source: ImageSource.gallery, imageQuality: 20);
       if (_imageFile != null) {
-        if(fromReview){
+        if (fromReview) {
           reviewImages.add(File(_imageFile!.path));
-        }else{
+        } else {
           _refundImage.add(_imageFile);
         }
       }
@@ -147,18 +143,15 @@ class OrderDetailsController with ChangeNotifier {
     notifyListeners();
   }
 
-
-  void removeImage(int index, {bool fromReview = false}){
-    if(fromReview){
+  void removeImage(int index, {bool fromReview = false}) {
+    if (fromReview) {
       reviewImages.removeAt(index);
-    }else{
+    } else {
       _refundImage.removeAt(index);
     }
 
     notifyListeners();
   }
-
-
 
   void downloadFile(String url, String dir) async {
     await FlutterDownloader.enqueue(
@@ -170,69 +163,80 @@ class OrderDetailsController with ChangeNotifier {
     );
   }
 
-
-
   bool searching = false;
-  Future<ApiResponseModel> trackOrder({String? orderId, String? phoneNumber, bool isUpdate = true}) async {
+  Future<ApiResponseModel> trackOrder(
+      {String? orderId, String? phoneNumber, bool isUpdate = true}) async {
     searching = true;
-    if(isUpdate) {
+    if (isUpdate) {
       notifyListeners();
     }
 
-    ApiResponseModel apiResponse = await orderDetailsServiceInterface.trackOrder(orderId!, phoneNumber!);
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+    ApiResponseModel apiResponse =
+        await orderDetailsServiceInterface.trackOrder(orderId!, phoneNumber!);
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
       searching = false;
       _orderDetails = [];
-      apiResponse.response!.data.forEach((order) => _orderDetails!.add(OrderDetailsModel.fromJson(order)));
+      apiResponse.response!.data.forEach(
+          (order) => _orderDetails!.add(OrderDetailsModel.fromJson(order)));
     } else {
       searching = false;
-      ApiChecker.checkApi( apiResponse);
+      ApiChecker.checkApi(apiResponse);
     }
     notifyListeners();
     return apiResponse;
   }
 
   Future<ApiResponseModel> downloadDigitalProduct({int? orderDetailsId}) async {
-    ApiResponseModel apiResponse = await orderDetailsServiceInterface.downloadDigitalProduct(orderDetailsId!);
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
-      Provider.of<AuthController>(Get.context!, listen: false).resendTime = (apiResponse.response!.data["time_count_in_second"]);
+    ApiResponseModel apiResponse = await orderDetailsServiceInterface
+        .downloadDigitalProduct(orderDetailsId!);
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
+      Provider.of<AuthController>(Get.context!, listen: false).resendTime =
+          (apiResponse.response!.data["time_count_in_second"]);
     } else {
       _isLoading = false;
-      ApiChecker.checkApi( apiResponse);
+      ApiChecker.checkApi(apiResponse);
     }
     notifyListeners();
     return apiResponse;
   }
-
 
   Future<ApiResponseModel> resentDigitalProductOtp({int? orderId}) async {
-    ApiResponseModel apiResponse = await orderDetailsServiceInterface.resentDigitalProductOtp(orderId!);
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
-
+    ApiResponseModel apiResponse =
+        await orderDetailsServiceInterface.resentDigitalProductOtp(orderId!);
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
     } else {
       _isLoading = false;
-      ApiChecker.checkApi( apiResponse);
+      ApiChecker.checkApi(apiResponse);
     }
     notifyListeners();
     return apiResponse;
   }
 
-  Future<ApiResponseModel> verifyDigitalProductOtp({required int orderId, required String otp}) async {
-    ApiResponseModel apiResponse = await orderDetailsServiceInterface.verifyDigitalProductOtp(orderId, otp);
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+  Future<ApiResponseModel> verifyDigitalProductOtp(
+      {required int orderId, required String otp}) async {
+    ApiResponseModel apiResponse = await orderDetailsServiceInterface
+        .verifyDigitalProductOtp(orderId, otp);
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
       Navigator.of(Get.context!).pop();
-      _launchUrl(Uri.parse('${AppConstants.baseUrl}${AppConstants.otpVerificationForDigitalProduct}?order_details_id=$orderId&otp=$otp&guest_id=1&action=download'));
-
+      _launchUrl(Uri.parse(
+          '${AppConstants.baseUrl}${AppConstants.otpVerificationForDigitalProduct}?order_details_id=$orderId&otp=$otp&guest_id=1&action=download'));
     } else {
       _isLoading = false;
-      ApiChecker.checkApi( apiResponse);
+      ApiChecker.checkApi(apiResponse);
     }
     notifyListeners();
     return apiResponse;
   }
 
-
-  void productDownload({required String url, required String fileName, required int index, bool isIos = false}) async {
+  void productDownload(
+      {required String url,
+      required String fileName,
+      required int index,
+      bool isIos = false}) async {
     _isDownloaodLoading = true;
     _downloaodIndex = index;
     notifyListeners();
@@ -245,86 +249,114 @@ class OrderDetailsController with ChangeNotifier {
     var selectedFolderType = FolderType.download;
     final subFolderPathCtrl = TextEditingController();
 
+    List<String> fileTypes = [
+      '.txt',
+      '.jpg',
+      '.jpeg',
+      '.png',
+      '.gif',
+      '.bmp',
+      '.webp',
+      '.mp3',
+      '.wav',
+      '.ogg',
+      '.m4a',
+      '.aac',
+      '.mp4',
+      '.avi',
+      '.mkv',
+      '.webm',
+      '.3gp',
+      '.pdf',
+      '.doc'
+    ];
 
-    List<String> fileTypes = [ '.txt', '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.mp3', '.wav', '.ogg', '.m4a', '.aac',
-      '.mp4', '.avi', '.mkv', '.webm', '.3gp', '.pdf', '.doc'];
+    if (isIos) {
+      HttpClientResponse apiResponse =
+          await orderDetailsServiceInterface.productDownload(url);
+      if (apiResponse.statusCode == 200) {
+        List<int> downloadData = [];
+        Directory downloadDirectory;
 
+        if (Platform.isIOS) {
+          downloadDirectory = await getApplicationDocumentsDirectory();
+        } else {
+          downloadDirectory = Directory('/storage/emulated/0/Download');
+          if (!await downloadDirectory.exists())
+            downloadDirectory = (await getExternalStorageDirectory())!;
+        }
 
-    if(isIos){
-     HttpClientResponse apiResponse = await orderDetailsServiceInterface.productDownload(url);
-     if (apiResponse.statusCode == 200) {
+        String filePathName = "${downloadDirectory.path}/$fileName";
+        File savedFile = File(filePathName);
+        bool fileExists = await savedFile.exists();
 
-       List<int> downloadData = [];
-       Directory downloadDirectory;
+        if (fileExists) {
+          ScaffoldMessenger.of(Get.context!).showSnackBar(
+              const SnackBar(content: Text("File already downloaded")));
+        } else {
+          apiResponse.listen((d) => downloadData.addAll(d), onDone: () {
+            savedFile.writeAsBytes(downloadData);
+          });
+          showCustomSnackBar(
+              getTranslated('product_downloaded_successfully', Get.context!),
+              Get.context!,
+              isError: false);
+        }
+        _isDownloaodLoading = false;
+        await OpenFile.open(filePathName);
+        Navigator.of(Get.context!).pop();
+      } else {
+        _isDownloaodLoading = false;
+        showCustomSnackBar(
+            getTranslated('product_download_failed', Get.context!),
+            Get.context!);
+        Navigator.of(Get.context!).pop();
+      }
+    } else {
+      String? task;
+      Directory downloadDirectory = Directory('/storage/emulated/0/Download');
+      String filePathName = "${downloadDirectory.path}/$fileName";
+      File savedFile = File(filePathName);
+      bool fileExists = await savedFile.exists();
 
-       if (Platform.isIOS) {
-         downloadDirectory = await getApplicationDocumentsDirectory();
-       } else {
-         downloadDirectory = Directory('/storage/emulated/0/Download');
-         if (!await downloadDirectory.exists()) downloadDirectory = (await getExternalStorageDirectory())!;
-       }
+      if (fileExists) {
+        showCustomSnackBar(
+            getTranslated('file_already_downloaded', Get.context!),
+            Get.context!);
+      } else {
+        task = await FlutterDownloader.enqueue(
+          url: url,
+          savedDir: downloadDirectory.path,
+          fileName: fileName,
+          showNotification: true,
+          saveInPublicStorage: true,
+          openFileFromNotification: true,
+        );
 
-       String filePathName = "${downloadDirectory.path}/$fileName";
-       File savedFile = File(filePathName);
-       bool fileExists = await savedFile.exists();
+        if (task != null) {
+          showCustomSnackBar(
+              getTranslated('product_downloaded_successfully', Get.context!),
+              Get.context!,
+              isError: false);
 
-       if (fileExists) {
-         ScaffoldMessenger.of(Get.context!).showSnackBar(const SnackBar(content: Text("File already downloaded")));
-       } else {
-         apiResponse.listen((d) => downloadData.addAll(d), onDone: () {
-           savedFile.writeAsBytes(downloadData);
-         });
-         showCustomSnackBar(getTranslated('product_downloaded_successfully', Get.context!), Get.context!, isError: false);
-       }
-       _isDownloaodLoading = false;
-       await OpenFile.open(filePathName);
-       Navigator.of(Get.context!).pop();
-
-     } else {
-       _isDownloaodLoading = false;
-       showCustomSnackBar(getTranslated('product_download_failed', Get.context!), Get.context!);
-       Navigator.of(Get.context!).pop();
-     }
-   } else {
-     String? task;
-     Directory downloadDirectory = Directory('/storage/emulated/0/Download');
-     String filePathName = "${downloadDirectory.path}/$fileName";
-     File savedFile = File(filePathName);
-     bool fileExists = await savedFile.exists();
-
-
-     if(fileExists) {
-       showCustomSnackBar(getTranslated('file_already_downloaded', Get.context!), Get.context!);
-     } else{
-       task  = await FlutterDownloader.enqueue(
-         url: url,
-         savedDir: downloadDirectory.path,
-         fileName: fileName,
-         showNotification: true,
-         saveInPublicStorage: true,
-         openFileFromNotification: true,
-       );
-
-       if(task != null) {
-         showCustomSnackBar(getTranslated('product_downloaded_successfully', Get.context!), Get.context!, isError: false);
-
-         if(!fileTypes.contains(getFileExtension(fileName))){
-           await openFileManager(
-             androidConfig: AndroidConfig(
-               folderType: selectedFolderType,
-             ),
-             iosConfig: IosConfig(
-               subFolderPath: subFolderPathCtrl.text.trim(),
-             ),
-           );
-         }
-       } else{
-         showCustomSnackBar(getTranslated('product_download_failed', Get.context!), Get.context!);
-       }
-     }
-     _isDownloaodLoading = false;
-   }
-
+          if (!fileTypes.contains(getFileExtension(fileName))) {
+            await openFileManager(
+              androidConfig: AndroidConfig(
+                folderType: selectedFolderType,
+              ),
+              iosConfig: IosConfig(
+                subFolderPath: subFolderPathCtrl.text.trim(),
+              ),
+            );
+          }
+        } else {
+          showCustomSnackBar(
+              getTranslated('product_download_failed', Get.context!),
+              Get.context!);
+        }
+      }
+      _isDownloaodLoading = false;
+    }
 
     notifyListeners();
   }
@@ -338,11 +370,11 @@ class OrderDetailsController with ChangeNotifier {
 
   void setOrderReviewExpanded(int index, bool status) {
     _orderDetails;
-    if(_orderDetails != null){
-      for(int i = 0; i< _orderDetails!.length;  i++){
-        if(i == index){
+    if (_orderDetails != null) {
+      for (int i = 0; i < _orderDetails!.length; i++) {
+        if (i == index) {
           _orderDetails![i].isExpanded = status;
-        } else{
+        } else {
           _orderDetails![i].isExpanded = false;
         }
       }
@@ -357,7 +389,6 @@ class OrderDetailsController with ChangeNotifier {
     }
   }
 }
-
 
 Future<void> _launchUrl(Uri url) async {
   if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {

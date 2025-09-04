@@ -11,7 +11,6 @@ class LoyaltyPointController extends ChangeNotifier {
   final LoyaltyPointServiceInterface loyaltyPointServiceInterface;
   LoyaltyPointController({required this.loyaltyPointServiceInterface});
 
-
   bool _isConvert = false;
   bool get isConvert => _isConvert;
 
@@ -30,83 +29,90 @@ class LoyaltyPointController extends ChangeNotifier {
   Set<String>? _selectedEarnByList;
   Set<String>? get selectedEarnByList => _selectedEarnByList;
 
-
-
-
-  Future<void> getLoyaltyPointList(BuildContext context, int offset, {
+  Future<void> getLoyaltyPointList(
+    BuildContext context,
+    int offset, {
     bool reload = false,
     bool isUpdate = true,
     String? filterBy,
     DateTime? startDate,
     DateTime? endDate,
     List<String>? transactionTypes,
-
   }) async {
-    if(reload || offset == 1) {
+    if (reload || offset == 1) {
       _loyaltyPointModel = null;
 
-      if(isUpdate) {
+      if (isUpdate) {
         notifyListeners();
       }
     }
 
     ApiResponseModel apiResponse = await loyaltyPointServiceInterface.getList(
-      offset : offset, filterBy: filterBy, startDate: startDate,
-      endDate: endDate, transactionTypes: transactionTypes,
+      offset: offset,
+      filterBy: filterBy,
+      startDate: startDate,
+      endDate: endDate,
+      transactionTypes: transactionTypes,
     );
 
-    if (apiResponse.response?.data != null && apiResponse.response?.statusCode == 200) {
-      if(offset == 1) {
-        _loyaltyPointModel = LoyaltyPointModel.fromJson(apiResponse.response?.data);
-      }else {
-        _loyaltyPointModel?.offset = LoyaltyPointModel.fromJson(apiResponse.response?.data).offset;
-        _loyaltyPointModel?.totalLoyaltyPoint = LoyaltyPointModel.fromJson(apiResponse.response?.data).totalLoyaltyPoint;
-        _loyaltyPointModel?.loyaltyPointList?.addAll(LoyaltyPointModel.fromJson(apiResponse.response?.data).loyaltyPointList ?? []);
-
+    if (apiResponse.response?.data != null &&
+        apiResponse.response?.statusCode == 200) {
+      if (offset == 1) {
+        _loyaltyPointModel =
+            LoyaltyPointModel.fromJson(apiResponse.response?.data);
+      } else {
+        _loyaltyPointModel?.offset =
+            LoyaltyPointModel.fromJson(apiResponse.response?.data).offset;
+        _loyaltyPointModel?.totalLoyaltyPoint =
+            LoyaltyPointModel.fromJson(apiResponse.response?.data)
+                .totalLoyaltyPoint;
+        _loyaltyPointModel?.loyaltyPointList?.addAll(
+            LoyaltyPointModel.fromJson(apiResponse.response?.data)
+                    .loyaltyPointList ??
+                []);
       }
-
     } else {
       _loyaltyPointModel?.loyaltyPointList = [];
-      ApiChecker.checkApi( apiResponse);
+      ApiChecker.checkApi(apiResponse);
     }
     notifyListeners();
   }
-
 
   Future convertPointToCurrency(BuildContext context, int point) async {
     _isConvert = true;
     notifyListeners();
-    ApiResponseModel apiResponse = await loyaltyPointServiceInterface.convertPointToCurrency(point);
-    if (apiResponse.response != null && apiResponse.response?.statusCode == 200) {
+    ApiResponseModel apiResponse =
+        await loyaltyPointServiceInterface.convertPointToCurrency(point);
+    if (apiResponse.response != null &&
+        apiResponse.response?.statusCode == 200) {
       _isConvert = false;
-      showCustomSnackBar("${getTranslated('point_converted_successfully', Get.context!)}", Get.context!, isError: false);
-    }else{
+      showCustomSnackBar(
+          "${getTranslated('point_converted_successfully', Get.context!)}",
+          Get.context!,
+          isError: false);
+    } else {
       _isConvert = false;
-      showCustomSnackBar("${getTranslated('point_converted_failed', Get.context!)}", Get.context!);
+      showCustomSnackBar(
+          "${getTranslated('point_converted_failed', Get.context!)}",
+          Get.context!);
     }
     notifyListeners();
   }
 
-
-
-
-
-  void setSelectedProductType({String? type, bool isUpdate = true}){
+  void setSelectedProductType({String? type, bool isUpdate = true}) {
     _selectedFilterBy = type;
 
-    if(isUpdate){
+    if (isUpdate) {
       notifyListeners();
     }
   }
 
-
-
-  void setSelectedDate({required DateTime? startDate, required DateTime? endDate}) async {
+  void setSelectedDate(
+      {required DateTime? startDate, required DateTime? endDate}) async {
     _startDate = startDate;
     _endDate = endDate;
     notifyListeners();
   }
-
 
   void onUpdateEarnBy(String value, {bool isUpdate = true}) {
     _selectedEarnByList ??= <String>{};
@@ -121,17 +127,11 @@ class LoyaltyPointController extends ChangeNotifier {
     }
   }
 
-  void initFilterData(){
-
+  void initFilterData() {
     _selectedFilterBy = _loyaltyPointModel?.filterBy;
     _selectedEarnByList = _loyaltyPointModel?.transactionTypes?.toSet();
 
     _startDate = _loyaltyPointModel?.startDate;
     _endDate = _loyaltyPointModel?.endDate;
-
-
   }
-
-
-
 }

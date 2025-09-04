@@ -11,19 +11,21 @@ class HomeCategoryProductWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ProductController>(
       builder: (context, homeCategoryProductController, child) {
-        return homeCategoryProductController.homeCategoryProductList.isNotEmpty ?
-        ListView.builder(
-            itemCount: homeCategoryProductController.homeCategoryProductList.length,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (ctx, index) {
-              return HomeCategoryProductItemWidget(homeCategoryProduct: homeCategoryProductController.homeCategoryProductList[index],
-              index: index, isHomePage: isHomePage);
-            })
+        return homeCategoryProductController.homeCategoryProductList.isNotEmpty
+            ? ListView.builder(
+                itemCount: homeCategoryProductController
+                    .homeCategoryProductList.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (ctx, index) {
+                  return HomeCategoryProductItemWidget(
+                      homeCategoryProduct: homeCategoryProductController
+                          .homeCategoryProductList[index],
+                      index: index,
+                      isHomePage: isHomePage);
+                })
             : const SizedBox();
       },
     );
   }
 }
-
-

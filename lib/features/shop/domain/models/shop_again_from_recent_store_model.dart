@@ -13,19 +13,18 @@ class ShopAgainFromRecentStoreModel {
   Seller? seller;
   bool? isAddedByAdmin;
 
-
-  ShopAgainFromRecentStoreModel(
-      {this.id,
-        this.name,
-        this.slug,
-        this.thumbnail,
-        this.thumbnailFullUrl,
-        this.unitPrice,
-        this.userId,
-        this.reviewsCount,
-        this.seller,
-        this.isAddedByAdmin,
-       });
+  ShopAgainFromRecentStoreModel({
+    this.id,
+    this.name,
+    this.slug,
+    this.thumbnail,
+    this.thumbnailFullUrl,
+    this.unitPrice,
+    this.userId,
+    this.reviewsCount,
+    this.seller,
+    this.isAddedByAdmin,
+  });
 
   ShopAgainFromRecentStoreModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -37,9 +36,8 @@ class ShopAgainFromRecentStoreModel {
     reviewsCount = int.parse(json['reviews_count'].toString());
     seller = json['seller'] != null ? Seller.fromJson(json['seller']) : null;
     thumbnailFullUrl = json['thumbnail_full_url'] != null
-      ? ImageFullUrl.fromJson(json['thumbnail_full_url'])
-      : null;
+        ? ImageFullUrl.fromJson(json['thumbnail_full_url'])
+        : null;
     isAddedByAdmin = json['added_by'] == 'admin';
   }
 }
-

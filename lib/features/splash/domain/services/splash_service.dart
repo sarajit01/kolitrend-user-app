@@ -1,7 +1,7 @@
 import 'package:flutter_sixvalley_ecommerce/features/splash/domain/repositories/splash_repository_interface.dart';
 import 'package:flutter_sixvalley_ecommerce/features/splash/domain/services/splash_service_interface.dart';
 
-class SplashService implements SplashServiceInterface{
+class SplashService implements SplashServiceInterface {
   SplashRepositoryInterface splashRepositoryInterface;
 
   SplashService({required this.splashRepositoryInterface});
@@ -40,5 +40,4 @@ class SplashService implements SplashServiceInterface{
   bool? showIntro() {
     return splashRepositoryInterface.showIntro();
   }
-
 }

@@ -12,58 +12,89 @@ class OrderAmountCalculation extends StatelessWidget {
   final double tax;
   final double shippingCost;
   final OrderDetailsController orderProvider;
-  const OrderAmountCalculation({super.key, required this.itemTotalAmount, required this.discount, this.eeDiscount, required this.tax, required this.shippingCost, required this.orderProvider});
+  const OrderAmountCalculation(
+      {super.key,
+      required this.itemTotalAmount,
+      required this.discount,
+      this.eeDiscount,
+      required this.tax,
+      required this.shippingCost,
+      required this.orderProvider});
 
   @override
   Widget build(BuildContext context) {
-    return  Container(padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+    return Container(
+        padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
         color: Theme.of(context).highlightColor,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-          AmountWidget(title: getTranslated('sub_total', context),
+          AmountWidget(
+              title: getTranslated('sub_total', context),
               amount: PriceConverter.convertPrice(context, itemTotalAmount)),
 
+          orderProvider.orders!.orderType == "POS"
+              ? const SizedBox()
+              : AmountWidget(
+                  title: getTranslated('shipping_fee', context),
+                  amount: PriceConverter.convertPrice(context, shippingCost)),
 
-          orderProvider.orders!.orderType == "POS"? const SizedBox():
-          AmountWidget(title: getTranslated('shipping_fee', context),
-              amount: PriceConverter.convertPrice(context, shippingCost)),
-
-
-          AmountWidget(title: getTranslated('discount', context),
+          AmountWidget(
+              title: getTranslated('discount', context),
               amount: PriceConverter.convertPrice(context, discount)),
 
+          orderProvider.orders!.orderType == "POS"
+              ? AmountWidget(
+                  title: getTranslated('extra_discount', context),
+                  amount: PriceConverter.convertPrice(context, eeDiscount))
+              : const SizedBox(),
 
-          orderProvider.orders!.orderType == "POS"?
-          AmountWidget(title: getTranslated('extra_discount', context),
-              amount: PriceConverter.convertPrice(context, eeDiscount)):const SizedBox(),
+          AmountWidget(
+            title: getTranslated('coupon_voucher', context),
+            amount: PriceConverter.convertPrice(
+                context, orderProvider.orders!.discountAmount),
+          ),
 
-
-          AmountWidget(title: getTranslated('coupon_voucher', context),
-            amount: PriceConverter.convertPrice(context, orderProvider.orders!.discountAmount),),
-
-
-          AmountWidget(title: getTranslated('tax', context),
+          AmountWidget(
+              title: getTranslated('tax', context),
               amount: PriceConverter.convertPrice(context, tax)),
 
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                vertical: Dimensions.paddingSizeExtraSmall),
+            child: Divider(height: 2, color: Theme.of(context).hintColor),
+          ),
 
-          Padding(padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeExtraSmall),
-            child: Divider(height: 2, color: Theme.of(context).hintColor),),
-
-
-          AmountWidget(title: getTranslated('total_payable', context),
-            amount: PriceConverter.convertPrice(context, (itemTotalAmount + shippingCost - eeDiscount! - orderProvider.orders!.discountAmount! - discount  + tax)),),
-
+          AmountWidget(
+            title: getTranslated('total_payable', context),
+            amount: PriceConverter.convertPrice(
+                context,
+                (itemTotalAmount +
+                    shippingCost -
+                    eeDiscount! -
+                    orderProvider.orders!.discountAmount! -
+                    discount +
+                    tax)),
+          ),
 
           // && orderProvider.orders!.paymentMethod  == "cash" && orderProvider.orders!.paidAmount! > (itemTotalAmount + shippingCost - eeDiscount! - orderProvider.orders!.discountAmount! - discount  + tax)
           if (orderProvider.orders!.orderType == 'POS')
-          AmountWidget(title: getTranslated('paid_amount', context),
-            amount: PriceConverter.convertPrice(context, orderProvider.orders!.paidAmount)),
+            AmountWidget(
+                title: getTranslated('paid_amount', context),
+                amount: PriceConverter.convertPrice(
+                    context, orderProvider.orders!.paidAmount)),
 
           if (orderProvider.orders!.orderType == 'POS')
-          AmountWidget(title: getTranslated('change_amount', context),
-            amount: PriceConverter.convertPrice(context, orderProvider.orders!.paidAmount! - double.parse((itemTotalAmount + shippingCost - eeDiscount! - orderProvider.orders!.discountAmount! - discount  + tax).toStringAsFixed(2)))),
-
-
+            AmountWidget(
+                title: getTranslated('change_amount', context),
+                amount: PriceConverter.convertPrice(
+                    context,
+                    orderProvider.orders!.paidAmount! -
+                        double.parse((itemTotalAmount +
+                                shippingCost -
+                                eeDiscount! -
+                                orderProvider.orders!.discountAmount! -
+                                discount +
+                                tax)
+                            .toStringAsFixed(2)))),
         ]));
   }
 }

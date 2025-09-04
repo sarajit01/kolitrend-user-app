@@ -11,7 +11,8 @@ class GoogleSignInController with ChangeNotifier {
 
     // auth = await googleAccount!.authentication;
 
-    auth = await (await GoogleSignIn(scopes: ["profile", "email"]).signIn())?.authentication;
+    auth = await (await GoogleSignIn(scopes: ["profile", "email"]).signIn())
+        ?.authentication;
 
     notifyListeners();
   }

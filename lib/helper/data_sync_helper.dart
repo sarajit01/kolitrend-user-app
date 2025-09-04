@@ -7,17 +7,18 @@ import 'package:flutter_sixvalley_ecommerce/helper/api_checker.dart';
 
 class DataSyncHelper {
   /// Generic method to fetch data from local and remote sources
- static Future<void> fetchAndSyncData({
-    required Future<ApiResponseModel<CacheResponseData>> Function() fetchFromLocal,
+  static Future<void> fetchAndSyncData({
+    required Future<ApiResponseModel<CacheResponseData>> Function()
+        fetchFromLocal,
     required Future<ApiResponseModel<Response>> Function() fetchFromClient,
     required Function(dynamic, DataSourceEnum source) onResponse,
   }) async {
-
     // Step 1: Try to load from the local source
     final localResponse = await fetchFromLocal();
 
     if (localResponse.isSuccess) {
-      onResponse(jsonDecode(localResponse.response!.response), DataSourceEnum.local);
+      onResponse(
+          jsonDecode(localResponse.response!.response), DataSourceEnum.local);
     }
 
     // Step 2: Try to load from the client (remote) source and update if successful
@@ -25,9 +26,7 @@ class DataSyncHelper {
     if (clientResponse.isSuccess) {
       onResponse(clientResponse.response?.data, DataSourceEnum.client);
     } else {
-
       ApiChecker.checkApi(clientResponse);
     }
-
   }
 }

@@ -8,24 +8,25 @@ class SliderProductShimmerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return SizedBox(
-      height: ResponsiveHelper.isTab(context)? MediaQuery.of(context).size.width * .58 : 320,
-      child: CarouselSlider.builder(
-        options: CarouselOptions(
-          viewportFraction: ResponsiveHelper.isTab(context)? .5 :.65,
-          autoPlay: false,
-          pauseAutoPlayOnTouch: true,
-          pauseAutoPlayOnManualNavigate: true,
-          enlargeFactor: 0.2,
-          enlargeCenterPage: true,
-          pauseAutoPlayInFiniteScroll: true,
-          disableCenter: true,
-        ),
-        itemCount: 3,
-        itemBuilder: (context, index, next) {
-          return const ProductShimmerItemWidget();
-        },
-    ));
+        height: ResponsiveHelper.isTab(context)
+            ? MediaQuery.of(context).size.width * .58
+            : 320,
+        child: CarouselSlider.builder(
+          options: CarouselOptions(
+            viewportFraction: ResponsiveHelper.isTab(context) ? .5 : .65,
+            autoPlay: false,
+            pauseAutoPlayOnTouch: true,
+            pauseAutoPlayOnManualNavigate: true,
+            enlargeFactor: 0.2,
+            enlargeCenterPage: true,
+            pauseAutoPlayInFiniteScroll: true,
+            disableCenter: true,
+          ),
+          itemCount: 3,
+          itemBuilder: (context, index, next) {
+            return const ProductShimmerItemWidget();
+          },
+        ));
   }
 }

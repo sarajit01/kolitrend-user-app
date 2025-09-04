@@ -1,4 +1,3 @@
-
 import 'package:flutter_sixvalley_ecommerce/data/datasource/remote/dio/dio_client.dart';
 import 'package:flutter_sixvalley_ecommerce/data/datasource/remote/exception/api_error_handler.dart';
 import 'package:flutter_sixvalley_ecommerce/data/model/api_response.dart';
@@ -6,26 +5,26 @@ import 'package:flutter_sixvalley_ecommerce/features/order/domain/repositories/o
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 import 'dart:async';
 
-class OrderRepository implements OrderRepositoryInterface{
+class OrderRepository implements OrderRepositoryInterface {
   final DioClient? dioClient;
   OrderRepository({required this.dioClient});
 
-
   @override
-  Future<ApiResponseModel> getOrderList(int offset, String status, {String? type}) async {
+  Future<ApiResponseModel> getOrderList(int offset, String status,
+      {String? type}) async {
     try {
-      final response = await dioClient!.get('${AppConstants.orderUri}$offset&status=$status&type=$type');
+      final response = await dioClient!
+          .get('${AppConstants.orderUri}$offset&status=$status&type=$type');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
     }
   }
 
-
   @override
   Future<ApiResponseModel> getTrackingInfo(String orderID) async {
     try {
-      final response = await dioClient!.get(AppConstants.trackingUri+orderID);
+      final response = await dioClient!.get(AppConstants.trackingUri + orderID);
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -35,13 +34,13 @@ class OrderRepository implements OrderRepositoryInterface{
   @override
   Future<ApiResponseModel> cancelOrder(int? orderId) async {
     try {
-      final response = await dioClient!.get('${AppConstants.cancelOrderUri}?order_id=$orderId');
+      final response = await dioClient!
+          .get('${AppConstants.cancelOrderUri}?order_id=$orderId');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
     }
   }
-
 
   @override
   Future add(value) {
@@ -54,7 +53,6 @@ class OrderRepository implements OrderRepositoryInterface{
     // TODO: implement delete
     throw UnimplementedError();
   }
-
 
   @override
   Future getList({int? offset = 1}) {
@@ -73,8 +71,4 @@ class OrderRepository implements OrderRepositoryInterface{
     // TODO: implement get
     throw UnimplementedError();
   }
-
-
-
-
 }

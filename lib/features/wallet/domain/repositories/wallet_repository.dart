@@ -12,28 +12,34 @@ import 'package:flutter_sixvalley_ecommerce/main.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 import 'package:provider/provider.dart';
 
-class WalletRepository implements WalletRepositoryInterface{
+class WalletRepository implements WalletRepositoryInterface {
   final DioClient? dioClient;
   WalletRepository({required this.dioClient});
 
-
   @override
-  Future getList({int? offset = 1, String? filterBy, DateTime? startDate, DateTime? endDate, List<String>? transactionTypes}) async{
-
+  Future getList(
+      {int? offset = 1,
+      String? filterBy,
+      DateTime? startDate,
+      DateTime? endDate,
+      List<String>? transactionTypes}) async {
     // Build query parameters dynamically
     final Map<String, dynamic> queryParams = {
       'offset': offset,
       'limit': 10,
       if (filterBy != null && filterBy.isNotEmpty) 'filter_by': filterBy,
-      if (startDate != null) 'start_date': DateConverter.durationDateTime(startDate),
+      if (startDate != null)
+        'start_date': DateConverter.durationDateTime(startDate),
       if (endDate != null) 'end_date': DateConverter.durationDateTime(endDate),
-      if (transactionTypes != null && transactionTypes.isNotEmpty) 'transaction_types': jsonEncode(transactionTypes),
+      if (transactionTypes != null && transactionTypes.isNotEmpty)
+        'transaction_types': jsonEncode(transactionTypes),
     };
 
     debugPrint('--------(loyalty_query)----$queryParams');
 
     try {
-      Response response = await dioClient!.get(AppConstants.walletTransactionUri, queryParameters: queryParams);
+      Response response = await dioClient!
+          .get(AppConstants.walletTransactionUri, queryParameters: queryParams);
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -50,24 +56,26 @@ class WalletRepository implements WalletRepositoryInterface{
   //   }
   // }
 
-
   @override
-  Future<ApiResponseModel> addFundToWallet(String amount, String paymentMethod) async {
+  Future<ApiResponseModel> addFundToWallet(
+      String amount, String paymentMethod) async {
     try {
-      final response = await dioClient!.post(AppConstants.addFundToWallet,
-          data: {'payment_platform': 'app',
-            'payment_method' : paymentMethod,
-            'payment_request_from': 'app',
-            'amount': amount,
-            'current_currency_code': Provider.of<SplashController>(Get.context!, listen: false).myCurrency!.code
-
-          });
+      final response =
+          await dioClient!.post(AppConstants.addFundToWallet, data: {
+        'payment_platform': 'app',
+        'payment_method': paymentMethod,
+        'payment_request_from': 'app',
+        'amount': amount,
+        'current_currency_code':
+            Provider.of<SplashController>(Get.context!, listen: false)
+                .myCurrency!
+                .code
+      });
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
     }
   }
-
 
   @override
   Future<ApiResponseModel> getWalletBonusBannerList() async {
@@ -96,9 +104,6 @@ class WalletRepository implements WalletRepositoryInterface{
     // TODO: implement get
     throw UnimplementedError();
   }
-
-
-
 
   @override
   Future update(Map<String, dynamic> body, int id) {

@@ -1,9 +1,1 @@
-
-
-
-class ColorResources {
-
-
-
-
-}
+class ColorResources {}

@@ -28,7 +28,8 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
   }
 
   void _createAnimationController() {
-    _animationController = AnimationController(vsync: this, value: 0.5, duration: const Duration(milliseconds: 00));
+    _animationController = AnimationController(
+        vsync: this, value: 0.5, duration: const Duration(milliseconds: 00));
     final tween = Tween(begin: 0.0, end: 1.0);
     _animation = tween.animate(_animationController);
 
@@ -110,7 +111,6 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
     //final animationValue2 = _animation2.value;
 
     for (var i = 0; i < _animationCount! && widget.itemCount > 0; ++i) {
-
       final itemIndex = _currentIndex + i + _startIndex;
       if (!widget.loop && (itemIndex >= widget.itemCount || itemIndex < 0)) {
         continue;
@@ -159,7 +159,6 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
   bool _lockScroll = false;
 
   Future<void> _move(double position, {int? nextIndex}) async {
-
     if (_lockScroll) return;
     try {
       _lockScroll = true;
@@ -202,7 +201,6 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
   }
 
   Future<void> _onController() async {
-
     final controller = widget.controller;
     final event = controller.event;
     if (event is StepBasedIndexControllerEvent) {
@@ -223,7 +221,6 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
 
   Future<void> _onPanEnd(DragEndDetails details) async {
     if (_lockScroll) return;
-
 
     final velocity = widget.scrollDirection == Axis.horizontal
         ? details.velocity.pixelsPerSecond.dx
@@ -447,7 +444,7 @@ class _CustomLayoutState extends _CustomLayoutStateBase<_CustomLayoutSwiper> {
         height: widget.itemHeight ?? double.infinity,
         child: widget.itemBuilder!(context, realIndex));
 
-    for (var i = builders.length -1; i >= 0; --i) {
+    for (var i = builders.length - 1; i >= 0; --i) {
       final builder = builders[i];
       child = builder.build(index, animationValue, child);
     }

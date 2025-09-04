@@ -1,5 +1,3 @@
-
-
 class NotificationBody {
   int? orderId;
   String? type;
@@ -10,17 +8,15 @@ class NotificationBody {
   String? slug;
   String? image;
 
-
-  NotificationBody({
-    this.orderId,
-    this.type,
-    this.status,
-    this.messageKey,
-    this.title,
-    this.productId,
-    this.slug,
-    this.image
-  });
+  NotificationBody(
+      {this.orderId,
+      this.type,
+      this.status,
+      this.messageKey,
+      this.title,
+      this.productId,
+      this.slug,
+      this.image});
 
   NotificationBody.fromJson(Map<String, dynamic> json) {
     orderId = json['order_id'];
@@ -46,6 +42,4 @@ class NotificationBody {
     data['status'] = status;
     return data;
   }
-
-
 }

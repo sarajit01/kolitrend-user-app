@@ -11,20 +11,21 @@ class LoyaltyPointModel {
   int? totalLoyaltyPoint;
   List<LoyaltyPointList>? loyaltyPointList;
 
-
   LoyaltyPointModel.fromJson(Map<String, dynamic> json) {
     limit = int.tryParse('${json['limit']}');
     offset = int.tryParse('${json['offset']}');
     totalSize = int.tryParse('${json['total_size']}');
     filterBy = json['filter_by'];
-    startDate = DateConverter.convertDurationDateTimeFromString(json['start_date']);
+    startDate =
+        DateConverter.convertDurationDateTimeFromString(json['start_date']);
     endDate = DateConverter.convertDurationDateTimeFromString(json['end_date']);
 
     if (json['transaction_types'] != null) {
-      transactionTypes = List<String>.from(json['transaction_types'].map((id) => id.toString()));
+      transactionTypes = List<String>.from(
+          json['transaction_types'].map((id) => id.toString()));
     }
 
-    if(json['total_loyalty_point'] != null) {
+    if (json['total_loyalty_point'] != null) {
       totalLoyaltyPoint = json['total_loyalty_point'].toInt();
     }
     if (json['loyalty_point_list'] != null) {
@@ -62,15 +63,15 @@ class LoyaltyPointList {
 
   LoyaltyPointList(
       {int? id,
-        int? userId,
-        String? transactionId,
-        int? credit,
-        int? debit,
-        double? balance,
-        String? reference,
-        String? transactionType,
-        String? createdAt,
-        String? updatedAt}) {
+      int? userId,
+      String? transactionId,
+      int? credit,
+      int? debit,
+      double? balance,
+      String? reference,
+      String? transactionType,
+      String? createdAt,
+      String? updatedAt}) {
     if (id != null) {
       _id = id;
     }
@@ -113,7 +114,6 @@ class LoyaltyPointList {
   String? get transactionType => _transactionType;
   String? get createdAt => _createdAt;
   String? get updatedAt => _updatedAt;
-
 
   LoyaltyPointList.fromJson(Map<String, dynamic> json) {
     _id = json['id'];

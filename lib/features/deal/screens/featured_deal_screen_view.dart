@@ -11,11 +11,18 @@ class FeaturedDealScreenView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(children: [
-        CustomAppBar(title: getTranslated('featured_deals', context)),
-        Expanded(child: RefreshIndicator(backgroundColor: Theme.of(context).primaryColor,
-          onRefresh: () async => await Provider.of<FeaturedDealController>(context, listen: false).getFeaturedDealList(),
-          child: const Padding(padding: EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-            child: FeaturedDealsListWidget(isHomePage: false))))]));
+        body: Column(children: [
+      CustomAppBar(title: getTranslated('featured_deals', context)),
+      Expanded(
+          child: RefreshIndicator(
+              backgroundColor: Theme.of(context).primaryColor,
+              onRefresh: () async => await Provider.of<FeaturedDealController>(
+                      context,
+                      listen: false)
+                  .getFeaturedDealList(),
+              child: const Padding(
+                  padding: EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
+                  child: FeaturedDealsListWidget(isHomePage: false))))
+    ]));
   }
 }

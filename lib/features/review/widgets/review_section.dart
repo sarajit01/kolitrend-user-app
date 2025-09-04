@@ -16,57 +16,89 @@ class ReviewSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ReviewController>(
-      builder: (context, reviewController, _) {
-        return Container(width: MediaQuery.of(context).size.width,
-          margin: const EdgeInsets.only(top: Dimensions.paddingSizeSmall),
-          padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-          color:  Theme.of(context).cardColor,
-          child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-
-            Text(getTranslated('customer_reviews', context)!,
-              style: titilliumSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge),),
-            const SizedBox(height: Dimensions.paddingSizeDefault,),
-            Container(width: 230,height: 30,
-              decoration: BoxDecoration(color: Provider.of<ThemeController>(context).darkTheme ?
-              Theme.of(context).highlightColor.withValues(alpha: 0.70) :
-              Theme.of(context).highlightColor,
-                borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraLarge),),
-
-
-              child: Row(mainAxisAlignment: MainAxisAlignment.center,crossAxisAlignment: CrossAxisAlignment.center, children: [
-                  RatingBar(rating: double.parse(details.productDetailsModel!.averageReview!), size: 18,),
-                  const SizedBox(width: Dimensions.paddingSizeDefault),
-                  Text('${double.parse(details.productDetailsModel!.averageReview!).toStringAsFixed(1)} ${getTranslated('out_of_5', context)}',
-                      style: textRegular.copyWith(color: Provider.of<ThemeController>(context, listen: false).darkTheme?
-                      Theme.of(context).hintColor : Colors.black)),])),
-
-            const SizedBox(height: Dimensions.paddingSizeDefault),
-            Text('${getTranslated('total', context)} ${reviewController.reviewList != null ?
-            reviewController.reviewList!.length : 0} ${getTranslated('reviews', context)}', style: textRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color),),
-
-
-
-            reviewController.reviewList != null ? reviewController.reviewList!.isNotEmpty ?
-            ReviewWidget(reviewModel: reviewController.reviewList![0])
-                : const SizedBox() : const ReviewShimmer(),
-            reviewController.reviewList != null ? reviewController.reviewList!.length > 1 ?
-            ReviewWidget(reviewModel: reviewController.reviewList![1])
-                : const SizedBox() : const ReviewShimmer(),
-            reviewController.reviewList != null ? reviewController.reviewList!.length > 2 ?
-            ReviewWidget(reviewModel: reviewController.reviewList![2])
-                : const SizedBox() : const ReviewShimmer(),
-
-            InkWell(onTap: () {
-              if(reviewController.reviewList != null)
-              {Navigator.push(context, MaterialPageRoute(builder: (_) =>
-                  ReviewScreen(reviewList: reviewController.reviewList)));}},
-                child: reviewController.reviewList != null && reviewController.reviewList!.length > 3?
-                Text(getTranslated('view_more', context)!, style: titilliumRegular.copyWith(color: Theme.of(context).primaryColor)):
-                const SizedBox())
-          ]),
-        );
-      }
-    );
+    return Consumer<ReviewController>(builder: (context, reviewController, _) {
+      return Container(
+        width: MediaQuery.of(context).size.width,
+        margin: const EdgeInsets.only(top: Dimensions.paddingSizeSmall),
+        padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+        color: Theme.of(context).cardColor,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          Text(
+            getTranslated('customer_reviews', context)!,
+            style:
+                titilliumSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge),
+          ),
+          const SizedBox(
+            height: Dimensions.paddingSizeDefault,
+          ),
+          Container(
+              width: 230,
+              height: 30,
+              decoration: BoxDecoration(
+                color: Provider.of<ThemeController>(context).darkTheme
+                    ? Theme.of(context).highlightColor.withValues(alpha: 0.70)
+                    : Theme.of(context).highlightColor,
+                borderRadius:
+                    BorderRadius.circular(Dimensions.paddingSizeExtraLarge),
+              ),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    RatingBar(
+                      rating: double.parse(
+                          details.productDetailsModel!.averageReview!),
+                      size: 18,
+                    ),
+                    const SizedBox(width: Dimensions.paddingSizeDefault),
+                    Text(
+                        '${double.parse(details.productDetailsModel!.averageReview!).toStringAsFixed(1)} ${getTranslated('out_of_5', context)}',
+                        style: textRegular.copyWith(
+                            color: Provider.of<ThemeController>(context,
+                                        listen: false)
+                                    .darkTheme
+                                ? Theme.of(context).hintColor
+                                : Colors.black)),
+                  ])),
+          const SizedBox(height: Dimensions.paddingSizeDefault),
+          Text(
+            '${getTranslated('total', context)} ${reviewController.reviewList != null ? reviewController.reviewList!.length : 0} ${getTranslated('reviews', context)}',
+            style: textRegular.copyWith(
+                color: Theme.of(context).textTheme.bodyLarge?.color),
+          ),
+          reviewController.reviewList != null
+              ? reviewController.reviewList!.isNotEmpty
+                  ? ReviewWidget(reviewModel: reviewController.reviewList![0])
+                  : const SizedBox()
+              : const ReviewShimmer(),
+          reviewController.reviewList != null
+              ? reviewController.reviewList!.length > 1
+                  ? ReviewWidget(reviewModel: reviewController.reviewList![1])
+                  : const SizedBox()
+              : const ReviewShimmer(),
+          reviewController.reviewList != null
+              ? reviewController.reviewList!.length > 2
+                  ? ReviewWidget(reviewModel: reviewController.reviewList![2])
+                  : const SizedBox()
+              : const ReviewShimmer(),
+          InkWell(
+              onTap: () {
+                if (reviewController.reviewList != null) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => ReviewScreen(
+                              reviewList: reviewController.reviewList)));
+                }
+              },
+              child: reviewController.reviewList != null &&
+                      reviewController.reviewList!.length > 3
+                  ? Text(getTranslated('view_more', context)!,
+                      style: titilliumRegular.copyWith(
+                          color: Theme.of(context).primaryColor))
+                  : const SizedBox())
+        ]),
+      );
+    });
   }
 }

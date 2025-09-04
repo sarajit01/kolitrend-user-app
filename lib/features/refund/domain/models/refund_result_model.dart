@@ -12,13 +12,13 @@ class RefundResultModel {
 
   RefundResultModel(
       {this.productPrice,
-        this.quntity,
-        this.productTotalDiscount,
-        this.productTotalTax,
-        this.subtotal,
-        this.couponDiscount,
-        this.refundAmount,
-        this.refundRequest});
+      this.quntity,
+      this.productTotalDiscount,
+      this.productTotalTax,
+      this.subtotal,
+      this.couponDiscount,
+      this.refundAmount,
+      this.refundRequest});
 
   RefundResultModel.fromJson(Map<String, dynamic> json) {
     productPrice = json['product_price'].toDouble();
@@ -46,8 +46,7 @@ class RefundResultModel {
     data['coupon_discount'] = couponDiscount;
     data['refund_amount'] = refundAmount;
     if (refundRequest != null) {
-      data['refund_request'] =
-          refundRequest!.map((v) => v.toJson()).toList();
+      data['refund_request'] = refundRequest!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -74,23 +73,22 @@ class RefundRequest {
 
   RefundRequest(
       {this.id,
-        this.orderDetailsId,
-        this.customerId,
-        this.status,
-        this.amount,
-        this.productId,
-        this.orderId,
-        this.refundReason,
-        this.images,
-        this.createdAt,
-        this.updatedAt,
-        this.approvedNote,
-        this.rejectedNote,
-        this.paymentInfo,
-        this.changeBy,
-        this.imagesFullUrl,
-        this.refundStatus
-      });
+      this.orderDetailsId,
+      this.customerId,
+      this.status,
+      this.amount,
+      this.productId,
+      this.orderId,
+      this.refundReason,
+      this.images,
+      this.createdAt,
+      this.updatedAt,
+      this.approvedNote,
+      this.rejectedNote,
+      this.paymentInfo,
+      this.changeBy,
+      this.imagesFullUrl,
+      this.refundStatus});
 
   RefundRequest.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -101,8 +99,9 @@ class RefundRequest {
     productId = json['product_id'];
     orderId = json['order_id'];
     refundReason = json['refund_reason'];
-    if(json['images'] != null){
-      images = List<String>.from(json['images'].map((image) => image['image_name'] ?? ''));
+    if (json['images'] != null) {
+      images = List<String>.from(
+          json['images'].map((image) => image['image_name'] ?? ''));
     }
 
     createdAt = json['created_at'];
@@ -147,7 +146,6 @@ class RefundRequest {
   }
 }
 
-
 class RefundStatus {
   int? id;
   int? refundRequestId;
@@ -160,23 +158,22 @@ class RefundStatus {
 
   RefundStatus(
       {this.id,
-        this.refundRequestId,
-        this.changeBy,
-        this.changeById,
-        this.status,
-        this.message,
-        this.createdAt,
-        this.updatedAt});
+      this.refundRequestId,
+      this.changeBy,
+      this.changeById,
+      this.status,
+      this.message,
+      this.createdAt,
+      this.updatedAt});
 
   RefundStatus.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     refundRequestId = json['refund_request_id'];
     changeBy = json['change_by'];
-    if(json['change_by_id']!=null)
-    {
-      try{
+    if (json['change_by_id'] != null) {
+      try {
         changeById = json['change_by_id'];
-      }catch(e){
+      } catch (e) {
         changeById = int.parse(json['change_by_id']);
       }
     }

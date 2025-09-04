@@ -1,4 +1,4 @@
-    class FlashDealModel {
+class FlashDealModel {
   int? _id;
   String? _title;
   String? _startDate;
@@ -14,17 +14,17 @@
 
   FlashDealModel(
       {int? id,
-        String? title,
-        String? startDate,
-        String? endDate,
-        String? backgroundColor,
-        String? textColor,
-        String? banner,
-        String? slug,
-        String? createdAt,
-        String? updatedAt,
-        int? productId,
-        String? dealType}) {
+      String? title,
+      String? startDate,
+      String? endDate,
+      String? backgroundColor,
+      String? textColor,
+      String? banner,
+      String? slug,
+      String? createdAt,
+      String? updatedAt,
+      int? productId,
+      String? dealType}) {
     _id = id;
     _title = title;
     _startDate = startDate;
@@ -66,5 +66,4 @@
     _productId = json['product_id'];
     _dealType = json['deal_type'];
   }
-
 }

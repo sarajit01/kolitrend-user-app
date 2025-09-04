@@ -14,20 +14,34 @@ class CustomExpandedAppBarWidget extends StatelessWidget {
   final Widget child;
   final Widget? bottomChild;
   final bool isGuestCheck;
-  const CustomExpandedAppBarWidget({super.key, required this.title, required this.child, this.bottomChild, this.isGuestCheck = false});
+  const CustomExpandedAppBarWidget(
+      {super.key,
+      required this.title,
+      required this.child,
+      this.bottomChild,
+      this.isGuestCheck = false});
 
   @override
   Widget build(BuildContext context) {
-    bool isGuestMode = !Provider.of<AuthController>(context, listen: false).isLoggedIn();
+    bool isGuestMode =
+        !Provider.of<AuthController>(context, listen: false).isLoggedIn();
 
     return Scaffold(
-      floatingActionButton: isGuestCheck ? isGuestMode ? null : bottomChild : bottomChild,
+      floatingActionButton: isGuestCheck
+          ? isGuestMode
+              ? null
+              : bottomChild
+          : bottomChild,
       body: Stack(children: [
-
         // Background
         Image.asset(
-          Images.morePageHeader, height: 150, fit: BoxFit.fill, width: MediaQuery.of(context).size.width,
-          color: Provider.of<ThemeController>(context).darkTheme ? Colors.black : Theme.of(context).primaryColor,
+          Images.morePageHeader,
+          height: 150,
+          fit: BoxFit.fill,
+          width: MediaQuery.of(context).size.width,
+          color: Provider.of<ThemeController>(context).darkTheme
+              ? Colors.black
+              : Theme.of(context).primaryColor,
         ),
 
         Positioned(
@@ -35,22 +49,35 @@ class CustomExpandedAppBarWidget extends StatelessWidget {
           left: Dimensions.paddingSizeSmall,
           right: Dimensions.paddingSizeSmall,
           child: Row(children: [
-            CupertinoNavigationBarBackButton(color: Colors.white, onPressed: () {
-              Provider.of<SplashController>(context, listen: false).setFromSetting(false);
-              Navigator.pop(context);
-            } ),
-            Text(title!, style: titilliumRegular.copyWith(fontSize: 20, color: Colors.white), maxLines: 1, overflow: TextOverflow.ellipsis),
+            CupertinoNavigationBarBackButton(
+                color: Colors.white,
+                onPressed: () {
+                  Provider.of<SplashController>(context, listen: false)
+                      .setFromSetting(false);
+                  Navigator.pop(context);
+                }),
+            Text(title!,
+                style: titilliumRegular.copyWith(
+                    fontSize: 20, color: Colors.white),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis),
           ]),
         ),
 
         Container(
-
           margin: const EdgeInsets.only(top: 130),
           decoration: BoxDecoration(
-            color: Provider.of<ThemeController>(context).darkTheme ? Theme.of(context).scaffoldBackgroundColor : Theme.of(context).cardColor,
-            borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+            color: Provider.of<ThemeController>(context).darkTheme
+                ? Theme.of(context).scaffoldBackgroundColor
+                : Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20), topRight: Radius.circular(20)),
           ),
-          child: isGuestCheck ? isGuestMode ? const NotLoggedInWidget() : child : child,
+          child: isGuestCheck
+              ? isGuestMode
+                  ? const NotLoggedInWidget()
+                  : child
+              : child,
         ),
       ]),
     );

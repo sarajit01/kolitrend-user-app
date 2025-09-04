@@ -16,8 +16,8 @@ class HomeProductListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ProductController>(
       builder: (context, productController, child) {
-        if (productController.selectedProductModel?.products?.isNotEmpty ?? false) {
-
+        if (productController.selectedProductModel?.products?.isNotEmpty ??
+            false) {
           return PaginatedListView(
             onPaginate: (int? offset) async {
               await productController.getSelectedProductModel(offset ?? 1);
@@ -25,19 +25,23 @@ class HomeProductListWidget extends StatelessWidget {
             totalSize: productController.selectedProductModel?.totalSize,
             offset: productController.selectedProductModel?.offset,
             limit: productController.selectedProductModel?.limit,
-            itemView: Expanded(child: MasonryGridView.count(
-              itemCount: productController.selectedProductModel?.products?.length ?? 0,
+            itemView: Expanded(
+                child: MasonryGridView.count(
+              itemCount:
+                  productController.selectedProductModel?.products?.length ?? 0,
               crossAxisCount: ResponsiveHelper.isTab(context) ? 3 : 2,
-              padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: Dimensions.paddingSizeSmall),
               itemBuilder: (BuildContext context, int index) {
-                return ProductWidget(productModel: productController.selectedProductModel!.products![index]);
+                return ProductWidget(
+                    productModel: productController
+                        .selectedProductModel!.products![index]);
               },
             )), // Replace with your actual item view
           );
-
-        } else if (productController.selectedProductModel?.products?.isEmpty ?? false) {
+        } else if (productController.selectedProductModel?.products?.isEmpty ??
+            false) {
           return const NoInternetOrDataScreenWidget(isNoInternet: false);
-
         } else {
           return const ProductShimmer(isHomePage: false, isEnabled: true);
         }

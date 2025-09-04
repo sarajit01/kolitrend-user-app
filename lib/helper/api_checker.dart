@@ -9,16 +9,20 @@ import 'package:flutter_sixvalley_ecommerce/common/basewidget/show_custom_snakba
 import 'package:provider/provider.dart';
 
 class ApiChecker {
-  static void checkApi(ApiResponseModel apiResponse, {bool firebaseResponse = false}) {
-
-    dynamic errorResponse = apiResponse.error is String ? apiResponse.error :  ErrorResponse.fromJson(apiResponse.error);
-    if(apiResponse.error == "Failed to load data - status code: 401") {
-      Provider.of<AuthController>(Get.context!,listen: false).clearSharedData();
-    }else if(apiResponse.response?.statusCode == 500){
-      showCustomSnackBar(getTranslated('internal_server_error', Get.context!), Get.context!);
-    }else if(apiResponse.response?.statusCode == 503){
-      showCustomSnackBar(apiResponse.response?.data['message'] , Get.context!);
-    }else {
+  static void checkApi(ApiResponseModel apiResponse,
+      {bool firebaseResponse = false}) {
+    dynamic errorResponse = apiResponse.error is String
+        ? apiResponse.error
+        : ErrorResponse.fromJson(apiResponse.error);
+    if (apiResponse.error == "Failed to load data - status code: 401") {
+      Provider.of<AuthController>(Get.context!, listen: false)
+          .clearSharedData();
+    } else if (apiResponse.response?.statusCode == 500) {
+      showCustomSnackBar(
+          getTranslated('internal_server_error', Get.context!), Get.context!);
+    } else if (apiResponse.response?.statusCode == 503) {
+      showCustomSnackBar(apiResponse.response?.data['message'], Get.context!);
+    } else {
       log("==ff=>${apiResponse.error}");
       String? errorMessage = apiResponse.error.toString();
       if (apiResponse.error is String) {
@@ -27,21 +31,22 @@ class ApiChecker {
         log(errorResponse.toString());
         //errorMessage = errorResponse.errors?[0].message;
       }
-      showCustomSnackBar(firebaseResponse ? errorResponse?.replaceAll('_', ' ') : errorMessage, Get.context!);
+      showCustomSnackBar(
+          firebaseResponse ? errorResponse?.replaceAll('_', ' ') : errorMessage,
+          Get.context!);
     }
   }
 
-
-  static ErrorResponse getError(ApiResponseModel apiResponse){
+  static ErrorResponse getError(ApiResponseModel apiResponse) {
     ErrorResponse error;
 
-    try{
+    try {
       error = ErrorResponse.fromJson(apiResponse.response?.data);
-    }catch(e){
-      if(apiResponse.error is String){
-        error = ErrorResponse(errors: [Errors(code: '', message: apiResponse.error.toString())]);
-
-      }else{
+    } catch (e) {
+      if (apiResponse.error is String) {
+        error = ErrorResponse(
+            errors: [Errors(code: '', message: apiResponse.error.toString())]);
+      } else {
         error = ErrorResponse.fromJson(apiResponse.error);
       }
     }

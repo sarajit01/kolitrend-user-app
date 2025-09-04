@@ -11,7 +11,6 @@ class ErrorResponse {
       });
     }
   }
-
 }
 
 class Errors {
@@ -24,5 +23,4 @@ class Errors {
     code = json['code'];
     message = json['message'];
   }
-
 }

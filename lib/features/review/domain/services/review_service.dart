@@ -3,7 +3,7 @@ import 'package:flutter_sixvalley_ecommerce/features/review/domain/models/review
 import 'package:flutter_sixvalley_ecommerce/features/review/domain/repositories/review_repository_interface.dart';
 import 'package:flutter_sixvalley_ecommerce/features/review/domain/services/review_service_interface.dart';
 
-class ReviewService implements ReviewServiceInterface{
+class ReviewService implements ReviewServiceInterface {
   ReviewRepositoryInterface reviewRepositoryInterface;
   ReviewService({required this.reviewRepositoryInterface});
 
@@ -13,7 +13,8 @@ class ReviewService implements ReviewServiceInterface{
   }
 
   @override
-  Future submitReview(ReviewBody reviewBody, List<File> files, bool update) async{
+  Future submitReview(
+      ReviewBody reviewBody, List<File> files, bool update) async {
     return reviewRepositoryInterface.submitReview(reviewBody, files, update);
   }
 
@@ -26,5 +27,4 @@ class ReviewService implements ReviewServiceInterface{
   Future getOrderWiseReview(String productID, String orderId) {
     return reviewRepositoryInterface.getOrderWiseReview(productID, orderId);
   }
-
 }

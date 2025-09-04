@@ -1,4 +1,4 @@
-abstract class SplashServiceInterface{
+abstract class SplashServiceInterface {
   Future<dynamic> getConfig();
   Future<dynamic> getBusinessPages(String type);
   void initSharedData();

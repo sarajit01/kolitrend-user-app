@@ -1,1 +1,1 @@
-enum LocalCachesTypeEnum{all, app, web, none}
+enum LocalCachesTypeEnum { all, app, web, none }

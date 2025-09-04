@@ -20,47 +20,60 @@ class CategoryListWidget extends StatelessWidget {
     return Consumer<CategoryController>(
       builder: (context, categoryProvider, child) {
         return Column(children: [
-
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraExtraSmall),
+            padding: const EdgeInsets.symmetric(
+                horizontal: Dimensions.paddingSizeExtraExtraSmall),
             child: TitleRowWidget(
               title: getTranslated('CATEGORY', context),
               onTap: () {
-                if(categoryProvider.categoryList.isNotEmpty) {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoryScreen()));
+                if (categoryProvider.categoryList.isNotEmpty) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const CategoryScreen()));
                 }
               },
             ),
           ),
           const SizedBox(height: Dimensions.paddingSizeSmall),
-
-          categoryProvider.categoryList.isNotEmpty ?
-          SizedBox( height: Provider.of<LocalizationController>(context, listen: false).isLtr ? MediaQuery.of(context).size.width/3.7 : MediaQuery.of(context).size.width/3,
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              scrollDirection: Axis.horizontal,
-              itemCount: categoryProvider.categoryList.length,
-              shrinkWrap: true,
-              itemBuilder: (BuildContext context, int index) {
-                return InkWell( splashColor: Colors.transparent, highlightColor: Colors.transparent,
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => BrandAndCategoryProductScreen(
-                          isBrand: false,
-                          id: categoryProvider.categoryList[index].id,
-                          name: categoryProvider.categoryList[index].name)));
+          categoryProvider.categoryList.isNotEmpty
+              ? SizedBox(
+                  height: Provider.of<LocalizationController>(context,
+                              listen: false)
+                          .isLtr
+                      ? MediaQuery.of(context).size.width / 3.7
+                      : MediaQuery.of(context).size.width / 3,
+                  child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: categoryProvider.categoryList.length,
+                    shrinkWrap: true,
+                    itemBuilder: (BuildContext context, int index) {
+                      return InkWell(
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => BrandAndCategoryProductScreen(
+                                      isBrand: false,
+                                      id: categoryProvider
+                                          .categoryList[index].id,
+                                      name: categoryProvider
+                                          .categoryList[index].name)));
+                        },
+                        child: CategoryWidget(
+                            category: categoryProvider.categoryList[index],
+                            index: index,
+                            length: categoryProvider.categoryList.length),
+                      );
                     },
-                    child: CategoryWidget(category: categoryProvider.categoryList[index],
-                        index: index,length:  categoryProvider.categoryList.length),
-                );
-              },
-            ),
-          ) : const CategoryShimmerWidget(),
+                  ),
+                )
+              : const CategoryShimmerWidget(),
         ]);
-
       },
     );
   }
 }
-
-
-

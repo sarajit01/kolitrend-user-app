@@ -11,7 +11,6 @@ class OfflinePaymentModel {
       });
     }
   }
-
 }
 
 class OfflineMethods {
@@ -25,12 +24,12 @@ class OfflineMethods {
 
   OfflineMethods(
       {this.id,
-        this.methodName,
-        this.methodFields,
-        this.methodInformations,
-        this.status,
-        this.createdAt,
-        this.updatedAt});
+      this.methodName,
+      this.methodFields,
+      this.methodInformations,
+      this.status,
+      this.createdAt,
+      this.updatedAt});
 
   OfflineMethods.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -51,7 +50,6 @@ class OfflineMethods {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
   }
-
 }
 
 class MethodFields {
@@ -64,8 +62,6 @@ class MethodFields {
     inputName = json['input_name'];
     inputData = json['input_data'];
   }
-
-
 }
 
 class MethodInformations {
@@ -81,5 +77,4 @@ class MethodInformations {
     customerPlaceholder = json['customer_placeholder'];
     isRequired = json['is_required'];
   }
-
 }

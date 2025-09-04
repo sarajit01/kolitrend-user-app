@@ -5,14 +5,16 @@ import 'package:flutter_sixvalley_ecommerce/data/services/data_sync_service.dart
 import 'package:flutter_sixvalley_ecommerce/features/banner/domain/repositories/banner_repository_interface.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 
-class BannerRepository extends DataSyncService implements BannerRepositoryInterface{
+class BannerRepository extends DataSyncService
+    implements BannerRepositoryInterface {
   final DioClient? dioClient;
-  BannerRepository({required this.dioClient, required super.dataSyncRepoInterface});
+  BannerRepository(
+      {required this.dioClient, required super.dataSyncRepoInterface});
 
   @override
-  Future<ApiResponseModel<T>> getBannerList<T>({required DataSourceEnum source}) async {
-    return await fetchData<T>(AppConstants.getBannerList,  source);
-
+  Future<ApiResponseModel<T>> getBannerList<T>(
+      {required DataSourceEnum source}) async {
+    return await fetchData<T>(AppConstants.getBannerList, source);
   }
 
   @override
@@ -38,7 +40,6 @@ class BannerRepository extends DataSyncService implements BannerRepositoryInterf
     // TODO: implement get
     throw UnimplementedError();
   }
-
 
   @override
   Future getList({int? offset = 1}) {

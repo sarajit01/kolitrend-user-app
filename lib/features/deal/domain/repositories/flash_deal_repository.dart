@@ -4,7 +4,7 @@ import 'package:flutter_sixvalley_ecommerce/data/model/api_response.dart';
 import 'package:flutter_sixvalley_ecommerce/features/deal/domain/repositories/flash_deal_repository_interface.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 
-class FlashDealRepository implements FlashDealRepositoryInterface{
+class FlashDealRepository implements FlashDealRepositoryInterface {
   final DioClient? dioClient;
   FlashDealRepository({required this.dioClient});
 
@@ -21,7 +21,8 @@ class FlashDealRepository implements FlashDealRepositoryInterface{
   @override
   Future<ApiResponseModel> get(String productID) async {
     try {
-      final response = await dioClient!.get('${AppConstants.flashDealProductUri}$productID');
+      final response =
+          await dioClient!.get('${AppConstants.flashDealProductUri}$productID');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -39,8 +40,6 @@ class FlashDealRepository implements FlashDealRepositoryInterface{
     // TODO: implement delete
     throw UnimplementedError();
   }
-
-
 
   @override
   Future getList({int? offset = 1}) {

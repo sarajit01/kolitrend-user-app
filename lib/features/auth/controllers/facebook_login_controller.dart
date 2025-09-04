@@ -9,9 +9,7 @@ class FacebookLoginController with ChangeNotifier {
     result = await FacebookAuth.instance.login();
     if (result.status == LoginStatus.success) {
       userData = await FacebookAuth.instance.getUserData();
-
     }
     notifyListeners();
   }
-
 }

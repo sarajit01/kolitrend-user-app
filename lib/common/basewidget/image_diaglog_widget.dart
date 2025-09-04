@@ -8,18 +8,24 @@ class ImageDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-
-          Stack(children: [
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10.0))),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Stack(
+            children: [
               CustomImageWidget(image: imageUrl),
-            Align(alignment: Alignment.centerRight,
-                child: IconButton(icon: Icon(Icons.cancel, color: Theme.of(context).hintColor,),
-                    onPressed: () => Navigator.of(context).pop())),
-
+              Align(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                      icon: Icon(
+                        Icons.cancel,
+                        color: Theme.of(context).hintColor,
+                      ),
+                      onPressed: () => Navigator.of(context).pop())),
             ],
           ),
-
         ],
       ),
     );

@@ -4,7 +4,6 @@ import 'package:flutter_sixvalley_ecommerce/utill/dimensions.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
-
 class PdfPreview extends StatefulWidget {
   final String url;
   final String fileName;
@@ -17,7 +16,6 @@ class PdfPreview extends StatefulWidget {
 class _PdfPreviewState extends State<PdfPreview> {
   final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -25,32 +23,35 @@ class _PdfPreviewState extends State<PdfPreview> {
       width: MediaQuery.of(context).size.height * 0.9,
       padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
       decoration: BoxDecoration(
-        color: Theme.of(context).hintColor.withValues(alpha:0.50),
-        borderRadius: BorderRadius.circular(Dimensions.radiusDefault)
-      ),
+          color: Theme.of(context).hintColor.withValues(alpha: 0.50),
+          borderRadius: BorderRadius.circular(Dimensions.radiusDefault)),
       child: Column(
         children: [
           Row(
             children: [
               Expanded(
                 child: Text(widget.fileName,
-                  style: titilliumSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    style: titilliumSemiBold.copyWith(
+                        fontSize: Dimensions.fontSizeLarge),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
               ),
               const SizedBox(width: Dimensions.paddingSizeSmall),
-
-
               SizedBox(
-                height: 20, width: 20,
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: ()=> Navigator.of(context, rootNavigator: true).pop(),
-                  icon: Icon(Icons.close, color: Theme.of(context).hintColor, size: 20,)
-                )
-              ),
+                  height: 20,
+                  width: 20,
+                  child: IconButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () =>
+                          Navigator.of(context, rootNavigator: true).pop(),
+                      icon: Icon(
+                        Icons.close,
+                        color: Theme.of(context).hintColor,
+                        size: 20,
+                      ))),
             ],
           ),
           const SizedBox(height: Dimensions.paddingSizeDefault),
-
           Expanded(
             child: SfPdfViewerTheme(
               data: const SfPdfViewerThemeData(

@@ -6,14 +6,17 @@ import 'package:flutter_sixvalley_ecommerce/features/shop/domain/repositories/sh
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 import 'package:flutter_sixvalley_ecommerce/common/enums/data_source_enum.dart';
 
-class ShopRepository extends DataSyncService implements ShopRepositoryInterface {
+class ShopRepository extends DataSyncService
+    implements ShopRepositoryInterface {
   final DioClient dioClient;
-  ShopRepository({required this.dioClient, required super.dataSyncRepoInterface});
+  ShopRepository(
+      {required this.dioClient, required super.dataSyncRepoInterface});
 
   @override
   Future<ApiResponseModel> get(String sellerId) async {
     try {
-      final response = await dioClient.get("${AppConstants.sellerUri}$sellerId");
+      final response =
+          await dioClient.get("${AppConstants.sellerUri}$sellerId");
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -21,19 +24,23 @@ class ShopRepository extends DataSyncService implements ShopRepositoryInterface 
   }
 
   @override
-  Future<ApiResponseModel<T>> getMoreStore<T>({required DataSourceEnum source}) async {
+  Future<ApiResponseModel<T>> getMoreStore<T>(
+      {required DataSourceEnum source}) async {
     return await fetchData<T>(AppConstants.moreStore, source);
   }
 
   @override
-  Future<ApiResponseModel<T>> getSellerList<T>({required String type, required int offset, required DataSourceEnum source}) async {
-    return await fetchData<T>('${AppConstants.sellerList}$type?limit=10&offset=$offset', source);
+  Future<ApiResponseModel<T>> getSellerList<T>(
+      {required String type,
+      required int offset,
+      required DataSourceEnum source}) async {
+    return await fetchData<T>(
+        '${AppConstants.sellerList}$type?limit=10&offset=$offset', source);
   }
 
-
-
   @override
-  Future<ApiResponseModel> getClearanceShopProductList(String type, String offset, String sellerId) async {
+  Future<ApiResponseModel> getClearanceShopProductList(
+      String type, String offset, String sellerId) async {
     try {
       final response = await dioClient.get(
           '${AppConstants.clearanceShopProductUri}$sellerId/products?guest_id=1&limit=10&offset=$offset&offer_type=$type');
@@ -43,9 +50,16 @@ class ShopRepository extends DataSyncService implements ShopRepositoryInterface 
     }
   }
 
-
   @override
-  Future<ApiResponseModel> getClearanceSearchProduct(String sellerId, String offset, String productId, {String search = '', String? categoryIds="[]", String? brandIds="[]", String? authorIds ='[]', String? publishingIds = '[]', String? productType, String? offerType}) async {
+  Future<ApiResponseModel> getClearanceSearchProduct(
+      String sellerId, String offset, String productId,
+      {String search = '',
+      String? categoryIds = "[]",
+      String? brandIds = "[]",
+      String? authorIds = '[]',
+      String? publishingIds = '[]',
+      String? productType,
+      String? offerType}) async {
     try {
       final response = await dioClient.get(
           '${AppConstants.clearanceShopSearchProductUri}$sellerId/products?guest_id=1&limit=10&offset=$offset&search=$search&category=$categoryIds&brand_ids=$brandIds&product_id=$productId&product_authors=$authorIds&publishing_houses=$publishingIds&product_type=$productType&offer_type=$offerType');
@@ -78,5 +92,4 @@ class ShopRepository extends DataSyncService implements ShopRepositoryInterface 
     // TODO: implement update
     throw UnimplementedError();
   }
-
 }

@@ -10,26 +10,26 @@ class TopSellerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Selector<ShopController, SellerModel?>(
-      selector: (ctx, shopController)=> shopController.topSellerModel,
+      selector: (ctx, shopController) => shopController.topSellerModel,
       builder: (context, sellerModel, child) {
-        return  (sellerModel?.sellers?.isNotEmpty ?? false) ? ListView.builder(
-          itemCount: sellerModel?.sellers?.length,
-          shrinkWrap: true,
-          padding: EdgeInsets.zero,
-          scrollDirection: Axis.horizontal,
-          physics: const AlwaysScrollableScrollPhysics(),
-          itemBuilder: (BuildContext context, int index) => SizedBox(width: 250, child: SellerCard(
-            sellerModel: sellerModel?.sellers?[index],
-            isHomePage: true,
-            index: index,
-            length: sellerModel?.sellers?.length ?? 0,
-          )),
-        ) : const SizedBox();
-
+        return (sellerModel?.sellers?.isNotEmpty ?? false)
+            ? ListView.builder(
+                itemCount: sellerModel?.sellers?.length,
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
+                scrollDirection: Axis.horizontal,
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemBuilder: (BuildContext context, int index) => SizedBox(
+                    width: 250,
+                    child: SellerCard(
+                      sellerModel: sellerModel?.sellers?[index],
+                      isHomePage: true,
+                      index: index,
+                      length: sellerModel?.sellers?.length ?? 0,
+                    )),
+              )
+            : const SizedBox();
       },
     );
   }
 }
-
-
-

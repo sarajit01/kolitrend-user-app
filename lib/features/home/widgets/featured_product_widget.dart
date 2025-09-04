@@ -18,40 +18,54 @@ class FeaturedProductWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Selector<ProductController, ProductModel?>(
-      selector: (ctx, productController)=> productController.featuredProductModel,
+        selector: (ctx, productController) =>
+            productController.featuredProductModel,
         builder: (context, featuredProductModel, _) {
-      return (featuredProductModel?.products?.isNotEmpty ?? false)  ? Column(children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: Dimensions.paddingSizeExtraSmall,
-            vertical: Dimensions.paddingSizeExtraSmall,
-          ),
-          child: TitleRowWidget(
-            title: getTranslated('featured_products', context),
-            onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (_) => const ViewAllProductScreen(productType: ProductType.featuredProduct))),
-          ),
-        ),
-
-        SizedBox(
-          height: ResponsiveHelper.isTab(context)? MediaQuery.of(context).size.width * .58 : 320,
-          child: CarouselSlider.builder(
-            options: CarouselOptions(
-              viewportFraction: ResponsiveHelper.isTab(context)? .5 :.65,
-              autoPlay: false,
-              pauseAutoPlayOnTouch: true,
-              pauseAutoPlayOnManualNavigate: true,
-              enlargeFactor: 0.2,
-              enlargeCenterPage: true,
-              pauseAutoPlayInFiniteScroll: true,
-              disableCenter: true,
-            ),
-            itemCount: featuredProductModel?.products?.length ?? 0,
-            itemBuilder: (context, index, next) {
-              return ProductWidget(productModel: featuredProductModel!.products![index], productNameLine: 1);
-            },
-          ),
-        ),
-      ]) : featuredProductModel == null ? const SliderProductShimmerWidget() : const SizedBox();
-    });
+          return (featuredProductModel?.products?.isNotEmpty ?? false)
+              ? Column(children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Dimensions.paddingSizeExtraSmall,
+                      vertical: Dimensions.paddingSizeExtraSmall,
+                    ),
+                    child: TitleRowWidget(
+                      title: getTranslated('featured_products', context),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const ViewAllProductScreen(
+                                  productType: ProductType.featuredProduct))),
+                    ),
+                  ),
+                  SizedBox(
+                    height: ResponsiveHelper.isTab(context)
+                        ? MediaQuery.of(context).size.width * .58
+                        : 320,
+                    child: CarouselSlider.builder(
+                      options: CarouselOptions(
+                        viewportFraction:
+                            ResponsiveHelper.isTab(context) ? .5 : .65,
+                        autoPlay: false,
+                        pauseAutoPlayOnTouch: true,
+                        pauseAutoPlayOnManualNavigate: true,
+                        enlargeFactor: 0.2,
+                        enlargeCenterPage: true,
+                        pauseAutoPlayInFiniteScroll: true,
+                        disableCenter: true,
+                      ),
+                      itemCount: featuredProductModel?.products?.length ?? 0,
+                      itemBuilder: (context, index, next) {
+                        return ProductWidget(
+                            productModel:
+                                featuredProductModel!.products![index],
+                            productNameLine: 1);
+                      },
+                    ),
+                  ),
+                ])
+              : featuredProductModel == null
+                  ? const SliderProductShimmerWidget()
+                  : const SizedBox();
+        });
   }
 }

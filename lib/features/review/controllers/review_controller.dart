@@ -17,8 +17,6 @@ class ReviewController extends ChangeNotifier {
   final ReviewServiceInterface reviewServiceInterface;
   ReviewController({required this.reviewServiceInterface});
 
-
-
   List<ReviewModel>? _reviewList;
   List<ReviewModel>? get reviewList => _reviewList;
   int _rating = 0;
@@ -26,81 +24,94 @@ class ReviewController extends ChangeNotifier {
   String? _errorText;
   bool _hasConnection = true;
 
-
   int get rating => _rating;
   bool get isLoading => _isLoading;
   String? get errorText => _errorText;
   bool get hasConnection => _hasConnection;
 
-
-  Future<void> getReviewList(int? productId,String? productSlug, BuildContext context) async {
+  Future<void> getReviewList(
+      int? productId, String? productSlug, BuildContext context) async {
     _hasConnection = true;
-    ApiResponseModel reviewResponse = await reviewServiceInterface.get(productId.toString());
-    if (reviewResponse.response != null && reviewResponse.response!.statusCode == 200) {
+    ApiResponseModel reviewResponse =
+        await reviewServiceInterface.get(productId.toString());
+    if (reviewResponse.response != null &&
+        reviewResponse.response!.statusCode == 200) {
       _reviewList = [];
-      reviewResponse.response!.data.forEach((reviewModel) => _reviewList!.add(ReviewModel.fromJson(reviewModel)));
+      reviewResponse.response!.data.forEach(
+          (reviewModel) => _reviewList!.add(ReviewModel.fromJson(reviewModel)));
     } else {
-      ApiChecker.checkApi( reviewResponse);
+      ApiChecker.checkApi(reviewResponse);
     }
     notifyListeners();
   }
 
-  Future<ResponseModel> submitReview(ReviewBody reviewBody, List<File> files, bool update) async {
+  Future<ResponseModel> submitReview(
+      ReviewBody reviewBody, List<File> files, bool update) async {
     _isLoading = true;
     notifyListeners();
-    http.StreamedResponse response = await reviewServiceInterface.submitReview(reviewBody, files, update);
+    http.StreamedResponse response =
+        await reviewServiceInterface.submitReview(reviewBody, files, update);
     ResponseModel responseModel;
     if (response.statusCode == 200) {
-      Provider.of<OrderDetailsController>(Get.context!, listen: false).reviewImages = [];
+      Provider.of<OrderDetailsController>(Get.context!, listen: false)
+          .reviewImages = [];
       _rating = 0;
-      responseModel = ResponseModel('${getTranslated('Review submitted successfully', Get.context!)}', true);
+      responseModel = ResponseModel(
+          '${getTranslated('Review submitted successfully', Get.context!)}',
+          true);
       _errorText = null;
       notifyListeners();
     } else {
-      responseModel = ResponseModel('${response.statusCode} ${response.reasonPhrase}', false);
+      responseModel = ResponseModel(
+          '${response.statusCode} ${response.reasonPhrase}', false);
     }
     _isLoading = false;
     notifyListeners();
     return responseModel;
   }
 
-
-
   ReviewModel? orderWiseReview;
-  Future<void> getOrderWiseReview(String productId, String orderId, {bool showLoading = false}) async {
-    if(showLoading){
+  Future<void> getOrderWiseReview(String productId, String orderId,
+      {bool showLoading = false}) async {
+    if (showLoading) {
       _isLoading = true;
       notifyListeners();
     }
-    ApiResponseModel reviewResponse = await reviewServiceInterface.getOrderWiseReview(productId, orderId);
-    if (reviewResponse.response != null && reviewResponse.response!.statusCode == 200 && reviewResponse.response?.data is !List) {
+    ApiResponseModel reviewResponse =
+        await reviewServiceInterface.getOrderWiseReview(productId, orderId);
+    if (reviewResponse.response != null &&
+        reviewResponse.response!.statusCode == 200 &&
+        reviewResponse.response?.data is! List) {
       orderWiseReview = null;
       orderWiseReview = ReviewModel.fromJson(reviewResponse.response?.data);
-    } else if (reviewResponse.response?.data is List){
+    } else if (reviewResponse.response?.data is List) {
       orderWiseReview = null;
-    }else {
-      ApiChecker.checkApi( reviewResponse);
+    } else {
+      ApiChecker.checkApi(reviewResponse);
     }
-    if(showLoading){
+    if (showLoading) {
       _isLoading = false;
     }
     notifyListeners();
   }
 
-  Future<void> deleteOrderWiseReviewImage(String id, String name, String productId, String orderId) async {
-    ApiResponseModel reviewResponse = await reviewServiceInterface.deleteOrderWiseReviewImage(id, name);
-    if (reviewResponse.response != null && reviewResponse.response!.statusCode == 200) {
+  Future<void> deleteOrderWiseReviewImage(
+      String id, String name, String productId, String orderId) async {
+    ApiResponseModel reviewResponse =
+        await reviewServiceInterface.deleteOrderWiseReviewImage(id, name);
+    if (reviewResponse.response != null &&
+        reviewResponse.response!.statusCode == 200) {
       getOrderWiseReview(productId, orderId);
     } else {
-      ApiChecker.checkApi( reviewResponse);
+      ApiChecker.checkApi(reviewResponse);
     }
     notifyListeners();
   }
 
-
   void removePrevReview() {
     _reviewList = null;
   }
+
   void setErrorText(String? error) {
     _errorText = error;
     notifyListeners();
@@ -111,28 +122,29 @@ class ReviewController extends ChangeNotifier {
     _rating = 0;
     notifyListeners();
   }
+
   void setRating(int rate) {
     _rating = rate;
     notifyListeners();
   }
 
-
   XFile? _imageFile;
   XFile? get imageFile => _imageFile;
-  List <XFile?>_refundImage = [];
+  List<XFile?> _refundImage = [];
   List<XFile?> get refundImage => _refundImage;
   List<File> reviewImages = [];
   void pickImage(bool isRemove, {bool fromReview = false}) async {
-    if(isRemove) {
+    if (isRemove) {
       _imageFile = null;
       _refundImage = [];
       reviewImages = [];
-    }else {
-      _imageFile = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 20);
+    } else {
+      _imageFile = await ImagePicker()
+          .pickImage(source: ImageSource.gallery, imageQuality: 20);
       if (_imageFile != null) {
-        if(fromReview){
+        if (fromReview) {
           reviewImages.add(File(_imageFile!.path));
-        }else{
+        } else {
           _refundImage.add(_imageFile);
         }
       }
@@ -140,14 +152,14 @@ class ReviewController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void initReviewImage(){
+  void initReviewImage() {
     reviewImages = [];
   }
 
-  void removeImage(int index, {bool fromReview = false}){
-    if(fromReview){
+  void removeImage(int index, {bool fromReview = false}) {
+    if (fromReview) {
       reviewImages.removeAt(index);
-    }else{
+    } else {
       _refundImage.removeAt(index);
     }
     notifyListeners();

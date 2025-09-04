@@ -15,18 +15,18 @@ class CouponModel {
 
   CouponModel(
       {int? id,
-        String? couponType,
-        String? title,
-        String? code,
-        String? startDate,
-        String? expireDate,
-        double? minPurchase,
-        double? maxDiscount,
-        double? discount,
-        String? discountType,
-        int? status,
-        String? createdAt,
-        String? updatedAt}) {
+      String? couponType,
+      String? title,
+      String? code,
+      String? startDate,
+      String? expireDate,
+      double? minPurchase,
+      double? maxDiscount,
+      double? discount,
+      String? discountType,
+      int? status,
+      String? createdAt,
+      String? updatedAt}) {
     _id = id;
     _couponType = couponType;
     _title = title;
@@ -60,9 +60,9 @@ class CouponModel {
     _id = json['id'];
     _couponType = json['coupon_type'];
     _title = json['title'];
-    if(json['code'] != null){
+    if (json['code'] != null) {
       _code = json['code'];
-    }else{
+    } else {
       _code = '';
     }
     _startDate = json['start_date'];

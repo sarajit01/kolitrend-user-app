@@ -23,81 +23,88 @@ class MoreHorizontalSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isGuestMode = !Provider.of<AuthController>(context, listen: false).isLoggedIn();
-    final ConfigModel? configModel = Provider.of<SplashController>(context, listen: false).configModel;
+    final bool isGuestMode =
+        !Provider.of<AuthController>(context, listen: false).isLoggedIn();
+    final ConfigModel? configModel =
+        Provider.of<SplashController>(context, listen: false).configModel;
 
-    return Consumer<ProfileController>(builder: (context, profileProvider,_) {
-      return SizedBox(height: ResponsiveHelper.isTab(context)? 135 :130, child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall),
-        child: Center(child: ListView(
-          scrollDirection:Axis.horizontal,
-          shrinkWrap: true,
-          physics: const BouncingScrollPhysics(),
-          children: [
-            SquareButtonWidget(
-              image: Images.offerIcon,
-              title: getTranslated('offers', context),
-              navigateTo: const OfferProductListScreen(),
-              count: 0,
-              hasCount: false,
-            ),
-
-            if(!isGuestMode && configModel?.walletStatus == 1)SquareButtonWidget(
-              image: Images.wallet,
-              title: getTranslated('wallet', context),
-              navigateTo: const WalletScreen(),
-              count: 1,
-              hasCount: false,
-              subTitle: 'amount',
-              isWallet: true,
-              balance: profileProvider.balance,
-            ),
-
-
-            if(!isGuestMode && configModel?.loyaltyPointStatus == 1) SquareButtonWidget(
-              image: Images.loyaltyPoint,
-              title: getTranslated('loyalty_point', context),
-              navigateTo: const LoyaltyPointScreen(),
-              count: 1,
-              hasCount: false,
-              isWallet: true,
-              subTitle: 'point',
-              balance: profileProvider.loyaltyPoint, isLoyalty: true,
-            ),
-
-
-            if(!isGuestMode) SquareButtonWidget(
-              image: Images.shoppingImage,
-              title: getTranslated('orders', context),
-              navigateTo: const OrderScreen(),
-              count: 1,
-              hasCount: false,
-              isWallet: true,
-              subTitle: 'orders',
-              balance: profileProvider.userInfoModel?.totalOrder ?? 0,
-              isLoyalty: true,
-            ),
-
-            SquareButtonWidget(
-              image: Images.cartImage,
-              title: getTranslated('cart', context),
-              navigateTo: const CartScreen(),
-              count: Provider.of<CartController>(context,listen: false).cartList.length,
-              hasCount: true,
-            ),
-
-            Consumer<WishListController>(builder: (context, wishListController, _) {
-              return SquareButtonWidget(
-                image: Images.wishlist, title: getTranslated('wishlist', context),
-                navigateTo: const WishListScreen(),
-                count: wishListController.wishList?.length ?? 0,
-                hasCount: (!isGuestMode  && (wishListController.wishList?.length ?? 0) > 0),
-              );
-            }),
-
-          ],
-        )),
-      ));
+    return Consumer<ProfileController>(builder: (context, profileProvider, _) {
+      return SizedBox(
+          height: ResponsiveHelper.isTab(context) ? 135 : 130,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: Dimensions.paddingSizeExtraSmall),
+            child: Center(
+                child: ListView(
+              scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
+              children: [
+                SquareButtonWidget(
+                  image: Images.offerIcon,
+                  title: getTranslated('offers', context),
+                  navigateTo: const OfferProductListScreen(),
+                  count: 0,
+                  hasCount: false,
+                ),
+                if (!isGuestMode && configModel?.walletStatus == 1)
+                  SquareButtonWidget(
+                    image: Images.wallet,
+                    title: getTranslated('wallet', context),
+                    navigateTo: const WalletScreen(),
+                    count: 1,
+                    hasCount: false,
+                    subTitle: 'amount',
+                    isWallet: true,
+                    balance: profileProvider.balance,
+                  ),
+                if (!isGuestMode && configModel?.loyaltyPointStatus == 1)
+                  SquareButtonWidget(
+                    image: Images.loyaltyPoint,
+                    title: getTranslated('loyalty_point', context),
+                    navigateTo: const LoyaltyPointScreen(),
+                    count: 1,
+                    hasCount: false,
+                    isWallet: true,
+                    subTitle: 'point',
+                    balance: profileProvider.loyaltyPoint,
+                    isLoyalty: true,
+                  ),
+                if (!isGuestMode)
+                  SquareButtonWidget(
+                    image: Images.shoppingImage,
+                    title: getTranslated('orders', context),
+                    navigateTo: const OrderScreen(),
+                    count: 1,
+                    hasCount: false,
+                    isWallet: true,
+                    subTitle: 'orders',
+                    balance: profileProvider.userInfoModel?.totalOrder ?? 0,
+                    isLoyalty: true,
+                  ),
+                SquareButtonWidget(
+                  image: Images.cartImage,
+                  title: getTranslated('cart', context),
+                  navigateTo: const CartScreen(),
+                  count: Provider.of<CartController>(context, listen: false)
+                      .cartList
+                      .length,
+                  hasCount: true,
+                ),
+                Consumer<WishListController>(
+                    builder: (context, wishListController, _) {
+                  return SquareButtonWidget(
+                    image: Images.wishlist,
+                    title: getTranslated('wishlist', context),
+                    navigateTo: const WishListScreen(),
+                    count: wishListController.wishList?.length ?? 0,
+                    hasCount: (!isGuestMode &&
+                        (wishListController.wishList?.length ?? 0) > 0),
+                  );
+                }),
+              ],
+            )),
+          ));
     });
   }
 }

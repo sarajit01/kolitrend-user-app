@@ -11,21 +11,32 @@ class FlashDealScreenView extends StatefulWidget {
   @override
   State<FlashDealScreenView> createState() => _FlashDealScreenViewState();
 }
+
 class _FlashDealScreenViewState extends State<FlashDealScreenView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(children: [
-        // CustomAppBar(title: getTranslated('flash_deal', context)?.toUpperCase()),
+        body: Column(children: [
+      // CustomAppBar(title: getTranslated('flash_deal', context)?.toUpperCase()),
 
-        SafeArea(
-          child: Padding(padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-            child: TitleRowWidget(title: getTranslated('flash_deal', context)?.toUpperCase(),
-              eventDuration: Provider.of<FlashDealController>(context).duration, isFlash: true, isBackExist: true)),
-        ),
-        Expanded(child: RefreshIndicator(
-          onRefresh: () async => await Provider.of<FlashDealController>(context, listen: false).getFlashDealList(true, false),
-          child: const Padding(padding: EdgeInsets.all(Dimensions.paddingSizeSmall),
-            child: FlashDealsListWidget(isHomeScreen: false))))]));
+      SafeArea(
+        child: Padding(
+            padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+            child: TitleRowWidget(
+                title: getTranslated('flash_deal', context)?.toUpperCase(),
+                eventDuration:
+                    Provider.of<FlashDealController>(context).duration,
+                isFlash: true,
+                isBackExist: true)),
+      ),
+      Expanded(
+          child: RefreshIndicator(
+              onRefresh: () async =>
+                  await Provider.of<FlashDealController>(context, listen: false)
+                      .getFlashDealList(true, false),
+              child: const Padding(
+                  padding: EdgeInsets.all(Dimensions.paddingSizeSmall),
+                  child: FlashDealsListWidget(isHomeScreen: false))))
+    ]));
   }
 }

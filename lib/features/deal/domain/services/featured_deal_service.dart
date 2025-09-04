@@ -8,7 +8,9 @@ class FeaturedDealService implements FeaturedDealServiceInterface {
   FeaturedDealService({required this.featuredDealRepositoryInterface});
 
   @override
-  Future<ApiResponseModel<T>> getFeaturedDeal<T>({required DataSourceEnum source}) async {
-    return await featuredDealRepositoryInterface.getFeaturedDeal(source: source);
+  Future<ApiResponseModel<T>> getFeaturedDeal<T>(
+      {required DataSourceEnum source}) async {
+    return await featuredDealRepositoryInterface.getFeaturedDeal(
+        source: source);
   }
 }

@@ -9,12 +9,12 @@ class ChosenShippingMethodModel {
 
   ChosenShippingMethodModel(
       {int? id,
-        String? cartGroupId,
-        int? shippingMethodId,
-        double? shippingCost,
-        String? createdAt,
-        String? updatedAt,
-        int? isCheckItemExist}) {
+      String? cartGroupId,
+      int? shippingMethodId,
+      double? shippingCost,
+      String? createdAt,
+      String? updatedAt,
+      int? isCheckItemExist}) {
     _id = id;
     _cartGroupId = cartGroupId;
     _shippingMethodId = shippingMethodId;

@@ -11,7 +11,6 @@ import 'package:flutter_sixvalley_ecommerce/utill/images.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 
-
 class OfferProductListScreen extends StatefulWidget {
   const OfferProductListScreen({super.key});
 
@@ -25,51 +24,62 @@ class _OfferProductListScreenState extends State<OfferProductListScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<ProductController>(context, listen: false).getDiscountedProductList(1, false);
-
+    Provider.of<ProductController>(context, listen: false)
+        .getDiscountedProductList(1, false);
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: '${getTranslated('offers', context)}',),
+      appBar: CustomAppBar(
+        title: '${getTranslated('offers', context)}',
+      ),
       body: Consumer<ProductController>(
         builder: (context, productController, child) {
-
-          if(productController.discountedProductModel == null) {
+          if (productController.discountedProductModel == null) {
             return const ProductShimmer(isEnabled: true, isHomePage: false);
           }
 
-          return (productController.discountedProductModel?.products?.isNotEmpty ?? false) ? Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault).copyWith(bottom: Dimensions.paddingSizeSmall),
-            child: PaginatedListView(
-              scrollController: scrollController,
-              totalSize: productController.discountedProductModel?.totalSize,
-              offset: productController.discountedProductModel?.offset,
-              onPaginate: (int? offset) async => await productController.getDiscountedProductList(offset ?? 1, false),
-              itemView: Expanded(
-                child: RepaintBoundary(
-                  child: MasonryGridView.count(
-                    itemCount: productController.discountedProductModel?.products?.length,
-                    crossAxisCount: 2,
-                    padding: const EdgeInsets.all(0),
-                    controller: scrollController,
-                    itemBuilder: (BuildContext context, int index) {
-                      return ProductWidget(productModel: productController.discountedProductModel!.products![index]);
-                    },
+          return (productController
+                      .discountedProductModel?.products?.isNotEmpty ??
+                  false)
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeDefault)
+                      .copyWith(bottom: Dimensions.paddingSizeSmall),
+                  child: PaginatedListView(
+                    scrollController: scrollController,
+                    totalSize:
+                        productController.discountedProductModel?.totalSize,
+                    offset: productController.discountedProductModel?.offset,
+                    onPaginate: (int? offset) async => await productController
+                        .getDiscountedProductList(offset ?? 1, false),
+                    itemView: Expanded(
+                      child: RepaintBoundary(
+                        child: MasonryGridView.count(
+                          itemCount: productController
+                              .discountedProductModel?.products?.length,
+                          crossAxisCount: 2,
+                          padding: const EdgeInsets.all(0),
+                          controller: scrollController,
+                          itemBuilder: (BuildContext context, int index) {
+                            return ProductWidget(
+                                productModel: productController
+                                    .discountedProductModel!.products![index]);
+                          },
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
-          ) : const Center(child: NoInternetOrDataScreenWidget(
-            isNoInternet: false,
-            message: 'currently_no_offers_available',icon: Images.noOffer,
-          ));
+                )
+              : const Center(
+                  child: NoInternetOrDataScreenWidget(
+                  isNoInternet: false,
+                  message: 'currently_no_offers_available',
+                  icon: Images.noOffer,
+                ));
         },
       ),
     );
   }
-
 }
-

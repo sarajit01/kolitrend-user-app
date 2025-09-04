@@ -1,7 +1,6 @@
 import 'transformer_page_view/index_controller.dart';
 import 'swiper_plugin.dart';
 
-
 class SwipeIndexControllerEvent extends IndexControllerEventBase {
   SwipeIndexControllerEvent({
     required this.pos,

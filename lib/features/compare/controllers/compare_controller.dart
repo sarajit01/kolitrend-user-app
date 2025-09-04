@@ -7,18 +7,18 @@ import 'package:flutter_sixvalley_ecommerce/helper/api_checker.dart';
 import 'package:flutter_sixvalley_ecommerce/main.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/show_custom_snakbar_widget.dart';
 
-
 class CompareController extends ChangeNotifier {
   final CompareServiceInterface compareServiceInterface;
   CompareController({required this.compareServiceInterface});
 
-
-
   void addCompareList(int productID) async {
-    ApiResponseModel apiResponse = await compareServiceInterface.addCompareProductList(productID);
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+    ApiResponseModel apiResponse =
+        await compareServiceInterface.addCompareProductList(productID);
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
       getCompareList();
-      showCustomSnackBar(apiResponse.response!.data['message'], Get.context!, isError: false);
+      showCustomSnackBar(apiResponse.response!.data['message'], Get.context!,
+          isError: false);
     } else {
       showCustomSnackBar(apiResponse.error.toString(), Get.context!);
     }
@@ -28,13 +28,13 @@ class CompareController extends ChangeNotifier {
   List<int> compIds = [];
   CompareModel? compareModel;
   void getCompareList() async {
-
     ApiResponseModel apiResponse = await compareServiceInterface.getList();
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
       compIds = [];
       compareModel = null;
       compareModel = CompareModel.fromJson(apiResponse.response?.data);
-      for(int i = 0; i< compareModel!.compareLists!.length; i++){
+      for (int i = 0; i < compareModel!.compareLists!.length; i++) {
         compIds.add(compareModel!.compareLists![i].productId!);
       }
     } else {
@@ -44,9 +44,12 @@ class CompareController extends ChangeNotifier {
   }
 
   void removeAllCompareList() async {
-    ApiResponseModel apiResponse = await compareServiceInterface.removeAllCompareProductList();
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
-      showCustomSnackBar(apiResponse.response!.data['message'], Get.context!, isError: false);
+    ApiResponseModel apiResponse =
+        await compareServiceInterface.removeAllCompareProductList();
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
+      showCustomSnackBar(apiResponse.response!.data['message'], Get.context!,
+          isError: false);
       getCompareList();
     } else {
       showCustomSnackBar(apiResponse.error.toString(), Get.context!);
@@ -55,34 +58,31 @@ class CompareController extends ChangeNotifier {
   }
 
   void replaceCompareList(int compareId, int productId) async {
-    ApiResponseModel apiResponse = await compareServiceInterface.replaceCompareProductList(compareId, productId);
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+    ApiResponseModel apiResponse = await compareServiceInterface
+        .replaceCompareProductList(compareId, productId);
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
       getCompareList();
-      showCustomSnackBar(apiResponse.response!.data['message'], Get.context!, isError: false);
+      showCustomSnackBar(apiResponse.response!.data['message'], Get.context!,
+          isError: false);
     } else {
       showCustomSnackBar(apiResponse.error.toString(), Get.context!);
     }
     notifyListeners();
   }
 
-
   List<AttributeModel>? attributeList = [];
   void getAttributeList() async {
-    ApiResponseModel response = await compareServiceInterface.getAttributeList();
+    ApiResponseModel response =
+        await compareServiceInterface.getAttributeList();
     if (response.response != null && response.response!.statusCode == 200) {
       attributeList = [];
       response.response!.data.forEach((attribute) {
         attributeList!.add(AttributeModel.fromJson(attribute));
       });
     } else {
-      ApiChecker.checkApi( response);
+      ApiChecker.checkApi(response);
     }
     notifyListeners();
-
   }
-
-
-
-
-
 }

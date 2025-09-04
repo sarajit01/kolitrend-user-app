@@ -16,17 +16,17 @@ class ReviewModel {
 
   ReviewModel(
       {int? id,
-        int? productId,
-        int? customerId,
-        String? comment,
-        List<String>? attachment,
-        int? rating,
-        int? status,
-        String? createdAt,
-        String? updatedAt,
-        Customer? customer,
-        Reply? reply,
-        List<ImageFullUrl>? attachmentFullUrl}) {
+      int? productId,
+      int? customerId,
+      String? comment,
+      List<String>? attachment,
+      int? rating,
+      int? status,
+      String? createdAt,
+      String? updatedAt,
+      Customer? customer,
+      Reply? reply,
+      List<ImageFullUrl>? attachmentFullUrl}) {
     _id = id;
     _productId = productId;
     _customerId = customerId;
@@ -61,16 +61,15 @@ class ReviewModel {
     _productId = int.parse(json['product_id'].toString());
     _customerId = int.parse(json['customer_id'].toString());
     _comment = json['comment'];
-    if(json['attachment'] != null && json['attachment'] is List){
+    if (json['attachment'] != null && json['attachment'] is List) {
       _attachment = json['attachment'].cast<String>();
     }
     _rating = json['rating'];
     _status = json['status'];
     _createdAt = json['created_at'];
     _updatedAt = json['updated_at'];
-    _customer = json['customer'] != null
-        ? Customer.fromJson(json['customer'])
-        : null;
+    _customer =
+        json['customer'] != null ? Customer.fromJson(json['customer']) : null;
     _reply = json['reply'] != null ? Reply.fromJson(json['reply']) : null;
     if (json['attachment_full_url'] != null) {
       _attachmentFullUrl = <ImageFullUrl>[];
@@ -124,22 +123,22 @@ class Customer {
 
   Customer(
       {int? id,
-        String? name,
-        String? fName,
-        String? lName,
-        String? phone,
-        String? image,
-        String? email,
-        String? emailVerifiedAt,
-        String? createdAt,
-        String? updatedAt,
-        String? streetAddress,
-        String? country,
-        String? city,
-        String? zip,
-        String? houseNo,
-        String? apartmentNo,
-        ImageFullUrl? imageFullUrl}) {
+      String? name,
+      String? fName,
+      String? lName,
+      String? phone,
+      String? image,
+      String? email,
+      String? emailVerifiedAt,
+      String? createdAt,
+      String? updatedAt,
+      String? streetAddress,
+      String? country,
+      String? city,
+      String? zip,
+      String? houseNo,
+      String? apartmentNo,
+      ImageFullUrl? imageFullUrl}) {
     _id = id;
     _name = name;
     _fName = fName;
@@ -221,8 +220,6 @@ class Customer {
   }
 }
 
-
-
 class Reply {
   int? _id;
   int? _reviewId;
@@ -234,12 +231,12 @@ class Reply {
 
   Reply(
       {int? id,
-        int? reviewId,
-        int? addedById,
-        String? addedBy,
-        String? replyText,
-        String? createdAt,
-        String? updatedAt}) {
+      int? reviewId,
+      int? addedById,
+      String? addedBy,
+      String? replyText,
+      String? createdAt,
+      String? updatedAt}) {
     if (id != null) {
       _id = id;
     }

@@ -5,16 +5,16 @@ import 'package:flutter_sixvalley_ecommerce/utill/dimensions.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_sixvalley_ecommerce/features/chat/controllers/chat_controller.dart';
 
-
 class ConversationListTabview extends StatelessWidget {
   final TabController? tabController;
   const ConversationListTabview({super.key, this.tabController});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ChatController>(
-        builder: (context, chatProvider,_) {
-      return Padding( padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
+    return Consumer<ChatController>(builder: (context, chatProvider, _) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(
+            horizontal: Dimensions.paddingSizeDefault),
         child: Row(
           children: [
             TabBar(
@@ -23,18 +23,22 @@ class ConversationListTabview extends StatelessWidget {
               isScrollable: true,
               dividerColor: Colors.transparent,
               indicatorColor: Theme.of(context).primaryColor,
-              labelColor:  Theme.of(context).primaryColor,
+              labelColor: Theme.of(context).primaryColor,
               labelStyle: textMedium,
               indicatorWeight: 1,
               tabAlignment: TabAlignment.start,
               labelPadding: EdgeInsets.only(
-                right: chatProvider.isActiveSuffixIcon && (chatProvider.messageModel?.message?.isNotEmpty ?? false) ? 10 : 25,
+                right: chatProvider.isActiveSuffixIcon &&
+                        (chatProvider.messageModel?.message?.isNotEmpty ??
+                            false)
+                    ? 10
+                    : 25,
               ),
               indicatorPadding: const EdgeInsets.only(right: 10),
-              tabs:  [
+              tabs: [
                 SizedBox(
                   height: 35,
-                  child:Center(
+                  child: Center(
                     child: Row(
                       children: [
                         Text(getTranslated('delivery-man', context)!),
@@ -44,7 +48,7 @@ class ConversationListTabview extends StatelessWidget {
                 ),
                 SizedBox(
                   height: 35,
-                  child:  Center(
+                  child: Center(
                     child: Row(
                       children: [
                         Text(getTranslated('vendor', context)!),
@@ -53,15 +57,15 @@ class ConversationListTabview extends StatelessWidget {
                   ),
                 ),
               ],
-              onTap: (index){
-                if(chatProvider.isActiveSuffixIcon){
-                  chatProvider.setUserTypeIndex(context, tabController!.index, searchActive: true);
-                }else{
+              onTap: (index) {
+                if (chatProvider.isActiveSuffixIcon) {
+                  chatProvider.setUserTypeIndex(context, tabController!.index,
+                      searchActive: true);
+                } else {
                   chatProvider.setUserTypeIndex(context, tabController!.index);
                 }
               },
             ),
-
             const Expanded(child: SizedBox()),
           ],
         ),

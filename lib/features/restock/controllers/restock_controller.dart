@@ -8,7 +8,6 @@ import 'package:flutter_sixvalley_ecommerce/common/basewidget/show_custom_snakba
 import 'package:flutter_sixvalley_ecommerce/features/cart/screens/cart_screen.dart';
 import '../domain/models/restock_product_model.dart';
 
-
 class RestockController with ChangeNotifier {
   final RestockServiceInterface restockServiceInterface;
   RestockController({required this.restockServiceInterface});
@@ -25,72 +24,80 @@ class RestockController with ChangeNotifier {
   RestockProductModel? restockProductModel;
 
   Future<ApiResponseModel> reorder({String? orderId}) async {
-    _isLoading =true;
-    ApiResponseModel apiResponse = await restockServiceInterface.reorder(orderId!);
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
-      showCustomSnackBar(apiResponse.response?.data['message'], Get.context!, isError: false);
-      Navigator.push(Get.context!, MaterialPageRoute(builder: (_) => const CartScreen()));
+    _isLoading = true;
+    ApiResponseModel apiResponse =
+        await restockServiceInterface.reorder(orderId!);
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
+      showCustomSnackBar(apiResponse.response?.data['message'], Get.context!,
+          isError: false);
+      Navigator.push(
+          Get.context!, MaterialPageRoute(builder: (_) => const CartScreen()));
     }
     notifyListeners();
     return apiResponse;
   }
 
-
-  Future<void> getRestockProductList(int offset,{bool getAll = false}) async {
+  Future<void> getRestockProductList(int offset, {bool getAll = false}) async {
     _isLoading = true;
-    ApiResponseModel apiResponse = await restockServiceInterface.getRestockProductList(offset.toString(), getAll);
+    ApiResponseModel apiResponse = await restockServiceInterface
+        .getRestockProductList(offset.toString(), getAll);
 
-    if (apiResponse.response != null  && apiResponse.response!.statusCode == 200) {
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
       _isLoading = false;
-      if(offset == 1) {
-        restockProductModel = RestockProductModel.fromJson(apiResponse.response?.data);
-        if(getAll && restockProductModel!.data!.isNotEmpty) {
+      if (offset == 1) {
+        restockProductModel =
+            RestockProductModel.fromJson(apiResponse.response?.data);
+        if (getAll && restockProductModel!.data!.isNotEmpty) {
           subscribeTopic(restockProductModel?.data ?? []);
         }
       } else {
-        restockProductModel!.data!.addAll(RestockProductModel.fromJson(apiResponse.response?.data).data!);
-        restockProductModel!.offset = RestockProductModel.fromJson(apiResponse.response?.data).offset;
-        restockProductModel!.totalSize = RestockProductModel.fromJson(apiResponse.response?.data).totalSize;
+        restockProductModel!.data!.addAll(
+            RestockProductModel.fromJson(apiResponse.response?.data).data!);
+        restockProductModel!.offset =
+            RestockProductModel.fromJson(apiResponse.response?.data).offset;
+        restockProductModel!.totalSize =
+            RestockProductModel.fromJson(apiResponse.response?.data).totalSize;
       }
-    _isLoading = false;
-    notifyListeners();
-  }}
-
-
-  void subscribeTopic (List<Data> data) async {
-    for (Data item in data) {
-      await  FirebaseMessaging.instance.subscribeToTopic(item.fcmTopic!);
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
+  void subscribeTopic(List<Data> data) async {
+    for (Data item in data) {
+      await FirebaseMessaging.instance.subscribeToTopic(item.fcmTopic!);
+    }
+  }
 
-  Future<void> deleteRestockProduct(String? id, String? type, int? index) async {
+  Future<void> deleteRestockProduct(
+      String? id, String? type, int? index) async {
     _isLoading = true;
-    ApiResponseModel apiResponse = await restockServiceInterface.deleteRestockProduct(type, id);
+    ApiResponseModel apiResponse =
+        await restockServiceInterface.deleteRestockProduct(type, id);
 
-    if (apiResponse.response != null  && apiResponse.response!.statusCode == 200) {
-      if(index != null){
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
+      if (index != null) {
         restockProductModel!.data!.removeAt(index);
         restockProductModel!.totalSize = (restockProductModel!.totalSize! - 1);
-      } else if (type == 'all'){
+      } else if (type == 'all') {
         restockProductModel!.data = [];
         restockProductModel!.totalSize = 0;
       }
       _isLoading = false;
       notifyListeners();
-    }}
-
+    }
+  }
 
   void emptyReStockData() {
     restockProductModel = null;
     notifyListeners();
   }
 
-
   void setBottomSheetOpen(bool value) {
     _isBottomSheetOpen = value;
     notifyListeners();
   }
-
-
 }

@@ -4,17 +4,17 @@ import 'package:flutter_sixvalley_ecommerce/features/chat/domain/repositories/ch
 import 'package:flutter_sixvalley_ecommerce/features/chat/domain/services/chat_service_interface.dart';
 import 'package:image_picker/image_picker.dart';
 
-class ChatService implements ChatServiceInterface{
+class ChatService implements ChatServiceInterface {
   ChatRepositoryInterface chatRepositoryInterface;
   ChatService({required this.chatRepositoryInterface});
 
   @override
-  Future getChatList(String type, int offset) async{
+  Future getChatList(String type, int offset) async {
     return chatRepositoryInterface.getChatList(type, offset);
   }
 
   @override
-  Future getMessageList(String type, int? id, int offset) async{
+  Future getMessageList(String type, int? id, int offset) async {
     return chatRepositoryInterface.getMessageList(type, id, offset);
   }
 
@@ -24,13 +24,14 @@ class ChatService implements ChatServiceInterface{
   }
 
   @override
-  Future seenMessage(int id, String type) async{
+  Future seenMessage(int id, String type) async {
     return chatRepositoryInterface.seenMessage(id, type);
   }
 
   @override
-  Future sendMessage(MessageBody messageBody, String type, List<XFile?> file, List<PlatformFile>? platformFile) async{
-    return chatRepositoryInterface.sendMessage(messageBody, type, file, platformFile);
+  Future sendMessage(MessageBody messageBody, String type, List<XFile?> file,
+      List<PlatformFile>? platformFile) async {
+    return chatRepositoryInterface.sendMessage(
+        messageBody, type, file, platformFile);
   }
-
 }

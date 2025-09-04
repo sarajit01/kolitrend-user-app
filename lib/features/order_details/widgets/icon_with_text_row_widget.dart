@@ -11,22 +11,50 @@ class IconWithTextRowWidget extends StatelessWidget {
   final Color? iconColor;
   final Color? textColor;
   final bool isTitle;
-  const IconWithTextRowWidget({super.key, required this.text, required this.icon, this.iconColor, this.textColor, this.isTitle =false, this.imageIcon});
+  const IconWithTextRowWidget(
+      {super.key,
+      required this.text,
+      required this.icon,
+      this.iconColor,
+      this.textColor,
+      this.isTitle = false,
+      this.imageIcon});
 
   @override
   Widget build(BuildContext context) {
     return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      imageIcon != null? Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: SizedBox(width: 17,child: Image.asset(imageIcon!, color: Theme.of(context).primaryColor.withValues(alpha:.5),)),
-      ):
-        Icon(icon, color:  Provider.of<ThemeController>(context, listen: false).darkTheme?
-        Colors.white : Theme.of(context).primaryColor.withValues(alpha:.30), size: Dimensions.iconSizeDefault,),
-        const SizedBox(width: Dimensions.marginSizeSmall,),
-
-        Expanded(child: Text(maxLines: 2, overflow : TextOverflow.ellipsis,
-              text, style: titilliumRegular.copyWith(fontSize: isTitle? Dimensions.fontSizeLarge : Dimensions.fontSizeDefault,
-                  color: textColor ?? Theme.of(context).textTheme.bodyLarge?.color)))
+      imageIcon != null
+          ? Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: SizedBox(
+                  width: 17,
+                  child: Image.asset(
+                    imageIcon!,
+                    color: Theme.of(context).primaryColor.withValues(alpha: .5),
+                  )),
+            )
+          : Icon(
+              icon,
+              color:
+                  Provider.of<ThemeController>(context, listen: false).darkTheme
+                      ? Colors.white
+                      : Theme.of(context).primaryColor.withValues(alpha: .30),
+              size: Dimensions.iconSizeDefault,
+            ),
+      const SizedBox(
+        width: Dimensions.marginSizeSmall,
+      ),
+      Expanded(
+          child: Text(
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              text,
+              style: titilliumRegular.copyWith(
+                  fontSize: isTitle
+                      ? Dimensions.fontSizeLarge
+                      : Dimensions.fontSizeDefault,
+                  color: textColor ??
+                      Theme.of(context).textTheme.bodyLarge?.color)))
     ]);
   }
 }

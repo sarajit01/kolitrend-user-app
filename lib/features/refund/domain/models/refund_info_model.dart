@@ -8,8 +8,7 @@ class RefundInfoModel {
   RefundInfoModel.fromJson(Map<String, dynamic> json) {
     alreadyRequested = json['already_requested'];
     expired = json['expired'];
-    refund =
-    json['refund'] != null ? Refund.fromJson(json['refund']) : null;
+    refund = json['refund'] != null ? Refund.fromJson(json['refund']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -34,12 +33,12 @@ class Refund {
 
   Refund(
       {this.productPrice,
-        this.quntity,
-        this.productTotalDiscount,
-        this.productTotalTax,
-        this.subtotal,
-        this.couponDiscount,
-        this.refundAmount});
+      this.quntity,
+      this.productTotalDiscount,
+      this.productTotalTax,
+      this.subtotal,
+      this.couponDiscount,
+      this.refundAmount});
 
   Refund.fromJson(Map<String, dynamic> json) {
     productPrice = json['product_price'].toDouble();

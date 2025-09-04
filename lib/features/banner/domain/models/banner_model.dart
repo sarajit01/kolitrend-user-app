@@ -20,21 +20,20 @@ class BannerModel {
 
   BannerModel(
       {this.id,
-        this.photo,
-        this.bannerType,
-        this.published,
-        this.createdAt,
-        this.updatedAt,
-        this.url,
-        this.resourceType,
-        this.resourceId,
-        this.product,
-        this.title,
-        this.subTitle,
-        this.buttonText,
-        this.backgroundColor,
-        this.photoFullUrl
-      });
+      this.photo,
+      this.bannerType,
+      this.published,
+      this.createdAt,
+      this.updatedAt,
+      this.url,
+      this.resourceType,
+      this.resourceId,
+      this.product,
+      this.title,
+      this.subTitle,
+      this.buttonText,
+      this.backgroundColor,
+      this.photoFullUrl});
 
   BannerModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -50,9 +49,10 @@ class BannerModel {
     subTitle = json['sub_title'];
     buttonText = json['button_text'];
     backgroundColor = json['background_color'];
-    product = json['product'] != null ? Product.fromJson(json['product']) : null;
+    product =
+        json['product'] != null ? Product.fromJson(json['product']) : null;
     photoFullUrl = json['photo_full_url'] != null
-      ? ImageFullUrl.fromJson(json['photo_full_url']) : null;
+        ? ImageFullUrl.fromJson(json['photo_full_url'])
+        : null;
   }
-
 }

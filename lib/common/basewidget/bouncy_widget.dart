@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+
 class BouncyWidget extends StatefulWidget {
   final Duration duration;
   final double lift;
@@ -8,17 +9,18 @@ class BouncyWidget extends StatefulWidget {
 
   const BouncyWidget(
       {this.duration = const Duration(seconds: 1),
-        required this.lift,
-        this.pause = 0,
-        this.ratio = 0.25,
-        required this.child,
-        super.key});
+      required this.lift,
+      this.pause = 0,
+      this.ratio = 0.25,
+      required this.child,
+      super.key});
 
   @override
   BouncyWidgetState createState() => BouncyWidgetState();
 }
 
-class BouncyWidgetState extends State<BouncyWidget> with TickerProviderStateMixin {
+class BouncyWidgetState extends State<BouncyWidget>
+    with TickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -62,9 +64,9 @@ class _BouncyAnimation extends StatelessWidget {
     required this.ratio,
     required this.child,
   })  : upPhase = Tween<double>(begin: 0.0, end: lift).animate(CurvedAnimation(
-      parent: controller,
-      curve:
-      Interval(0.0, ratio * (1 - pause), curve: Curves.decelerate))),
+            parent: controller,
+            curve:
+                Interval(0.0, ratio * (1 - pause), curve: Curves.decelerate))),
         downPhase = Tween<double>(begin: lift, end: 0).animate(CurvedAnimation(
             parent: controller,
             curve: Interval(ratio * (1 - pause), (1.0 - pause),

@@ -6,20 +6,24 @@ import 'package:flutter_sixvalley_ecommerce/features/product/domain/repositories
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 import 'package:flutter_sixvalley_ecommerce/common/enums/data_source_enum.dart';
 
-class SellerProductRepository extends DataSyncService implements SellerProductRepositoryInterface {
+class SellerProductRepository extends DataSyncService
+    implements SellerProductRepositoryInterface {
   final DioClient dioClient;
-  SellerProductRepository({required this.dioClient, required super.dataSyncRepoInterface});
+  SellerProductRepository(
+      {required this.dioClient, required super.dataSyncRepoInterface});
 
   @override
   Future<ApiResponseModel> getSellerProductList(
-      String sellerId, String offset, String productId,
-      {String search = '',
-        String? categoryIds = "[]",
-        String? brandIds = "[]",
-        String? authorIds = '[]',
-        String? publishingIds = '[]',
-        String? productType,
-      }) async {
+    String sellerId,
+    String offset,
+    String productId, {
+    String search = '',
+    String? categoryIds = "[]",
+    String? brandIds = "[]",
+    String? authorIds = '[]',
+    String? publishingIds = '[]',
+    String? productType,
+  }) async {
     try {
       final response = await dioClient.get(
           '${AppConstants.sellerProductUri}$sellerId/products?guest_id=1&limit=10&offset=$offset&search=$search&category=$categoryIds&brand_ids=$brandIds&product_id=$productId&product_authors=$authorIds&publishing_houses=$publishingIds&product_type=$productType');
@@ -30,7 +34,8 @@ class SellerProductRepository extends DataSyncService implements SellerProductRe
   }
 
   @override
-  Future<ApiResponseModel> getSellerWiseBestSellingProductList(String sellerId, String offset) async {
+  Future<ApiResponseModel> getSellerWiseBestSellingProductList(
+      String sellerId, String offset) async {
     try {
       final response = await dioClient.get(
           '${AppConstants.sellerWiseBestSellingProduct}$sellerId/seller-best-selling-products?guest_id=1&limit=10&offset=$offset');
@@ -41,18 +46,20 @@ class SellerProductRepository extends DataSyncService implements SellerProductRe
   }
 
   @override
-  Future<ApiResponseModel> getSellerWiseFeaturedProductList(String sellerId, String offset) async {
+  Future<ApiResponseModel> getSellerWiseFeaturedProductList(
+      String sellerId, String offset) async {
     try {
-      final response = await dioClient.get('${AppConstants.sellerWiseBestSellingProduct}$sellerId/seller-featured-product?guest_id=1&limit=10&offset=$offset');
+      final response = await dioClient.get(
+          '${AppConstants.sellerWiseBestSellingProduct}$sellerId/seller-featured-product?guest_id=1&limit=10&offset=$offset');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
     }
   }
 
-
   @override
-  Future<ApiResponseModel> getSellerWiseRecommendedProductList(String sellerId, String offset) async {
+  Future<ApiResponseModel> getSellerWiseRecommendedProductList(
+      String sellerId, String offset) async {
     try {
       final response = await dioClient.get(
           '${AppConstants.sellerWiseBestSellingProduct}$sellerId/seller-recommended-products?guest_id=1&limit=10&offset=$offset');
@@ -63,7 +70,8 @@ class SellerProductRepository extends DataSyncService implements SellerProductRe
   }
 
   @override
-  Future<ApiResponseModel<T>> getShopAgainFromRecentStore<T>({required DataSourceEnum source}) async {
+  Future<ApiResponseModel<T>> getShopAgainFromRecentStore<T>(
+      {required DataSourceEnum source}) async {
     return await fetchData<T>(AppConstants.shopAgainFromRecentStore, source);
   }
 

@@ -12,51 +12,55 @@ import 'package:flutter_sixvalley_ecommerce/utill/dimensions.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/title_row_widget.dart';
 import 'package:provider/provider.dart';
 
-
-
 class LatestProductListWidget extends StatelessWidget {
   const LatestProductListWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Selector<ProductController, ProductModel?>(
-      selector: (ctx, productController)=> productController.latestProductModel,
+      selector: (ctx, productController) =>
+          productController.latestProductModel,
       builder: (context, latestProductModel, child) {
-        return (latestProductModel?.products?.isNotEmpty ?? false)  ? Column( children: [
-          TitleRowWidget(
-            title: getTranslated('latest_products', context),
-            onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (_) => const ViewAllProductScreen(productType: ProductType.latestProduct))),
-          ),
-
-          const SizedBox(height: Dimensions.paddingSizeSmall),
-
-
-          SizedBox(
-            height: ResponsiveHelper.isTab(context)? MediaQuery.of(context).size.width * .58 : 320,
-            child: CarouselSlider.builder(
-              options: CarouselOptions(
-                viewportFraction: ResponsiveHelper.isTab(context)? .5 :.65,
-                autoPlay: false,
-                pauseAutoPlayOnTouch: true,
-                pauseAutoPlayOnManualNavigate: true,
-                enlargeFactor: 0.2,
-                enlargeCenterPage: true,
-                pauseAutoPlayInFiniteScroll: true,
-                disableCenter: true,
-              ),
-              itemCount: latestProductModel?.products?.length,
-              itemBuilder: (context, index, next) {
-                return ProductWidget(productModel: latestProductModel!.products![index], productNameLine: 1);
-              },
-            ),
-          ),
-
-
-
-
-        ]) : latestProductModel == null ? const SliderProductShimmerWidget() : const SizedBox();
+        return (latestProductModel?.products?.isNotEmpty ?? false)
+            ? Column(children: [
+                TitleRowWidget(
+                  title: getTranslated('latest_products', context),
+                  onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const ViewAllProductScreen(
+                              productType: ProductType.latestProduct))),
+                ),
+                const SizedBox(height: Dimensions.paddingSizeSmall),
+                SizedBox(
+                  height: ResponsiveHelper.isTab(context)
+                      ? MediaQuery.of(context).size.width * .58
+                      : 320,
+                  child: CarouselSlider.builder(
+                    options: CarouselOptions(
+                      viewportFraction:
+                          ResponsiveHelper.isTab(context) ? .5 : .65,
+                      autoPlay: false,
+                      pauseAutoPlayOnTouch: true,
+                      pauseAutoPlayOnManualNavigate: true,
+                      enlargeFactor: 0.2,
+                      enlargeCenterPage: true,
+                      pauseAutoPlayInFiniteScroll: true,
+                      disableCenter: true,
+                    ),
+                    itemCount: latestProductModel?.products?.length,
+                    itemBuilder: (context, index, next) {
+                      return ProductWidget(
+                          productModel: latestProductModel!.products![index],
+                          productNameLine: 1);
+                    },
+                  ),
+                ),
+              ])
+            : latestProductModel == null
+                ? const SliderProductShimmerWidget()
+                : const SizedBox();
       },
     );
   }
 }
-

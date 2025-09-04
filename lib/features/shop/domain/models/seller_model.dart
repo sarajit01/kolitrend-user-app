@@ -22,9 +22,8 @@ class SellerModel {
       });
     }
   }
-
-
 }
+
 class Seller {
   int? id;
   String? fName;
@@ -54,31 +53,30 @@ class Seller {
 
   Seller(
       {this.id,
-        this.fName,
-        this.lName,
-        this.phone,
-        this.image,
-        this.email,
-        this.password,
-        this.status,
-        this.rememberToken,
-        this.createdAt,
-        this.updatedAt,
-        this.authToken,
-        this.gst,
-        this.cmFirebaseToken,
-        this.posStatus,
-        this.minimumOrderAmount,
-        this.freeDeliveryStatus,
-        this.freeDeliveryOverAmount,
-        this.ordersCount,
-        this.productCount,
-        this.totalRating,
-        this.ratingCount,
-        this.averageRating,
-        this.shop,
-        this.imageFullUrl
-      });
+      this.fName,
+      this.lName,
+      this.phone,
+      this.image,
+      this.email,
+      this.password,
+      this.status,
+      this.rememberToken,
+      this.createdAt,
+      this.updatedAt,
+      this.authToken,
+      this.gst,
+      this.cmFirebaseToken,
+      this.posStatus,
+      this.minimumOrderAmount,
+      this.freeDeliveryStatus,
+      this.freeDeliveryOverAmount,
+      this.ordersCount,
+      this.productCount,
+      this.totalRating,
+      this.ratingCount,
+      this.averageRating,
+      this.shop,
+      this.imageFullUrl});
 
   Seller.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -98,14 +96,15 @@ class Seller {
     posStatus = int.parse(json['pos_status'].toString());
     minimumOrderAmount = double.parse(json['minimum_order_amount'].toString());
     freeDeliveryStatus = double.parse(json['free_delivery_status'].toString());
-    freeDeliveryOverAmount = double.parse(json['free_delivery_over_amount'].toString());
+    freeDeliveryOverAmount =
+        double.parse(json['free_delivery_over_amount'].toString());
     ordersCount = json['orders_count'];
     productCount = json['product_count'];
     totalRating = json['total_rating'];
     ratingCount = json['rating_count'];
-    if(json['average_rating'] != null){
-      averageRating =  double.tryParse(json['average_rating'].toString());
-    }else{
+    if (json['average_rating'] != null) {
+      averageRating = double.tryParse(json['average_rating'].toString());
+    } else {
       averageRating = 0;
     }
 
@@ -114,7 +113,6 @@ class Seller {
         ? ImageFullUrl.fromJson(json['image_full_url'])
         : null;
   }
-
 }
 
 class Shop {
@@ -139,24 +137,23 @@ class Shop {
 
   Shop(
       {this.id,
-        this.sellerId,
-        this.name,
-        this.address,
-        this.contact,
-        this.image,
-        this.imageFullUrl,
-        this.bottomBanner,
-        this.offerBanner,
-        this.vacationStartDate,
-        this.vacationEndDate,
-        this.vacationNote,
-        this.vacationStatus,
-        this.temporaryClose,
-        this.createdAt,
-        this.updatedAt,
-        this.banner,
-        this.bannerFullUrl
-      });
+      this.sellerId,
+      this.name,
+      this.address,
+      this.contact,
+      this.image,
+      this.imageFullUrl,
+      this.bottomBanner,
+      this.offerBanner,
+      this.vacationStartDate,
+      this.vacationEndDate,
+      this.vacationNote,
+      this.vacationStatus,
+      this.temporaryClose,
+      this.createdAt,
+      this.updatedAt,
+      this.banner,
+      this.bannerFullUrl});
 
   Shop.fromJson(Map<String, dynamic> json, {bool isAdminProduct = false}) {
     id = isAdminProduct ? 0 : json['id'];
@@ -167,38 +164,55 @@ class Shop {
     image = json['image'];
     bottomBanner = json['bottom_banner'];
     offerBanner = json['offer_banner'];
-    vacationStartDate = isAdminProduct ?
-    Provider.of<SplashController>(Get.context!, listen: false).configModel?.inhouseVacationAdd?.vacationStartDate ?? '' :
-    json['vacation_start_date'];
-    vacationEndDate = isAdminProduct ?
-    Provider.of<SplashController>(Get.context!, listen: false).configModel?.inhouseVacationAdd?.vacationEndDate ?? '' :
-    json['vacation_end_date'];
+    vacationStartDate = isAdminProduct
+        ? Provider.of<SplashController>(Get.context!, listen: false)
+                .configModel
+                ?.inhouseVacationAdd
+                ?.vacationStartDate ??
+            ''
+        : json['vacation_start_date'];
+    vacationEndDate = isAdminProduct
+        ? Provider.of<SplashController>(Get.context!, listen: false)
+                .configModel
+                ?.inhouseVacationAdd
+                ?.vacationEndDate ??
+            ''
+        : json['vacation_end_date'];
     vacationNote = json['vacation_note'];
 
-    if(isAdminProduct) {
-      vacationStatus = (Provider.of<SplashController>(Get.context!, listen: false).configModel?.inhouseVacationAdd?.status == 1);
-    }else if (json['vacation_status'] != null){
-      try{
-        vacationStatus = json['vacation_status']??false;
-      }catch(e){
-        vacationStatus = json['vacation_status']==1? true :false;
+    if (isAdminProduct) {
+      vacationStatus =
+          (Provider.of<SplashController>(Get.context!, listen: false)
+                  .configModel
+                  ?.inhouseVacationAdd
+                  ?.status ==
+              1);
+    } else if (json['vacation_status'] != null) {
+      try {
+        vacationStatus = json['vacation_status'] ?? false;
+      } catch (e) {
+        vacationStatus = json['vacation_status'] == 1 ? true : false;
       }
     }
 
-
-    if(isAdminProduct) {
-      temporaryClose = (Provider.of<SplashController>(Get.context!, listen: false).configModel?.inhouseTemporaryClose?.status == 1);
-    }else if(json['temporary_close'] != null){
-      try{
-        temporaryClose = json['temporary_close']??false;
-      }catch(e){
-        temporaryClose = json['temporary_close']== 1?true : false;
+    if (isAdminProduct) {
+      temporaryClose =
+          (Provider.of<SplashController>(Get.context!, listen: false)
+                  .configModel
+                  ?.inhouseTemporaryClose
+                  ?.status ==
+              1);
+    } else if (json['temporary_close'] != null) {
+      try {
+        temporaryClose = json['temporary_close'] ?? false;
+      } catch (e) {
+        temporaryClose = json['temporary_close'] == 1 ? true : false;
       }
     }
 
     imageFullUrl = json['image_full_url'] != null
-      ? ImageFullUrl.fromJson(json['image_full_url'])
-      : null;
+        ? ImageFullUrl.fromJson(json['image_full_url'])
+        : null;
 
     bannerFullUrl = json['banner_full_url'] != null
         ? ImageFullUrl.fromJson(json['banner_full_url'])
@@ -208,5 +222,4 @@ class Shop {
     updatedAt = json['updated_at'];
     banner = json['banner'];
   }
-
 }

@@ -13,17 +13,14 @@ ThemeData dark = ThemeData(
   cardColor: const Color(0xFF242424),
   scaffoldBackgroundColor: const Color(0xFF000000),
   splashColor: Colors.transparent,
-
-
   textTheme: const TextTheme(
-    bodyLarge: TextStyle(color: Color(0xFFE9EEF4)),  // Text color primary
+    bodyLarge: TextStyle(color: Color(0xFFE9EEF4)), // Text color primary
     bodyMedium: TextStyle(color: Color(0xFFE9EEF4)), // Text color Secondary
-    bodySmall: TextStyle(color: Color(0xFFE9EEF4)),  // Text color Light grey
+    bodySmall: TextStyle(color: Color(0xFFE9EEF4)), // Text color Light grey
   ),
-
-  colorScheme : ColorScheme.dark(
-    primary: _primaryColor,  // Primary Color
-    secondary: _secondaryColor,  // Secondary Color
+  colorScheme: ColorScheme.dark(
+    primary: _primaryColor, // Primary Color
+    secondary: _secondaryColor, // Secondary Color
     tertiary: const Color(0xFFFFBB38), // Warning Color
     tertiaryContainer: const Color(0xFF6C7A8E),
     surface: const Color(0xFF2D2D2D),
@@ -38,7 +35,6 @@ ThemeData dark = ThemeData(
     error: const Color(0xFFFF4040), // Danger Color
     shadow: const Color(0xFFF4F7FC),
   ),
-
   pageTransitionsTheme: const PageTransitionsTheme(builders: {
     TargetPlatform.android: ZoomPageTransitionsBuilder(),
     TargetPlatform.iOS: ZoomPageTransitionsBuilder(),

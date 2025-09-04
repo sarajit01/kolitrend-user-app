@@ -13,17 +13,19 @@ import 'package:flutter_sixvalley_ecommerce/main.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-class DataSyncRepo implements DataSyncRepoInterface{
+class DataSyncRepo implements DataSyncRepoInterface {
   final DioClient dioClient;
   final SharedPreferences? sharedPreferences;
 
   DataSyncRepo({required this.dioClient, required this.sharedPreferences});
 
   @override
-  Future<ApiResponseModel<T>> fetchData<T>(String uri, DataSourceEnum source) async {
+  Future<ApiResponseModel<T>> fetchData<T>(
+      String uri, DataSourceEnum source) async {
     try {
-      return source == DataSourceEnum.client || _isACachesDisable() ? await _fetchFromClient<T>(uri) : await _fetchFromLocalCache<T>(uri);
+      return source == DataSourceEnum.client || _isACachesDisable()
+          ? await _fetchFromClient<T>(uri)
+          : await _fetchFromLocalCache<T>(uri);
     } catch (e) {
       debugPrint('DataSyncRepo: ===> $source $e ($uri)');
 
@@ -47,16 +49,21 @@ class DataSyncRepo implements DataSyncRepoInterface{
       _cacheResponseWeb(uri, cacheData);
     }
 
-    if(!kIsWeb && _isAppCachesActive()) {
+    if (!kIsWeb && _isAppCachesActive()) {
       await DbHelper.insertOrUpdate(id: uri, data: cacheData);
     }
 
     return ApiResponseModel.withSuccess(response as T);
   }
 
-  bool _isWebCachesActive()=> (AppConstants.cachesType == LocalCachesTypeEnum.all || AppConstants.cachesType == LocalCachesTypeEnum.web);
-  bool _isAppCachesActive()=> (AppConstants.cachesType == LocalCachesTypeEnum.all || AppConstants.cachesType == LocalCachesTypeEnum.app);
-  bool _isACachesDisable() => AppConstants.cachesType == LocalCachesTypeEnum.none;
+  bool _isWebCachesActive() =>
+      (AppConstants.cachesType == LocalCachesTypeEnum.all ||
+          AppConstants.cachesType == LocalCachesTypeEnum.web);
+  bool _isAppCachesActive() =>
+      (AppConstants.cachesType == LocalCachesTypeEnum.all ||
+          AppConstants.cachesType == LocalCachesTypeEnum.app);
+  bool _isACachesDisable() =>
+      AppConstants.cachesType == LocalCachesTypeEnum.none;
 
   void _cacheResponseWeb(String uri, CacheResponseCompanion cacheData) {
     final cacheJson = CacheResponseData(
@@ -117,7 +124,4 @@ class DataSyncRepo implements DataSyncRepoInterface{
     // TODO: implement update
     throw UnimplementedError();
   }
-
-
-
 }

@@ -5,21 +5,20 @@ import 'package:flutter_sixvalley_ecommerce/features/contact_us/domain/models/co
 import 'package:flutter_sixvalley_ecommerce/features/contact_us/domain/repository/contact_us_repository_interface.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 
-class ContactUsRepository implements ContactUsRepositoryInterface{
+class ContactUsRepository implements ContactUsRepositoryInterface {
   final DioClient? dioClient;
   ContactUsRepository({this.dioClient});
 
   @override
   Future<ApiResponseModel> add(ContactUsBody contactUsBody) async {
     try {
-      final response = await dioClient!.post(AppConstants.contactUsUri,
-          data: {
-            "name" :contactUsBody.name,
-            "email" : contactUsBody.email,
-            "mobile_number" : contactUsBody.phone,
-            "subject" : contactUsBody.subject,
-            "message" : contactUsBody.message
-          });
+      final response = await dioClient!.post(AppConstants.contactUsUri, data: {
+        "name": contactUsBody.name,
+        "email": contactUsBody.email,
+        "mobile_number": contactUsBody.phone,
+        "subject": contactUsBody.subject,
+        "message": contactUsBody.message
+      });
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -49,5 +48,4 @@ class ContactUsRepository implements ContactUsRepositoryInterface{
     // TODO: implement update
     throw UnimplementedError();
   }
-
 }

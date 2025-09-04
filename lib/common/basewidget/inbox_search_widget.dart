@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class InboxSearchWidget extends StatefulWidget {
-
-
   final double width;
   final TextEditingController textController;
   final Icon? suffixIcon;
@@ -96,7 +94,8 @@ class InboxSearchWidgetState extends State<InboxSearchWidget>
       height: 100.0,
 
       ///if the rtl is true, search bar will be from right to left
-      alignment: widget.rtl ? Alignment.centerRight : const Alignment(-1.0, 0.0),
+      alignment:
+          widget.rtl ? Alignment.centerRight : const Alignment(-1.0, 0.0),
 
       ///Using Animated container to expand and shrink the widgets
       child: AnimatedContainer(
@@ -159,15 +158,15 @@ class InboxSearchWidgetState extends State<InboxSearchWidget>
                           }
                         } catch (e) {
                           ///print the error if the try block fails
-
                         }
                       },
 
                       ///suffixIcon is of type Icon
-                      child: widget.suffixIcon ?? const Icon(
-                        Icons.close,
-                        size: 20.0,
-                      ),
+                      child: widget.suffixIcon ??
+                          const Icon(
+                            Icons.close,
+                            size: 20.0,
+                          ),
                     ),
                   ),
                 ),
@@ -240,15 +239,15 @@ class InboxSearchWidgetState extends State<InboxSearchWidget>
                 ///prefixIcon is of type Icon
                 icon: widget.prefixIcon != null
                     ? toggle == 1
-                    ? const Icon(Icons.arrow_back_ios)
-                    : widget.prefixIcon!
+                        ? const Icon(Icons.arrow_back_ios)
+                        : widget.prefixIcon!
                     : Icon(
-                  toggle == 1 ? Icons.arrow_back_ios : Icons.search,
-                  size: 20.0,
-                ),
+                        toggle == 1 ? Icons.arrow_back_ios : Icons.search,
+                        size: 20.0,
+                      ),
                 onPressed: () {
                   setState(
-                        () {
+                    () {
                       ///if the search bar is closed
                       if (toggle == 0) {
                         toggle = 1;

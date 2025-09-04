@@ -7,7 +7,7 @@ import 'package:flutter_sixvalley_ecommerce/helper/api_checker.dart';
 import 'package:flutter_sixvalley_ecommerce/localization/language_constrants.dart';
 import 'package:flutter_sixvalley_ecommerce/main.dart';
 
-class ContactUsController extends ChangeNotifier{
+class ContactUsController extends ChangeNotifier {
   ContactUsServiceInterface contactUsServiceInterface;
   ContactUsController({required this.contactUsServiceInterface});
 
@@ -17,17 +17,21 @@ class ContactUsController extends ChangeNotifier{
   Future<bool> contactUs(ContactUsBody contactUsBody) async {
     _isLoading = true;
     notifyListeners();
-    ApiResponseModel apiResponse = await contactUsServiceInterface.add(contactUsBody);
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+    ApiResponseModel apiResponse =
+        await contactUsServiceInterface.add(contactUsBody);
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
       _isLoading = false;
-      showCustomSnackBar('${getTranslated('message_sent_successfully', Get.context!)}', Get.context!, isError: false);
+      showCustomSnackBar(
+          '${getTranslated('message_sent_successfully', Get.context!)}',
+          Get.context!,
+          isError: false);
     } else {
       _isLoading = false;
-      ApiChecker.checkApi( apiResponse);
+      ApiChecker.checkApi(apiResponse);
     }
     notifyListeners();
 
     return apiResponse.response?.statusCode == 200;
   }
-
 }

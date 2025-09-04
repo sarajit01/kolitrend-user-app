@@ -14,36 +14,38 @@ import 'package:http_parser/http_parser.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
-
-
-
-class SupportTicketRepository implements SupportTicketRepositoryInterface{
+class SupportTicketRepository implements SupportTicketRepositoryInterface {
   final DioClient? dioClient;
   SupportTicketRepository({required this.dioClient});
 
-
   @override
-  Future<http.StreamedResponse> createNewSupportTicket(SupportTicketBody supportTicketModel, List<XFile?> file) async {
-    http.MultipartRequest request = http.MultipartRequest('POST', Uri.parse('${AppConstants.baseUrl}${AppConstants.supportTicketUri}'));
-    request.headers.addAll(<String,String>{'Authorization': 'Bearer ${Provider.of<AuthController>(Get.context!, listen: false).getUserToken()}'});
-    for(int i=0; i<file.length;i++){
+  Future<http.StreamedResponse> createNewSupportTicket(
+      SupportTicketBody supportTicketModel, List<XFile?> file) async {
+    http.MultipartRequest request = http.MultipartRequest('POST',
+        Uri.parse('${AppConstants.baseUrl}${AppConstants.supportTicketUri}'));
+    request.headers.addAll(<String, String>{
+      'Authorization':
+          'Bearer ${Provider.of<AuthController>(Get.context!, listen: false).getUserToken()}'
+    });
+    for (int i = 0; i < file.length; i++) {
       Uint8List list = await file[i]!.readAsBytes();
-      var part = http.MultipartFile('image[]', file[i]!.readAsBytes().asStream(),
-          list.length, filename: basename(file[i]!.path), contentType: MediaType('image', 'jpg'));
+      var part = http.MultipartFile(
+          'image[]', file[i]!.readAsBytes().asStream(), list.length,
+          filename: basename(file[i]!.path),
+          contentType: MediaType('image', 'jpg'));
       request.files.add(part);
     }
     Map<String, String> fields = {};
     request.fields.addAll(<String, String>{
-      'type': supportTicketModel.type??'',
-      'subject': supportTicketModel.subject??'',
-      'description': supportTicketModel.description??'',
-      'priority': supportTicketModel.priority??'',
+      'type': supportTicketModel.type ?? '',
+      'subject': supportTicketModel.subject ?? '',
+      'description': supportTicketModel.description ?? '',
+      'priority': supportTicketModel.priority ?? '',
     });
     request.fields.addAll(fields);
     http.StreamedResponse response = await request.send();
     return response;
   }
-
 
   @override
   Future<ApiResponseModel> getList({int? offset = 1}) async {
@@ -58,22 +60,31 @@ class SupportTicketRepository implements SupportTicketRepositoryInterface{
   @override
   Future<ApiResponseModel> getSupportReplyList(String ticketID) async {
     try {
-      final response = await dioClient!.get('${AppConstants.supportTicketConversationUri}$ticketID');
+      final response = await dioClient!
+          .get('${AppConstants.supportTicketConversationUri}$ticketID');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
     }
   }
 
-
   @override
-  Future<http.StreamedResponse> sendReply(String ticketID, String message, List<XFile?> file) async {
-    http.MultipartRequest request = http.MultipartRequest('POST', Uri.parse('${AppConstants.baseUrl}${AppConstants.supportTicketReplyUri}$ticketID'));
-    request.headers.addAll(<String,String>{'Authorization': 'Bearer ${Provider.of<AuthController>(Get.context!, listen: false).getUserToken()}'});
-    for(int i=0; i<file.length;i++){
+  Future<http.StreamedResponse> sendReply(
+      String ticketID, String message, List<XFile?> file) async {
+    http.MultipartRequest request = http.MultipartRequest(
+        'POST',
+        Uri.parse(
+            '${AppConstants.baseUrl}${AppConstants.supportTicketReplyUri}$ticketID'));
+    request.headers.addAll(<String, String>{
+      'Authorization':
+          'Bearer ${Provider.of<AuthController>(Get.context!, listen: false).getUserToken()}'
+    });
+    for (int i = 0; i < file.length; i++) {
       Uint8List list = await file[i]!.readAsBytes();
-      var part = http.MultipartFile('image[]', file[i]!.readAsBytes().asStream(),
-          list.length, filename: basename(file[i]!.path), contentType: MediaType('image', 'jpg'));
+      var part = http.MultipartFile(
+          'image[]', file[i]!.readAsBytes().asStream(), list.length,
+          filename: basename(file[i]!.path),
+          contentType: MediaType('image', 'jpg'));
       request.files.add(part);
     }
     Map<String, String> fields = {};
@@ -85,19 +96,16 @@ class SupportTicketRepository implements SupportTicketRepositoryInterface{
     return response;
   }
 
-
-
   @override
   Future<ApiResponseModel> closeSupportTicket(String ticketID) async {
     try {
-      final response = await dioClient!.get('${AppConstants.closeSupportTicketUri}$ticketID');
+      final response = await dioClient!
+          .get('${AppConstants.closeSupportTicketUri}$ticketID');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
     }
   }
-
-
 
   @override
   Future delete(int id) {
@@ -111,8 +119,6 @@ class SupportTicketRepository implements SupportTicketRepositoryInterface{
     throw UnimplementedError();
   }
 
-
-
   @override
   Future update(Map<String, dynamic> body, int id) {
     // TODO: implement update
@@ -124,5 +130,4 @@ class SupportTicketRepository implements SupportTicketRepositoryInterface{
     // TODO: implement add
     throw UnimplementedError();
   }
-
 }

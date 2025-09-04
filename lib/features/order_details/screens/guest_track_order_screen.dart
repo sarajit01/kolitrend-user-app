@@ -31,26 +31,32 @@ class _GuestTrackOrderScreenState extends State<GuestTrackOrderScreen> {
 
     return Scaffold(
         appBar: CustomAppBar(title: getTranslated('TRACK_ORDER', context)),
-      body: Consumer<OrderDetailsController>(
-        builder: (context, orderTrackingProvider, _) {
-          return Padding(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraLarge),
+        body: Consumer<OrderDetailsController>(
+            builder: (context, orderTrackingProvider, _) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: Dimensions.paddingSizeExtraLarge),
             child: Form(
               key: formKey,
-              child: ListView( physics: const ClampingScrollPhysics(), children: [
-
+              child:
+                  ListView(physics: const ClampingScrollPhysics(), children: [
                 const SizedBox(height: Dimensions.paddingSizeOverLarge),
-
-                Column(mainAxisAlignment: MainAxisAlignment.center,children: [
-                  CustomAssetImageWidget(Images.truckImage, height: widthSize * 0.17),
-
-                  Padding(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault), child: Text(
-                    getTranslated('enter_your_order_id_and_phone_number_to_get_delivery_updates', context)!,
-                    style: textRegular.copyWith(color: Theme.of(context).hintColor),
-                    textAlign: TextAlign.center,
-                  )),
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  CustomAssetImageWidget(Images.truckImage,
+                      height: widthSize * 0.17),
+                  Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeDefault),
+                      child: Text(
+                        getTranslated(
+                            'enter_your_order_id_and_phone_number_to_get_delivery_updates',
+                            context)!,
+                        style: textRegular.copyWith(
+                            color: Theme.of(context).hintColor),
+                        textAlign: TextAlign.center,
+                      )),
                 ]),
                 const SizedBox(height: Dimensions.paddingSizeThirtyFive),
-
                 CustomTextFieldWidget(
                   controller: orderIdController,
                   prefixIcon: Images.orderIdIcon,
@@ -65,11 +71,10 @@ class _GuestTrackOrderScreenState extends State<GuestTrackOrderScreen> {
                   ),
                   required: true,
                   showLabelText: false,
-                  validator: (value)=> ValidateCheck.validateEmptyText(value, 'order_id_is_required'),
+                  validator: (value) => ValidateCheck.validateEmptyText(
+                      value, 'order_id_is_required'),
                 ),
                 const SizedBox(height: Dimensions.paddingSizeExtraLarge),
-
-
                 CustomTextFieldWidget(
                   isAmount: true,
                   inputType: TextInputType.phone,
@@ -85,21 +90,20 @@ class _GuestTrackOrderScreenState extends State<GuestTrackOrderScreen> {
                     color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                   showLabelText: false,
-                  validator: (value)=> ValidateCheck.validateEmptyText(value, 'phone_number_is_required'),
+                  validator: (value) => ValidateCheck.validateEmptyText(
+                      value, 'phone_number_is_required'),
                 ),
                 const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-
                 Padding(
                   padding: const EdgeInsets.only(left: 0),
                   child: Text(
                     getTranslated('please_include_your', context)!,
-                    style: textRegular.copyWith(color: Theme.of(context).hintColor),
+                    style: textRegular.copyWith(
+                        color: Theme.of(context).hintColor),
                     textAlign: TextAlign.start,
                   ),
                 ),
                 const SizedBox(height: Dimensions.paddingSizeExtraOverLarge),
-
-
                 CustomButton(
                   isLoading: orderTrackingProvider.searching,
                   buttonText: '${getTranslated('track_order', context)}',
@@ -108,15 +112,24 @@ class _GuestTrackOrderScreenState extends State<GuestTrackOrderScreen> {
                     String orderId = orderIdController.text.trim();
                     String phone = phoneNumberController.text.trim();
 
-                    if(formKey.currentState?.validate() ?? false) {
-                      await orderTrackingProvider.trackOrder(orderId: orderId.toString(), phoneNumber: phone, isUpdate: true).then((value) {
-                        if(value.response?.statusCode == 200){
-                          if(context.mounted){
-                            Navigator.push(context, MaterialPageRoute(builder: (_)=> OrderDetailsScreen(
-                              fromTrack: true,
-                              orderId: int.parse(orderIdController.text.trim()),
-                              phone: phone,
-                            )));
+                    if (formKey.currentState?.validate() ?? false) {
+                      await orderTrackingProvider
+                          .trackOrder(
+                              orderId: orderId.toString(),
+                              phoneNumber: phone,
+                              isUpdate: true)
+                          .then((value) {
+                        if (value.response?.statusCode == 200) {
+                          if (context.mounted) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => OrderDetailsScreen(
+                                          fromTrack: true,
+                                          orderId: int.parse(
+                                              orderIdController.text.trim()),
+                                          phone: phone,
+                                        )));
                           }
                         }
                       });
@@ -126,8 +139,6 @@ class _GuestTrackOrderScreenState extends State<GuestTrackOrderScreen> {
               ]),
             ),
           );
-        }
-      )
-    );
+        }));
   }
 }

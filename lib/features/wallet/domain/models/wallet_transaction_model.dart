@@ -10,23 +10,24 @@ class WalletTransactionModel {
   DateTime? endDate;
   List<String>? transactionTypes;
   List<WalletTransactionList>? walletTransactionList;
-  
 
   WalletTransactionModel.fromJson(Map<String, dynamic> json) {
     limit = int.tryParse('${json['limit']}');
     offset = int.tryParse('${json['offset']}');
     totalSize = int.tryParse('${json['total_size']}');
     filterBy = json['filter_by'];
-    startDate = DateConverter.convertDurationDateTimeFromString(json['start_date']);
+    startDate =
+        DateConverter.convertDurationDateTimeFromString(json['start_date']);
     endDate = DateConverter.convertDurationDateTimeFromString(json['end_date']);
 
     if (json['transaction_types'] != null) {
-      transactionTypes = List<String>.from(json['transaction_types'].map((id) => id.toString()));
+      transactionTypes = List<String>.from(
+          json['transaction_types'].map((id) => id.toString()));
     }
 
-    if(json['total_wallet_balance'] != null){
-      totalWalletBalance = json['total_wallet_balance'].toDouble( );
-    }else{
+    if (json['total_wallet_balance'] != null) {
+      totalWalletBalance = json['total_wallet_balance'].toDouble();
+    } else {
       totalWalletBalance = 0.0;
     }
 
@@ -37,7 +38,6 @@ class WalletTransactionModel {
       });
     }
   }
-
 }
 
 class WalletTransactionList {
@@ -56,18 +56,17 @@ class WalletTransactionList {
 
   WalletTransactionList(
       {int? id,
-        int? userId,
-        String? transactionId,
-        double? credit,
-        double? debit,
-        double? adminBonus,
-        double? balance,
-        String? transactionType,
-        String? reference,
-        String? createdAt,
-        String? updatedAt,
-        String? paymentMethod
-      }) {
+      int? userId,
+      String? transactionId,
+      double? credit,
+      double? debit,
+      double? adminBonus,
+      double? balance,
+      String? transactionType,
+      String? reference,
+      String? createdAt,
+      String? updatedAt,
+      String? paymentMethod}) {
     if (id != null) {
       _id = id;
     }
@@ -130,5 +129,4 @@ class WalletTransactionList {
     _updatedAt = json['updated_at'];
     paymentMethod = json['payment_method'];
   }
-
 }

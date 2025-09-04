@@ -13,49 +13,83 @@ class LoyaltyPointInfoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ProfileController>(
-        builder: (context, profile,_) {
-          return Stack(children: [
-            Positioned(right: 10,top: 25,
-              child: Padding(padding: const EdgeInsets.only(top: Dimensions.paddingSizeDefault),
-                child: IconButton(icon: Icon(Icons.info_outline, color:  Theme.of(context).colorScheme.secondaryContainer),
-                  onPressed: () {showModalBottomSheet(backgroundColor: Colors.transparent,
-                      context: context, builder: (context) =>  const HowToUseDialogWidget());
-                  }))),
-
-            Positioned(left: 10,top: 25,
-              child: Padding(padding: const EdgeInsets.only(top: Dimensions.paddingSizeDefault),
-                child: IconButton(icon: Icon(CupertinoIcons.back, color: Theme.of(context).highlightColor),
-                  onPressed: () => Navigator.of(context).pop()))),
-              Positioned(top: 30, left: MediaQuery.of(context).size.width/2 - 132/2,
-                  child: Image.asset(Images.loyaltyPointBgIcon,height: 132,
-                    opacity: const AlwaysStoppedAnimation(0.3))),
-
-
-              Positioned(bottom: 15, right: 0, left: 0,
-                child: Container(margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
+    return Consumer<ProfileController>(builder: (context, profile, _) {
+      return Stack(
+        children: [
+          Positioned(
+              right: 10,
+              top: 25,
+              child: Padding(
+                  padding:
+                      const EdgeInsets.only(top: Dimensions.paddingSizeDefault),
+                  child: IconButton(
+                      icon: Icon(Icons.info_outline,
+                          color:
+                              Theme.of(context).colorScheme.secondaryContainer),
+                      onPressed: () {
+                        showModalBottomSheet(
+                            backgroundColor: Colors.transparent,
+                            context: context,
+                            builder: (context) => const HowToUseDialogWidget());
+                      }))),
+          Positioned(
+              left: 10,
+              top: 25,
+              child: Padding(
+                  padding:
+                      const EdgeInsets.only(top: Dimensions.paddingSizeDefault),
+                  child: IconButton(
+                      icon: Icon(CupertinoIcons.back,
+                          color: Theme.of(context).highlightColor),
+                      onPressed: () => Navigator.of(context).pop()))),
+          Positioned(
+              top: 30,
+              left: MediaQuery.of(context).size.width / 2 - 132 / 2,
+              child: Image.asset(Images.loyaltyPointBgIcon,
+                  height: 132, opacity: const AlwaysStoppedAnimation(0.3))),
+          Positioned(
+              bottom: 15,
+              right: 0,
+              left: 0,
+              child: Container(
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: Dimensions.paddingSizeLarge),
                   height: 90,
                   width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.outline,
-                    borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall)),
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
-                      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          Image.asset(Images.loyaltyPointIcon,height: 20, width: 20),
-                          const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-
-                          Text('${(profile.userInfoModel != null && profile.userInfoModel!.loyaltyPoint != null) ?
-                          profile.userInfoModel!.loyaltyPoint?.toStringAsFixed(0) ?? 0 : 0}',
-                              style: robotoBold.copyWith(color:  Theme.of(context).colorScheme.secondaryContainer,
-                                  fontSize: Dimensions.fontSizeOverLarge)),
-                          const SizedBox(height: Dimensions.paddingSizeExtraExtraSmall)]),
-                      const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                      Text('${getTranslated('your_points', context)}',style: textRegular.copyWith(color:  Theme.of(context).colorScheme.secondaryContainer))
-                  ]))),
-
-            ],
-          );
-        }
-    );
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.outline,
+                      borderRadius:
+                          BorderRadius.circular(Dimensions.paddingSizeSmall)),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(Images.loyaltyPointIcon,
+                                  height: 20, width: 20),
+                              const SizedBox(
+                                  width: Dimensions.paddingSizeExtraSmall),
+                              Text(
+                                  '${(profile.userInfoModel != null && profile.userInfoModel!.loyaltyPoint != null) ? profile.userInfoModel!.loyaltyPoint?.toStringAsFixed(0) ?? 0 : 0}',
+                                  style: robotoBold.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondaryContainer,
+                                      fontSize: Dimensions.fontSizeOverLarge)),
+                              const SizedBox(
+                                  height: Dimensions.paddingSizeExtraExtraSmall)
+                            ]),
+                        const SizedBox(height: Dimensions.paddingSizeSmall),
+                        Text('${getTranslated('your_points', context)}',
+                            style: textRegular.copyWith(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .secondaryContainer))
+                      ]))),
+        ],
+      );
+    });
   }
 }

@@ -1,8 +1,6 @@
 import 'package:flutter_sixvalley_ecommerce/data/model/image_full_url.dart';
 import 'package:flutter_sixvalley_ecommerce/features/product_details/domain/models/product_details_model.dart';
 
-
-
 class MostPopularStoreModel {
   int? id;
   int? sellerId;
@@ -39,37 +37,37 @@ class MostPopularStoreModel {
 
   MostPopularStoreModel(
       {this.id,
-        this.sellerId,
-        this.name,
-        this.slug,
-        this.address,
-        this.contact,
-        this.image,
-        this.bottomBanner,
-        this.offerBanner,
-        this.vacationStartDate,
-        this.vacationEndDate,
-        this.vacationNote,
-        this.vacationStatus,
-        this.temporaryClose,
-        this.createdAt,
-        this.updatedAt,
-        this.banner,
-        this.productsCount,
-        this.products,
-        this.ordersCount,
-        this.couponList,
-        this.averageRating,
-        this.reviewCount,
-        this.totalRating,
-        this.positiveReview,
-        this.isVacationModeNow,
-        this.imageFullUrl,
-        this.bottomBannerFullUrl,
-        this.offerBannerFullUrl,
-        this.bannerFullUrl,
-        this.storage,
-        this.seller});
+      this.sellerId,
+      this.name,
+      this.slug,
+      this.address,
+      this.contact,
+      this.image,
+      this.bottomBanner,
+      this.offerBanner,
+      this.vacationStartDate,
+      this.vacationEndDate,
+      this.vacationNote,
+      this.vacationStatus,
+      this.temporaryClose,
+      this.createdAt,
+      this.updatedAt,
+      this.banner,
+      this.productsCount,
+      this.products,
+      this.ordersCount,
+      this.couponList,
+      this.averageRating,
+      this.reviewCount,
+      this.totalRating,
+      this.positiveReview,
+      this.isVacationModeNow,
+      this.imageFullUrl,
+      this.bottomBannerFullUrl,
+      this.offerBannerFullUrl,
+      this.bannerFullUrl,
+      this.storage,
+      this.seller});
 
   MostPopularStoreModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -126,8 +124,7 @@ class MostPopularStoreModel {
         storage!.add(Storage.fromJson(v));
       });
     }
-    seller =
-    json['seller'] != null ? Seller.fromJson(json['seller']) : null;
+    seller = json['seller'] != null ? Seller.fromJson(json['seller']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -255,72 +252,72 @@ class Products {
 
   Products(
       {this.id,
-        this.addedBy,
-        this.userId,
-        this.name,
-        this.slug,
-        this.productType,
-        this.categoryIds,
-        this.categoryId,
-        this.subCategoryId,
-        this.subSubCategoryId,
-        this.brandId,
-        this.unit,
-        this.minQty,
-        this.refundable,
-        this.digitalProductType,
-        this.digitalFileReady,
-        this.images,
-        this.colorImage,
-        this.thumbnail,
-        this.featured,
-        this.flashDeal,
-        this.videoProvider,
-        this.videoUrl,
-        this.colors,
-        this.variantProduct,
-        this.attributes,
-        this.choiceOptions,
-        this.variation,
-        this.digitalProductFileTypes,
-        this.digitalProductExtensions,
-        this.published,
-        this.unitPrice,
-        this.purchasePrice,
-        this.tax,
-        this.taxType,
-        this.taxModel,
-        this.discount,
-        this.discountType,
-        this.currentStock,
-        this.minimumOrderQty,
-        this.details,
-        this.freeShipping,
-        this.attachment,
-        this.createdAt,
-        this.updatedAt,
-        this.status,
-        this.featuredStatus,
-        this.metaTitle,
-        this.metaDescription,
-        this.metaImage,
-        this.requestStatus,
-        this.deniedNote,
-        this.shippingCost,
-        this.multiplyQty,
-        this.tempShippingCost,
-        this.isShippingCostUpdated,
-        this.code,
-        this.isShopTemporaryClose,
-        this.thumbnailFullUrl,
-        this.colorImagesFullUrl,
-        this.metaImageFullUrl,
-        this.imagesFullUrl,
-        this.digitalFileReadyFullUrl,
-        this.translations,
-        this.storage,
-        this.seoInfo,
-        this.reviews});
+      this.addedBy,
+      this.userId,
+      this.name,
+      this.slug,
+      this.productType,
+      this.categoryIds,
+      this.categoryId,
+      this.subCategoryId,
+      this.subSubCategoryId,
+      this.brandId,
+      this.unit,
+      this.minQty,
+      this.refundable,
+      this.digitalProductType,
+      this.digitalFileReady,
+      this.images,
+      this.colorImage,
+      this.thumbnail,
+      this.featured,
+      this.flashDeal,
+      this.videoProvider,
+      this.videoUrl,
+      this.colors,
+      this.variantProduct,
+      this.attributes,
+      this.choiceOptions,
+      this.variation,
+      this.digitalProductFileTypes,
+      this.digitalProductExtensions,
+      this.published,
+      this.unitPrice,
+      this.purchasePrice,
+      this.tax,
+      this.taxType,
+      this.taxModel,
+      this.discount,
+      this.discountType,
+      this.currentStock,
+      this.minimumOrderQty,
+      this.details,
+      this.freeShipping,
+      this.attachment,
+      this.createdAt,
+      this.updatedAt,
+      this.status,
+      this.featuredStatus,
+      this.metaTitle,
+      this.metaDescription,
+      this.metaImage,
+      this.requestStatus,
+      this.deniedNote,
+      this.shippingCost,
+      this.multiplyQty,
+      this.tempShippingCost,
+      this.isShippingCostUpdated,
+      this.code,
+      this.isShopTemporaryClose,
+      this.thumbnailFullUrl,
+      this.colorImagesFullUrl,
+      this.metaImageFullUrl,
+      this.imagesFullUrl,
+      this.digitalFileReadyFullUrl,
+      this.translations,
+      this.storage,
+      this.seoInfo,
+      this.reviews});
 
   Products.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -407,9 +404,8 @@ class Products {
         storage!.add(Storage.fromJson(v));
       });
     }
-    seoInfo = json['seo_info'] != null
-        ? SeoInfo.fromJson(json['seo_info'])
-        : null;
+    seoInfo =
+        json['seo_info'] != null ? SeoInfo.fromJson(json['seo_info']) : null;
     if (json['reviews'] != null) {
       reviews = <Reviews>[];
       json['reviews'].forEach((v) {
@@ -488,12 +484,10 @@ class Products {
       data['meta_image_full_url'] = metaImageFullUrl!.toJson();
     }
     if (imagesFullUrl != null) {
-      data['images_full_url'] =
-          imagesFullUrl!.map((v) => v.toJson()).toList();
+      data['images_full_url'] = imagesFullUrl!.map((v) => v.toJson()).toList();
     }
     if (digitalFileReadyFullUrl != null) {
-      data['digital_file_ready_full_url'] =
-          digitalFileReadyFullUrl!.toJson();
+      data['digital_file_ready_full_url'] = digitalFileReadyFullUrl!.toJson();
     }
     if (storage != null) {
       data['storage'] = storage!.map((v) => v.toJson()).toList();
@@ -530,8 +524,6 @@ class ThumbnailFullUrl {
   }
 }
 
-
-
 class Storage {
   int? id;
   String? dataType;
@@ -543,12 +535,12 @@ class Storage {
 
   Storage(
       {this.id,
-        this.dataType,
-        this.dataId,
-        this.key,
-        this.value,
-        this.createdAt,
-        this.updatedAt});
+      this.dataType,
+      this.dataId,
+      this.key,
+      this.value,
+      this.createdAt,
+      this.updatedAt});
 
   Storage.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -597,25 +589,25 @@ class SeoInfo {
 
   SeoInfo(
       {this.id,
-        this.productId,
-        this.title,
-        this.description,
-        this.index,
-        this.noFollow,
-        this.noImageIndex,
-        this.noArchive,
-        this.noSnippet,
-        this.maxSnippet,
-        this.maxSnippetValue,
-        this.maxVideoPreview,
-        this.maxVideoPreviewValue,
-        this.maxImagePreview,
-        this.maxImagePreviewValue,
-        this.image,
-        this.createdAt,
-        this.updatedAt,
-        this.imageFullUrl,
-        this.storage});
+      this.productId,
+      this.title,
+      this.description,
+      this.index,
+      this.noFollow,
+      this.noImageIndex,
+      this.noArchive,
+      this.noSnippet,
+      this.maxSnippet,
+      this.maxSnippetValue,
+      this.maxVideoPreview,
+      this.maxVideoPreviewValue,
+      this.maxImagePreview,
+      this.maxImagePreviewValue,
+      this.image,
+      this.createdAt,
+      this.updatedAt,
+      this.imageFullUrl,
+      this.storage});
 
   SeoInfo.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -694,18 +686,18 @@ class Reviews {
 
   Reviews(
       {this.id,
-        this.productId,
-        this.customerId,
-        this.deliveryManId,
-        this.orderId,
-        this.comment,
-        this.attachment,
-        this.rating,
-        this.status,
-        this.isSaved,
-        this.createdAt,
-        this.updatedAt,
-        this.storage});
+      this.productId,
+      this.customerId,
+      this.deliveryManId,
+      this.orderId,
+      this.comment,
+      this.attachment,
+      this.rating,
+      this.status,
+      this.isSaved,
+      this.createdAt,
+      this.updatedAt,
+      this.storage});
 
   Reviews.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -797,23 +789,23 @@ class CouponList {
 
   CouponList(
       {this.id,
-        this.addedBy,
-        this.couponType,
-        this.couponBearer,
-        this.sellerId,
-        this.customerId,
-        this.title,
-        this.code,
-        this.startDate,
-        this.expireDate,
-        this.minPurchase,
-        this.maxDiscount,
-        this.discount,
-        this.discountType,
-        this.status,
-        this.createdAt,
-        this.updatedAt,
-        this.limit});
+      this.addedBy,
+      this.couponType,
+      this.couponBearer,
+      this.sellerId,
+      this.customerId,
+      this.title,
+      this.code,
+      this.startDate,
+      this.expireDate,
+      this.minPurchase,
+      this.maxDiscount,
+      this.discount,
+      this.discountType,
+      this.status,
+      this.createdAt,
+      this.updatedAt,
+      this.limit});
 
   CouponList.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -912,32 +904,31 @@ class Seller {
 
   Seller(
       {this.id,
-        this.fName,
-        this.lName,
-        this.phone,
-        this.image,
-        this.email,
-        this.password,
-        this.status,
-        this.rememberToken,
-        this.createdAt,
-        this.updatedAt,
-        this.bankName,
-        this.branch,
-        this.accountNo,
-        this.authToken,
-        this.salesCommissionPercentage,
-        this.gst,
-        this.cmFirebaseToken,
-        this.posStatus,
-        this.minimumOrderAmount,
-        this.freeDeliveryStatus,
-        this.freeDeliveryOverAmount,
-        this.appLanguage,
-        this.ordersCount,
-        this.imageFullUrl,
-        this.storage
-      });
+      this.fName,
+      this.lName,
+      this.phone,
+      this.image,
+      this.email,
+      this.password,
+      this.status,
+      this.rememberToken,
+      this.createdAt,
+      this.updatedAt,
+      this.bankName,
+      this.branch,
+      this.accountNo,
+      this.authToken,
+      this.salesCommissionPercentage,
+      this.gst,
+      this.cmFirebaseToken,
+      this.posStatus,
+      this.minimumOrderAmount,
+      this.freeDeliveryStatus,
+      this.freeDeliveryOverAmount,
+      this.appLanguage,
+      this.ordersCount,
+      this.imageFullUrl,
+      this.storage});
 
   Seller.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -955,13 +946,14 @@ class Seller {
     branch = json['branch'];
     accountNo = json['account_no'];
     authToken = json['auth_token'];
-    if(json['sales_commission_percentage'] != null) {
+    if (json['sales_commission_percentage'] != null) {
       salesCommissionPercentage = json['sales_commission_percentage'];
     }
     gst = json['gst'];
     cmFirebaseToken = json['cm_firebase_token'];
     posStatus = json['pos_status'];
-    minimumOrderAmount = double.tryParse(json['minimum_order_amount'].toString());
+    minimumOrderAmount =
+        double.tryParse(json['minimum_order_amount'].toString());
     freeDeliveryStatus = json['free_delivery_status'];
     freeDeliveryOverAmount = json['free_delivery_over_amount'];
     appLanguage = json['app_language'];
@@ -1013,4 +1005,3 @@ class Seller {
     return data;
   }
 }
-

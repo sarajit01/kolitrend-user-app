@@ -15,15 +15,18 @@ class WishListController extends ChangeNotifier {
   bool get isLoading => _isLoading;
   List<WishlistModel>? _wishList;
   List<WishlistModel>? get wishList => _wishList;
-  List<int> addedIntoWish =[];
-
+  List<int> addedIntoWish = [];
 
   void addWishList(int? productID) async {
     addedIntoWish.add(productID!);
-    ApiResponseModel apiResponse = await wishlistServiceInterface!.add(productID);
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
-      showCustomSnackBar("${getTranslated("successfully_added_to_wishlist", Get.context!)}", Get.context!, isError: false);
-
+    ApiResponseModel apiResponse =
+        await wishlistServiceInterface!.add(productID);
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
+      showCustomSnackBar(
+          "${getTranslated("successfully_added_to_wishlist", Get.context!)}",
+          Get.context!,
+          isError: false);
     } else {
       showCustomSnackBar(apiResponse.error.toString(), Get.context!);
     }
@@ -32,10 +35,15 @@ class WishListController extends ChangeNotifier {
 
   void removeWishList(int? productID, {int? index}) async {
     addedIntoWish.removeAt(addedIntoWish.indexOf(productID!));
-    ApiResponseModel apiResponse = await wishlistServiceInterface!.delete(productID);
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+    ApiResponseModel apiResponse =
+        await wishlistServiceInterface!.delete(productID);
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
       getWishList();
-      showCustomSnackBar("${getTranslated("successfully_removed_from_wishlist", Get.context!)}", Get.context!, isError: false);
+      showCustomSnackBar(
+          "${getTranslated("successfully_removed_from_wishlist", Get.context!)}",
+          Get.context!,
+          isError: false);
     } else {
       showCustomSnackBar(apiResponse.error.toString(), Get.context!);
     }
@@ -44,20 +52,20 @@ class WishListController extends ChangeNotifier {
 
   Future<void> getWishList() async {
     ApiResponseModel apiResponse = await wishlistServiceInterface!.getList();
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
       _wishList = [];
       addedIntoWish = [];
-      apiResponse.response?.data.forEach((wish)=> _wishList?.add(WishlistModel.fromJson(wish)));
-      if(_wishList!.isNotEmpty){
-        for(int i=0; i< _wishList!.length; i++){
+      apiResponse.response?.data
+          .forEach((wish) => _wishList?.add(WishlistModel.fromJson(wish)));
+      if (_wishList!.isNotEmpty) {
+        for (int i = 0; i < _wishList!.length; i++) {
           addedIntoWish.add(_wishList![i].productId!);
         }
-
       }
     } else {
-      ApiChecker.checkApi( apiResponse);
+      ApiChecker.checkApi(apiResponse);
     }
     notifyListeners();
   }
-
 }

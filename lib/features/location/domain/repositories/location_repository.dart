@@ -6,17 +6,17 @@ import 'package:flutter_sixvalley_ecommerce/features/location/domain/repositorie
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-
-class LocationRepository implements LocationRepositoryInterface{
+class LocationRepository implements LocationRepositoryInterface {
   final DioClient? dioClient;
-  LocationRepository({this.dioClient, });
-
-
+  LocationRepository({
+    this.dioClient,
+  });
 
   @override
   Future<ApiResponseModel> getAddressFromGeocode(LatLng latLng) async {
     try {
-      Response response = await dioClient!.get('${AppConstants.geocodeUri}?lat=${latLng.latitude}&lng=${latLng.longitude}');
+      Response response = await dioClient!.get(
+          '${AppConstants.geocodeUri}?lat=${latLng.latitude}&lng=${latLng.longitude}');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -26,7 +26,8 @@ class LocationRepository implements LocationRepositoryInterface{
   @override
   Future<ApiResponseModel> searchLocation(String text) async {
     try {
-      Response response = await dioClient!.get('${AppConstants.searchLocationUri}?search_text=$text');
+      Response response = await dioClient!
+          .get('${AppConstants.searchLocationUri}?search_text=$text');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -36,7 +37,8 @@ class LocationRepository implements LocationRepositoryInterface{
   @override
   Future<ApiResponseModel> getPlaceDetails(String? placeID) async {
     try {
-      Response response = await dioClient!.get('${AppConstants.placeDetailsUri}?placeid=$placeID');
+      Response response = await dioClient!
+          .get('${AppConstants.placeDetailsUri}?placeid=$placeID');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));

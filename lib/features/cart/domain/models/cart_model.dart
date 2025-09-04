@@ -1,6 +1,7 @@
 import 'package:flutter_sixvalley_ecommerce/data/model/image_full_url.dart';
 import 'package:flutter_sixvalley_ecommerce/features/product/domain/models/product_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/shop/domain/models/seller_model.dart';
+
 class CartModel {
   int? id;
   int? productId;
@@ -28,7 +29,7 @@ class CartModel {
   String? shopInfo;
   List<ChoiceOptions>? choiceOptions;
   List<int>? variationIndexes;
-  double?  shippingCost;
+  double? shippingCost;
   String? shippingType;
   int? minimumOrderQuantity;
   ProductInfo? productInfo;
@@ -43,9 +44,6 @@ class CartModel {
   bool? isChecked;
   bool? isGroupChecked;
   bool? isGroupItemChecked;
-
-
-
 
   CartModel(
       this.id,
@@ -86,9 +84,7 @@ class CartModel {
       this.isProductAvailable,
       this.isChecked,
       this.isGroupChecked,
-      this.isGroupItemChecked
-      );
-
+      this.isGroupItemChecked);
 
   CartModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -105,7 +101,9 @@ class CartModel {
     maxQuantity = json['max_quantity'];
     variant = json['variant'];
     color = json['color'];
-    variation = json['variation'] != null ? Variation.fromJson(json['variation']) : null;
+    variation = json['variation'] != null
+        ? Variation.fromJson(json['variation'])
+        : null;
     discount = json['discount'].toDouble();
     discountType = json['discount_type'];
     tax = json['tax'].toDouble();
@@ -116,37 +114,47 @@ class CartModel {
     shopInfo = json['shop_info'];
     if (json['choice_options'] != null) {
       choiceOptions = [];
-      json['choice_options'].forEach((v) {choiceOptions!.add(ChoiceOptions.fromJson(v));
+      json['choice_options'].forEach((v) {
+        choiceOptions!.add(ChoiceOptions.fromJson(v));
       });
     }
-    variationIndexes = json['variation_indexes'] != null ? json['variation_indexes'].cast<int>() : [];
-    if(json['shipping_cost'] != null){
-      shippingCost =double.parse(json['shipping_cost'].toString());
+    variationIndexes = json['variation_indexes'] != null
+        ? json['variation_indexes'].cast<int>()
+        : [];
+    if (json['shipping_cost'] != null) {
+      shippingCost = double.parse(json['shipping_cost'].toString());
     }
-    if(json['shipping_type'] != null){
+    if (json['shipping_type'] != null) {
       shippingType = json['shipping_type'];
     }
-    productInfo = json['product'] != null ? ProductInfo.fromJson(json['product']) : null;
+    productInfo =
+        json['product'] != null ? ProductInfo.fromJson(json['product']) : null;
     productType = json['product_type'];
     slug = json['slug'];
-    if(json['minimum_order_amount_info'] != null){
-      try{
+    if (json['minimum_order_amount_info'] != null) {
+      try {
         minimumOrderAmountInfo = json['minimum_order_amount_info'].toDouble();
-      }catch(e){
-        minimumOrderAmountInfo = double.parse(json['minimum_order_amount_info'].toString());
+      } catch (e) {
+        minimumOrderAmountInfo =
+            double.parse(json['minimum_order_amount_info'].toString());
       }
     }
     increment = false;
     decrement = false;
-    freeDeliveryOrderAmount = json['free_delivery_order_amount'] != null ? FreeDeliveryOrderAmount.fromJson(json['free_delivery_order_amount']) : null;
-    shop = json['shop'] != null ? Shop.fromJson(json['shop'], isAdminProduct: json['seller_is'] == 'admin') : null;
-    if(json["is_product_available"] != null){
+    freeDeliveryOrderAmount = json['free_delivery_order_amount'] != null
+        ? FreeDeliveryOrderAmount.fromJson(json['free_delivery_order_amount'])
+        : null;
+    shop = json['shop'] != null
+        ? Shop.fromJson(json['shop'],
+            isAdminProduct: json['seller_is'] == 'admin')
+        : null;
+    if (json["is_product_available"] != null) {
       isProductAvailable = int.parse(json["is_product_available"].toString());
-    }else{
+    } else {
       isProductAvailable = 1;
     }
 
-    if(json['is_checked'] != null) {
+    if (json['is_checked'] != null) {
       isChecked = json['is_checked'] == 1 ? true : false;
     } else {
       isChecked = false;
@@ -157,8 +165,6 @@ class CartModel {
     isGroupChecked = false;
     isGroupItemChecked = false;
   }
-
-
 }
 
 class ProductInfo {
@@ -166,13 +172,13 @@ class ProductInfo {
   int? totalCurrentStock;
   ImageFullUrl? thumbnailFullUrl;
 
-  ProductInfo({ this.minimumOrderQty, this.totalCurrentStock});
+  ProductInfo({this.minimumOrderQty, this.totalCurrentStock});
 
   ProductInfo.fromJson(Map<String, dynamic> json) {
-    if(json['minimum_order_qty'] != null) {
-      try{
+    if (json['minimum_order_qty'] != null) {
+      try {
         minimumOrderQty = json['minimum_order_qty'];
-      }catch(e){
+      } catch (e) {
         minimumOrderQty = int.parse(json['minimum_order_qty'].toString());
       }
     }
@@ -197,38 +203,35 @@ class FreeDeliveryOrderAmount {
   double? shippingCostSaved;
   double? amountNeed;
 
-
-  FreeDeliveryOrderAmount(
-      {this.status,
-        this.amount,
-        this.percentage,
-        this.shippingCostSaved,
-        this.amountNeed,
-        });
+  FreeDeliveryOrderAmount({
+    this.status,
+    this.amount,
+    this.percentage,
+    this.shippingCostSaved,
+    this.amountNeed,
+  });
 
   FreeDeliveryOrderAmount.fromJson(Map<String, dynamic> json) {
     status = int.parse(json['status'].toString());
-    if(json['amount'] != null){
+    if (json['amount'] != null) {
       amount = json['amount'].toDouble();
     }
 
-    if(json['percentage'] != null){
+    if (json['percentage'] != null) {
       percentage = int.parse(json['percentage'].toString());
     }
 
-    if(json['shipping_cost_saved'] != null){
+    if (json['shipping_cost_saved'] != null) {
       shippingCostSaved = json['shipping_cost_saved'].toDouble();
     }
 
-    if(json['amount_need'] != null){
+    if (json['amount_need'] != null) {
       amountNeed = json['amount_need'].toDouble();
     }
   }
 }
 
-
-
-class CartModelBody{
+class CartModelBody {
   int? productId;
   String? variant;
   String? color;
@@ -238,7 +241,7 @@ class CartModelBody{
   double? digitalVariantPrice;
 
   CartModelBody(
-    {this.productId,
+      {this.productId,
       this.variant,
       this.color,
       this.variation,

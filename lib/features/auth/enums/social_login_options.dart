@@ -1,5 +1,1 @@
-enum  SocialLoginOption{
-  google,
-  facebook,
-  apple
-}
+enum SocialLoginOption { google, facebook, apple }

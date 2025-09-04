@@ -1,4 +1,3 @@
-
 import 'package:dio/dio.dart';
 import 'package:flutter_sixvalley_ecommerce/data/model/error_response.dart';
 import 'package:flutter_sixvalley_ecommerce/features/auth/controllers/auth_controller.dart';
@@ -22,55 +21,61 @@ class ApiErrorHandler {
               errorDescription = "Send timeout";
               break;
             case DioExceptionType.receiveTimeout:
-              errorDescription = "Receive timeout in connection with API server";
+              errorDescription =
+                  "Receive timeout in connection with API server";
               break;
             case DioExceptionType.badResponse:
               switch (error.response!.statusCode) {
                 case 403:
-                  if(error.response!.data['errors'] != null){
-
-                    ErrorResponse errorResponse = ErrorResponse.fromJson(error.response?.data);
+                  if (error.response!.data['errors'] != null) {
+                    ErrorResponse errorResponse =
+                        ErrorResponse.fromJson(error.response?.data);
                     errorDescription = errorResponse.errors?[0].message;
-
-
-                  }else{
+                  } else {
                     errorDescription = error.response!.data['message'];
                   }
 
                   break;
                 case 401:
-                  if(error.response!.data['errors'] != null){
-                    ErrorResponse errorResponse = ErrorResponse.fromJson(error.response?.data);
+                  if (error.response!.data['errors'] != null) {
+                    ErrorResponse errorResponse =
+                        ErrorResponse.fromJson(error.response?.data);
                     errorDescription = errorResponse.errors?[0].message;
-                  } else{
+                  } else {
                     errorDescription = error.response!.data['message'];
                   }
-                  Provider.of<AuthController>(Get.context!,listen: false).clearSharedData();
+                  Provider.of<AuthController>(Get.context!, listen: false)
+                      .clearSharedData();
                   break;
                 case 404:
                   break;
                 case 400:
-                  if(error.response!.data['errors'] != null){
-                    ErrorResponse errorResponse = ErrorResponse.fromJson(error.response?.data);
+                  if (error.response!.data['errors'] != null) {
+                    ErrorResponse errorResponse =
+                        ErrorResponse.fromJson(error.response?.data);
                     errorDescription = errorResponse.errors?[0].message;
-                  } else{
+                  } else {
                     errorDescription = error.response?.data['message'] ?? '';
                   }
                   break;
                 case 500:
                   errorDescription = 'Internal server error';
                 case 503:
-                  if(error.response!.data['message'] != null){
+                  if (error.response!.data['message'] != null) {
                     errorDescription = error.response!.data['message'];
                   }
                 case 429:
                   errorDescription = error.response!.statusMessage;
                   break;
                 default:
-                  ErrorResponse errorResponse = ErrorResponse.fromJson(error.response!.data);
-                  if (errorResponse.errors != null && errorResponse.errors!.isNotEmpty) {
+                  ErrorResponse errorResponse =
+                      ErrorResponse.fromJson(error.response!.data);
+                  if (errorResponse.errors != null &&
+                      errorResponse.errors!.isNotEmpty) {
                     errorDescription = errorResponse;
-                  } else {errorDescription = "Failed to load data - status code: ${error.response!.statusCode}";
+                  } else {
+                    errorDescription =
+                        "Failed to load data - status code: ${error.response!.statusCode}";
                   }
               }
               break;

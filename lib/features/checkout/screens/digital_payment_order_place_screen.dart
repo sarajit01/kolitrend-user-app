@@ -12,7 +12,8 @@ import 'package:flutter_sixvalley_ecommerce/features/dashboard/screens/dashboard
 class DigitalPaymentScreen extends StatefulWidget {
   final String url;
   final bool fromWallet;
-  const DigitalPaymentScreen({super.key, required this.url,  this.fromWallet = false});
+  const DigitalPaymentScreen(
+      {super.key, required this.url, this.fromWallet = false});
 
   @override
   DigitalPaymentScreenState createState() => DigitalPaymentScreenState();
@@ -38,17 +39,18 @@ class DigitalPaymentScreenState extends State<DigitalPaymentScreen> {
 
     final settings = InAppBrowserClassSettings(
       browserSettings: InAppBrowserSettings(hideUrlBar: false),
-      webViewSettings: InAppWebViewSettings(javaScriptEnabled: true, isInspectable: kDebugMode, useShouldOverrideUrlLoading: false, useOnLoadResource: false),
+      webViewSettings: InAppWebViewSettings(
+          javaScriptEnabled: true,
+          isInspectable: kDebugMode,
+          useShouldOverrideUrlLoading: false,
+          useOnLoadResource: false),
     );
 
     await browser.openUrlRequest(
       urlRequest: URLRequest(url: WebUri(selectedUrl ?? '')),
       settings: settings,
     );
-
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -56,36 +58,48 @@ class DigitalPaymentScreenState extends State<DigitalPaymentScreen> {
       canPop: false,
       onPopInvokedWithResult: (val, _) => _exitApp(context),
       child: Scaffold(
-        appBar: AppBar(title: const Text(''),backgroundColor: Theme.of(context).cardColor),
-        body: Column(crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,children: [
-
-            _isLoading ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor))) : const SizedBox.shrink()])),
+          appBar: AppBar(
+              title: const Text(''),
+              backgroundColor: Theme.of(context).cardColor),
+          body: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                Theme.of(context).primaryColor)))
+                    : const SizedBox.shrink()
+              ])),
     );
   }
 
   Future<void> _exitApp(BuildContext context) async {
-    Future.delayed(const Duration(milliseconds: 100)).then((_){
-      Navigator.of(Get.context!).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const DashBoardScreen()), (route) => false);
+    Future.delayed(const Duration(milliseconds: 100)).then((_) {
+      Navigator.of(Get.context!).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const DashBoardScreen()),
+          (route) => false);
 
-      showAnimatedDialog(Get.context!, OrderPlaceDialogWidget(
-        icon: Icons.clear,
-        title: getTranslated('payment_cancelled', Get.context!),
-        description: getTranslated('your_payment_cancelled', Get.context!),
-        isFailed: true,
-      ), dismissible: false, willFlip: true);
+      showAnimatedDialog(
+          Get.context!,
+          OrderPlaceDialogWidget(
+            icon: Icons.clear,
+            title: getTranslated('payment_cancelled', Get.context!),
+            description: getTranslated('your_payment_cancelled', Get.context!),
+            isFailed: true,
+          ),
+          dismissible: false,
+          willFlip: true);
     });
-
   }
 }
 
-
-
 class MyInAppBrowser extends InAppBrowser {
-
   final BuildContext context;
 
-  MyInAppBrowser(this.context,  {
+  MyInAppBrowser(
+    this.context, {
     super.windowId,
     super.initialUserScripts,
   });
@@ -136,7 +150,6 @@ class MyInAppBrowser extends InAppBrowser {
     }
   }
 
-
   bool getIsNewUser(String url) {
     List<String> parts = url.split('?');
     if (parts.length < 2) {
@@ -159,18 +172,21 @@ class MyInAppBrowser extends InAppBrowser {
 
   @override
   void onExit() {
-    if(_canRedirect) {
-      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
-          builder: (_) => const DashBoardScreen()), (route) => false);
+    if (_canRedirect) {
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const DashBoardScreen()),
+          (route) => false);
 
-
-
-      showAnimatedDialog(context, OrderPlaceDialogWidget(
-        icon: Icons.clear,
-        title: getTranslated('payment_failed', context),
-        description: getTranslated('your_payment_failed', context),
-        isFailed: true,
-      ), dismissible: false, willFlip: true);
+      showAnimatedDialog(
+          context,
+          OrderPlaceDialogWidget(
+            icon: Icons.clear,
+            title: getTranslated('payment_failed', context),
+            description: getTranslated('your_payment_failed', context),
+            isFailed: true,
+          ),
+          dismissible: false,
+          willFlip: true);
     }
 
     if (kDebugMode) {
@@ -179,7 +195,8 @@ class MyInAppBrowser extends InAppBrowser {
   }
 
   @override
-  Future<NavigationActionPolicy> shouldOverrideUrlLoading(navigationAction) async {
+  Future<NavigationActionPolicy> shouldOverrideUrlLoading(
+      navigationAction) async {
     if (kDebugMode) {
       print("\n\nOverride ${navigationAction.request.url}\n\n");
     }
@@ -187,8 +204,7 @@ class MyInAppBrowser extends InAppBrowser {
   }
 
   @override
-  void onLoadResource(resource) {
-  }
+  void onLoadResource(resource) {}
 
   @override
   void onConsoleMessage(consoleMessage) {
@@ -202,57 +218,64 @@ class MyInAppBrowser extends InAppBrowser {
   }
 
   void _pageRedirect(String url, bool isNewUser) {
-    if(_canRedirect) {
-      bool isSuccess = url.contains('success') && url.contains(AppConstants.baseUrl);
-      bool isFailed = url.contains('fail') && url.contains(AppConstants.baseUrl);
-      bool isCancel = url.contains('cancel') && url.contains(AppConstants.baseUrl);
-      if(isSuccess || isFailed || isCancel) {
+    if (_canRedirect) {
+      bool isSuccess =
+          url.contains('success') && url.contains(AppConstants.baseUrl);
+      bool isFailed =
+          url.contains('fail') && url.contains(AppConstants.baseUrl);
+      bool isCancel =
+          url.contains('cancel') && url.contains(AppConstants.baseUrl);
+      if (isSuccess || isFailed || isCancel) {
         _canRedirect = false;
         close();
       }
-      if(isSuccess){
+      if (isSuccess) {
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const DashBoardScreen()),
+            (route) => false);
 
-        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const DashBoardScreen()), (route) => false);
+        showAnimatedDialog(
+            context,
+            OrderPlaceDialogWidget(
+              icon: Icons.done,
+              title: getTranslated(
+                  isNewUser ? 'order_placed_Account_Created' : 'order_placed',
+                  context),
+              description: getTranslated('your_order_placed', context),
+            ),
+            dismissible: false,
+            willFlip: true);
+      } else if (isFailed) {
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const DashBoardScreen()),
+            (route) => false);
 
+        showAnimatedDialog(
+            context,
+            OrderPlaceDialogWidget(
+              icon: Icons.clear,
+              title: getTranslated('payment_failed', context),
+              description: getTranslated('your_payment_failed', context),
+              isFailed: true,
+            ),
+            dismissible: false,
+            willFlip: true);
+      } else if (isCancel) {
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const DashBoardScreen()),
+            (route) => false);
 
-        showAnimatedDialog(context, OrderPlaceDialogWidget(
-          icon: Icons.done,
-          title: getTranslated( isNewUser ? 'order_placed_Account_Created' : 'order_placed', context ),
-          description: getTranslated('your_order_placed', context),
-        ), dismissible: false, willFlip: true);
-
-
-      }else if(isFailed) {
-        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
-            builder: (_) => const DashBoardScreen()), (route) => false);
-
-
-
-        showAnimatedDialog(context, OrderPlaceDialogWidget(
-          icon: Icons.clear,
-          title: getTranslated('payment_failed', context),
-          description: getTranslated('your_payment_failed', context),
-          isFailed: true,
-        ), dismissible: false, willFlip: true);
-
-
-      }else if(isCancel) {
-        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
-            builder: (_) => const DashBoardScreen()), (route) => false);
-
-
-        showAnimatedDialog(context, OrderPlaceDialogWidget(
-          icon: Icons.clear,
-          title: getTranslated('payment_cancelled', context),
-          description: getTranslated('your_payment_cancelled', context),
-          isFailed: true,
-        ), dismissible: false, willFlip: true);
-
+        showAnimatedDialog(
+            context,
+            OrderPlaceDialogWidget(
+              icon: Icons.clear,
+              title: getTranslated('payment_cancelled', context),
+              description: getTranslated('your_payment_cancelled', context),
+              isFailed: true,
+            ),
+            dismissible: false,
+            willFlip: true);
       }
     }
-
   }
-
-
-
 }

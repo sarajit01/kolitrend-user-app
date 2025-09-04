@@ -21,9 +21,9 @@ class CouponList extends StatefulWidget {
 class _CouponListState extends State<CouponList> {
   @override
   void initState() {
-    if(Provider.of<AuthController>(context, listen: false).isLoggedIn()){
-      Provider.of<CouponController>(context, listen: false).getCouponList(context, 1);
-
+    if (Provider.of<AuthController>(context, listen: false).isLoggedIn()) {
+      Provider.of<CouponController>(context, listen: false)
+          .getCouponList(context, 1);
     }
     super.initState();
   }
@@ -32,21 +32,26 @@ class _CouponListState extends State<CouponList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: getTranslated('coupons', context)),
-      body: Provider.of<AuthController>(context, listen: false).isLoggedIn()?
-
-      Consumer<CouponController>(
-          builder: (context, couponProvider,_) {
-            return couponProvider.couponList != null ? couponProvider.couponList!.isNotEmpty ?
-            Padding(padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
-              child: ListView.builder(
-                  padding: EdgeInsets.zero,
-                  shrinkWrap: true,
-                  itemCount: couponProvider.couponList!.length,
-                  itemBuilder: (context, index)=> CouponItemWidget(coupons: couponProvider.couponList![index]))) :
-            const NoInternetOrDataScreenWidget(isNoInternet: false,
-              icon: Images.noCoupon, message: 'no_coupon_available') : const OrderShimmerWidget();
-          }
-      ): const NotLoggedInWidget(),
+      body: Provider.of<AuthController>(context, listen: false).isLoggedIn()
+          ? Consumer<CouponController>(builder: (context, couponProvider, _) {
+              return couponProvider.couponList != null
+                  ? couponProvider.couponList!.isNotEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.only(
+                              bottom: Dimensions.paddingSizeDefault),
+                          child: ListView.builder(
+                              padding: EdgeInsets.zero,
+                              shrinkWrap: true,
+                              itemCount: couponProvider.couponList!.length,
+                              itemBuilder: (context, index) => CouponItemWidget(
+                                  coupons: couponProvider.couponList![index])))
+                      : const NoInternetOrDataScreenWidget(
+                          isNoInternet: false,
+                          icon: Images.noCoupon,
+                          message: 'no_coupon_available')
+                  : const OrderShimmerWidget();
+            })
+          : const NotLoggedInWidget(),
     );
   }
 }

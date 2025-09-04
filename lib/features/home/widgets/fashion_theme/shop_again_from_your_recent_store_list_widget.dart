@@ -4,25 +4,27 @@ import 'package:flutter_sixvalley_ecommerce/features/product/controllers/seller_
 import 'package:provider/provider.dart';
 
 class ShopAgainFromYourRecentStore extends StatelessWidget {
-
   const ShopAgainFromYourRecentStore({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<SellerProductController>(
-      builder: (context, shopAgainProvider,_) {
-        return RepaintBoundary(
-          child: ListView.builder(
+        builder: (context, shopAgainProvider, _) {
+      return RepaintBoundary(
+        child: ListView.builder(
             shrinkWrap: true,
-              padding: EdgeInsets.zero,
-              itemCount: shopAgainProvider.shopAgainFromRecentStoreList.length,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-            return ShopAgainFromRecentStoreWidget(shopAgainFromRecentStoreModel: shopAgainProvider.shopAgainFromRecentStoreList[index],
-              index: index,length: shopAgainProvider.shopAgainFromRecentStoreList.length,);
-          }),
-        );
-      }
-    );
+            padding: EdgeInsets.zero,
+            itemCount: shopAgainProvider.shopAgainFromRecentStoreList.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              return ShopAgainFromRecentStoreWidget(
+                shopAgainFromRecentStoreModel:
+                    shopAgainProvider.shopAgainFromRecentStoreList[index],
+                index: index,
+                length: shopAgainProvider.shopAgainFromRecentStoreList.length,
+              );
+            }),
+      );
+    });
   }
 }

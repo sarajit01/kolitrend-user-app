@@ -2,14 +2,13 @@ import 'package:flutter_sixvalley_ecommerce/features/contact_us/domain/models/co
 import 'package:flutter_sixvalley_ecommerce/features/contact_us/domain/repository/contact_us_repository_interface.dart';
 import 'package:flutter_sixvalley_ecommerce/features/contact_us/domain/services/contact_us_service_interface.dart';
 
-class ContactUsService implements ContactUsServiceInterface{
+class ContactUsService implements ContactUsServiceInterface {
   ContactUsRepositoryInterface contactUsRepositoryInterface;
 
   ContactUsService({required this.contactUsRepositoryInterface});
 
   @override
-  Future add(ContactUsBody contactUsBody) async{
+  Future add(ContactUsBody contactUsBody) async {
     return await contactUsRepositoryInterface.add(contactUsBody);
   }
-
 }

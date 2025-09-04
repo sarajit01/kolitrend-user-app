@@ -14,25 +14,58 @@ class NotLoggedInWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
-      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Padding(padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeDefault),
-            child: SizedBox(width: 60,child: Image.asset(Images.loginIcon)),),
-          Text(getTranslated('please_login', context)!, style: textBold.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).textTheme.bodyLarge?.color),),
-
-          Padding(padding: const EdgeInsets.only(top: Dimensions.paddingSizeSmall, bottom: Dimensions.paddingSizeLarge),
-            child: Text( message ?? '${getTranslated('need_to_login', context)}', textAlign: TextAlign.center,style:  titleRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color)),),
-
-          Center(child: SizedBox(width: 120,child: CustomButton(buttonText: '${getTranslated('login', context)}',
-              backgroundColor: Theme.of(context).primaryColor,
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen()))))),
-
-        InkWell(onTap: ()=> Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_)=> const DashBoardScreen()), (route) => false),
-          child: Padding(padding: const EdgeInsets.only(top: Dimensions.paddingSizeLarge),
-            child: Text(getTranslated('back_to_home', context)!,
-              style: textRegular.copyWith(fontSize: Dimensions.fontSizeLarge,
-                  color: Theme.of(context).primaryColor, decoration: TextDecoration.underline, decorationColor: Theme.of(context).primaryColor),)),
-        ),
+      padding:
+          const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                vertical: Dimensions.paddingSizeDefault),
+            child: SizedBox(width: 60, child: Image.asset(Images.loginIcon)),
+          ),
+          Text(
+            getTranslated('please_login', context)!,
+            style: textBold.copyWith(
+                fontSize: Dimensions.fontSizeLarge,
+                color: Theme.of(context).textTheme.bodyLarge?.color),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+                top: Dimensions.paddingSizeSmall,
+                bottom: Dimensions.paddingSizeLarge),
+            child: Text(message ?? '${getTranslated('need_to_login', context)}',
+                textAlign: TextAlign.center,
+                style: titleRegular.copyWith(
+                    color: Theme.of(context).textTheme.bodyLarge?.color)),
+          ),
+          Center(
+              child: SizedBox(
+                  width: 120,
+                  child: CustomButton(
+                      buttonText: '${getTranslated('login', context)}',
+                      backgroundColor: Theme.of(context).primaryColor,
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginScreen()))))),
+          InkWell(
+            onTap: () => Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const DashBoardScreen()),
+                (route) => false),
+            child: Padding(
+                padding:
+                    const EdgeInsets.only(top: Dimensions.paddingSizeLarge),
+                child: Text(
+                  getTranslated('back_to_home', context)!,
+                  style: textRegular.copyWith(
+                      fontSize: Dimensions.fontSizeLarge,
+                      color: Theme.of(context).primaryColor,
+                      decoration: TextDecoration.underline,
+                      decorationColor: Theme.of(context).primaryColor),
+                )),
+          ),
         ],
       ),
     );

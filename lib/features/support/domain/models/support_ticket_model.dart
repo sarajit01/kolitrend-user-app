@@ -12,15 +12,15 @@ class SupportTicketModel {
 
   SupportTicketModel(
       {int? id,
-        int? customerId,
-        String? subject,
-        String? type,
-        String? priority,
-        String? description,
-        String? reply,
-        String? status,
-        String? createdAt,
-        String? updatedAt}) {
+      int? customerId,
+      String? subject,
+      String? type,
+      String? priority,
+      String? description,
+      String? reply,
+      String? status,
+      String? createdAt,
+      String? updatedAt}) {
     _id = id;
     _customerId = customerId;
     _subject = subject;

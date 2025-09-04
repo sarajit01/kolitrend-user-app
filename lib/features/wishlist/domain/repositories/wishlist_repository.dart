@@ -4,7 +4,7 @@ import 'package:flutter_sixvalley_ecommerce/data/model/api_response.dart';
 import 'package:flutter_sixvalley_ecommerce/features/wishlist/domain/repositories/wishlist_repository_interface.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 
-class WishListRepository implements WishListRepositoryInterface{
+class WishListRepository implements WishListRepositoryInterface {
   final DioClient? dioClient;
 
   WishListRepository({required this.dioClient});
@@ -22,7 +22,8 @@ class WishListRepository implements WishListRepositoryInterface{
   @override
   Future<ApiResponseModel> add(int productID) async {
     try {
-      final response = await dioClient!.post(AppConstants.addWishListUri + productID.toString());
+      final response = await dioClient!
+          .post(AppConstants.addWishListUri + productID.toString());
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -32,20 +33,19 @@ class WishListRepository implements WishListRepositoryInterface{
   @override
   Future<ApiResponseModel> delete(int productID) async {
     try {
-      final response = await dioClient!.delete(AppConstants.removeWishListUri + productID.toString());
+      final response = await dioClient!
+          .delete(AppConstants.removeWishListUri + productID.toString());
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
     }
   }
 
-
   @override
   Future get(String id) {
     // TODO: implement get
     throw UnimplementedError();
   }
-
 
   @override
   Future update(Map<String, dynamic> body, int id) {

@@ -423,7 +423,7 @@ class _TransformerPageViewState extends State<TransformerPageView> {
   Widget build(BuildContext context) {
     final builder = _transformer == null ? _buildItemNormal : _buildItem;
     final child = Container(
-      color:  Colors.green,
+      color: Colors.green,
       padding: const EdgeInsets.all(15),
       child: PageView.builder(
         allowImplicitScrolling: widget.allowImplicitScrolling,

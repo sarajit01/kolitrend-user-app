@@ -3,7 +3,6 @@ import 'package:flutter_sixvalley_ecommerce/localization/language_constrants.dar
 import 'package:flutter_sixvalley_ecommerce/utill/custom_themes.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/dimensions.dart';
 
-
 class DemoResetDialogWidget extends StatefulWidget {
   const DemoResetDialogWidget({super.key});
 
@@ -12,11 +11,11 @@ class DemoResetDialogWidget extends StatefulWidget {
 }
 
 class _DemoResetDialogWidgetState extends State<DemoResetDialogWidget> {
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusSmall)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Dimensions.radiusSmall)),
       insetPadding: const EdgeInsets.all(30),
       clipBehavior: Clip.antiAliasWithSaveLayer,
       child: Container(
@@ -27,10 +26,13 @@ class _DemoResetDialogWidgetState extends State<DemoResetDialogWidget> {
         width: 500,
         padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.error_outline, color: Theme.of(context).primaryColor, size: 55),
+          Icon(Icons.error_outline,
+              color: Theme.of(context).primaryColor, size: 55),
           const SizedBox(height: Dimensions.paddingSizeLarge),
 
-          Text(getTranslated('session_time_out', context)!, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge)),
+          Text(getTranslated('session_time_out', context)!,
+              style:
+                  robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge)),
           const SizedBox(height: Dimensions.paddingSizeLarge),
 
           Text(
@@ -53,8 +55,6 @@ class _DemoResetDialogWidgetState extends State<DemoResetDialogWidget> {
           //     }
           //   });
           // }),
-
-
         ]),
       ),
     );

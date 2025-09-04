@@ -4,7 +4,8 @@ class SupportTicketBody {
   String? _description;
   String? _priority;
 
-  SupportTicketBody(String type, String subject, String description, String priority) {
+  SupportTicketBody(
+      String type, String subject, String description, String priority) {
     _type = type;
     _subject = subject;
     _description = description;

@@ -5,12 +5,15 @@ import 'package:flutter_sixvalley_ecommerce/features/deal/domain/repositories/fe
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 import 'package:flutter_sixvalley_ecommerce/common/enums/data_source_enum.dart';
 
-class FeaturedDealRepository extends DataSyncService implements FeaturedDealRepositoryInterface {
+class FeaturedDealRepository extends DataSyncService
+    implements FeaturedDealRepositoryInterface {
   final DioClient dioClient;
-  FeaturedDealRepository({required this.dioClient, required super.dataSyncRepoInterface});
+  FeaturedDealRepository(
+      {required this.dioClient, required super.dataSyncRepoInterface});
 
   @override
-  Future<ApiResponseModel<T>> getFeaturedDeal<T>({required DataSourceEnum source}) async {
+  Future<ApiResponseModel<T>> getFeaturedDeal<T>(
+      {required DataSourceEnum source}) async {
     return await fetchData<T>(AppConstants.featuredDealUri, source);
   }
 

@@ -20,10 +20,9 @@ class _WishListScreenState extends State<WishListScreen> {
   @override
   void initState() {
     super.initState();
-    if(Provider.of<AuthController>(context, listen: false).isLoggedIn()){
+    if (Provider.of<AuthController>(context, listen: false).isLoggedIn()) {
       Provider.of<WishListController>(context, listen: false).getWishList();
     }
-
   }
 
   @override
@@ -32,24 +31,33 @@ class _WishListScreenState extends State<WishListScreen> {
       appBar: CustomAppBar(title: getTranslated('wishList', context)),
       resizeToAvoidBottomInset: true,
       body: Column(children: [
-        Expanded(child: !Provider.of<AuthController>(context, listen: false).isLoggedIn()
-            ? const NotLoggedInWidget()
-            : Consumer<WishListController>(builder: (context, wishListProvider, child) {
-          return wishListProvider.wishList != null
-              ? wishListProvider.wishList!.isNotEmpty
-              ? RefreshIndicator(
-              onRefresh: () async => await  wishListProvider.getWishList(),
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: wishListProvider.wishList!.length,
-                itemBuilder: (context, index) => WishListWidget(wishlistModel: wishListProvider.wishList?[index], index: index),
-              ))
-              : const NoInternetOrDataScreenWidget(isNoInternet: false, message: 'no_wishlist_product', icon: Images.noWishlist)
-              : const WishListShimmer();
-        })),
+        Expanded(
+            child: !Provider.of<AuthController>(context, listen: false)
+                    .isLoggedIn()
+                ? const NotLoggedInWidget()
+                : Consumer<WishListController>(
+                    builder: (context, wishListProvider, child) {
+                    return wishListProvider.wishList != null
+                        ? wishListProvider.wishList!.isNotEmpty
+                            ? RefreshIndicator(
+                                onRefresh: () async =>
+                                    await wishListProvider.getWishList(),
+                                child: ListView.builder(
+                                  padding: EdgeInsets.zero,
+                                  itemCount: wishListProvider.wishList!.length,
+                                  itemBuilder: (context, index) =>
+                                      WishListWidget(
+                                          wishlistModel:
+                                              wishListProvider.wishList?[index],
+                                          index: index),
+                                ))
+                            : const NoInternetOrDataScreenWidget(
+                                isNoInternet: false,
+                                message: 'no_wishlist_product',
+                                icon: Images.noWishlist)
+                        : const WishListShimmer();
+                  })),
       ]),
     );
   }
 }
-
-

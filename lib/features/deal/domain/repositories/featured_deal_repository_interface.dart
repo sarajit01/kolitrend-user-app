@@ -3,5 +3,6 @@ import 'package:flutter_sixvalley_ecommerce/data/model/api_response.dart';
 import 'package:flutter_sixvalley_ecommerce/interface/repo_interface.dart';
 
 abstract class FeaturedDealRepositoryInterface implements RepositoryInterface {
-  Future<ApiResponseModel<T>> getFeaturedDeal<T>({required DataSourceEnum source});
+  Future<ApiResponseModel<T>> getFeaturedDeal<T>(
+      {required DataSourceEnum source});
 }

@@ -11,7 +11,13 @@ class ProductModel {
   double? maxPrice;
   List<Product>? _products;
 
-  ProductModel({int? totalSize, int? limit, int? offset, List<Product>? products, double? minPrice, double? maxPrice}) {
+  ProductModel(
+      {int? totalSize,
+      int? limit,
+      int? offset,
+      List<Product>? products,
+      double? minPrice,
+      double? maxPrice}) {
     totalSize = totalSize;
     limit = limit;
     offset = offset;
@@ -20,7 +26,6 @@ class ProductModel {
     _products = products;
   }
 
-
   List<Product>? get products => _products;
 
   ProductModel.fromJson(Map<String, dynamic> json) {
@@ -28,19 +33,19 @@ class ProductModel {
     limit = int.parse(json['limit'].toString());
     offset = int.parse(json['offset'].toString());
     if (json['min_price'] != null) {
-      minPrice =  double.parse(json['min_price'].toString());
+      minPrice = double.parse(json['min_price'].toString());
     }
 
-    if(json['max_price'] != null) {
+    if (json['max_price'] != null) {
       maxPrice = double.parse(json['max_price'].toString());
     }
     if (json['products'] != null) {
       _products = [];
-      json['products'].forEach((v) {_products!.add(Product.fromJson(v));
+      json['products'].forEach((v) {
+        _products!.add(Product.fromJson(v));
       });
     }
   }
-
 }
 
 class Product {
@@ -88,50 +93,50 @@ class Product {
   ImageFullUrl? previewFileFullUrl;
   ClearanceSale? clearanceSale;
 
-  Product(
-      {int? id,
-        String? addedBy,
-        int? userId,
-        String? name,
-        String? slug,
-        String? productType,
-        List<CategoryIds>? categoryIds,
-        String? unit,
-        int? minQty,
-        int? refundable,
-        String? digitalProductType,
-        String? digitalFileReady,
-        List<String>? images,
-        List<ImageFullUrl>? imagesFullUrl,
-        String? thumbnail,
-        ImageFullUrl? thumbnailFullUrl,
-        List<ProductColors>? colors,
-        String? variantProduct,
-        List<String>? attributes,
-        List<ChoiceOptions>? choiceOptions,
-        List<Variation>? variation,
-        double? unitPrice,
-        double? purchasePrice,
-        double? tax,
-        String? taxModel,
-        String? taxType,
-        double? discount,
-        String? discountType,
-        int? currentStock,
-        String? details,
-        String? attachment,
-        String? createdAt,
-        String? updatedAt,
-        int? featuredStatus,
-        List<Rating>? rating,
-        double? shippingCost,
-        int? isMultiPly,
-        int? reviewCount,
-        String? videoUrl,
-        int? minimumOrderQty,
-        int? wishList,
-        Brand? brand,
-      }) {
+  Product({
+    int? id,
+    String? addedBy,
+    int? userId,
+    String? name,
+    String? slug,
+    String? productType,
+    List<CategoryIds>? categoryIds,
+    String? unit,
+    int? minQty,
+    int? refundable,
+    String? digitalProductType,
+    String? digitalFileReady,
+    List<String>? images,
+    List<ImageFullUrl>? imagesFullUrl,
+    String? thumbnail,
+    ImageFullUrl? thumbnailFullUrl,
+    List<ProductColors>? colors,
+    String? variantProduct,
+    List<String>? attributes,
+    List<ChoiceOptions>? choiceOptions,
+    List<Variation>? variation,
+    double? unitPrice,
+    double? purchasePrice,
+    double? tax,
+    String? taxModel,
+    String? taxType,
+    double? discount,
+    String? discountType,
+    int? currentStock,
+    String? details,
+    String? attachment,
+    String? createdAt,
+    String? updatedAt,
+    int? featuredStatus,
+    List<Rating>? rating,
+    double? shippingCost,
+    int? isMultiPly,
+    int? reviewCount,
+    String? videoUrl,
+    int? minimumOrderQty,
+    int? wishList,
+    Brand? brand,
+  }) {
     _id = id;
     _addedBy = addedBy;
     _userId = userId;
@@ -188,7 +193,7 @@ class Product {
   String? get addedBy => _addedBy;
   int? get userId => _userId;
   String? get name => _name;
-  String? get slug =>_slug;
+  String? get slug => _slug;
   String? get productType => _productType;
   List<CategoryIds>? get categoryIds => _categoryIds;
   String? get unit => _unit;
@@ -231,11 +236,11 @@ class Product {
     _productType = json['product_type'];
     if (json['category_ids'] != null) {
       _categoryIds = [];
-      try{
+      try {
         json['category_ids'].forEach((v) {
           _categoryIds!.add(CategoryIds.fromJson(v));
         });
-      }catch(e){
+      } catch (e) {
         jsonDecode(json['category_ids']).forEach((v) {
           _categoryIds!.add(CategoryIds.fromJson(v));
         });
@@ -244,21 +249,23 @@ class Product {
     _unit = json['unit'];
     _minQty = json['min_qty'];
 
-    if(json['refundable']!=null){
+    if (json['refundable'] != null) {
       _refundable = int.parse(json['refundable'].toString());
     }
-    if(json['digital_product_type']!=null){
+    if (json['digital_product_type'] != null) {
       _digitalProductType = json['digital_product_type'];
     }
-    if(json['digital_file_ready']!=null){
+    if (json['digital_file_ready'] != null) {
       _digitalFileReady = json['digital_file_ready'];
     }
 
-    if(json['images'] != null){
-      try{
+    if (json['images'] != null) {
+      try {
         _images = json['images'] != null ? json['images'].cast<String>() : [];
-      }catch(e){
-        _images = json['images'] != null ? jsonDecode(json['images']).cast<String>() : [];
+      } catch (e) {
+        _images = json['images'] != null
+            ? jsonDecode(json['images']).cast<String>()
+            : [];
       }
     }
 
@@ -272,30 +279,30 @@ class Product {
     _thumbnail = json['thumbnail'];
     if (json['colors_formatted'] != null) {
       _colors = [];
-      try{
+      try {
         json['colors_formatted'].forEach((v) {
           _colors!.add(ProductColors.fromJson(v));
         });
-      }catch(e){
+      } catch (e) {
         jsonDecode(json['colors_formatted']).forEach((v) {
           _colors!.add(ProductColors.fromJson(v));
         });
       }
     }
-    if(json['attributes'] != null && json['attributes'] != "null") {
-      try{
+    if (json['attributes'] != null && json['attributes'] != "null") {
+      try {
         _attributes = json['attributes'].cast<String>();
-      }catch(e){
+      } catch (e) {
         _attributes = jsonDecode(json['attributes']).cast<String>();
       }
     }
     if (json['choice_options'] != null) {
       _choiceOptions = [];
-      try{
+      try {
         json['choice_options'].forEach((v) {
           _choiceOptions!.add(ChoiceOptions.fromJson(v));
         });
-      }catch(e){
+      } catch (e) {
         jsonDecode(json['choice_options']).forEach((v) {
           _choiceOptions!.add(ChoiceOptions.fromJson(v));
         });
@@ -303,39 +310,39 @@ class Product {
     }
     if (json['variation'] != null) {
       _variation = [];
-      try{
+      try {
         json['variation'].forEach((v) {
           _variation!.add(Variation.fromJson(v));
         });
-      }catch(e){
+      } catch (e) {
         jsonDecode(json['variation']).forEach((v) {
           _variation!.add(Variation.fromJson(v));
         });
       }
     }
-    if(json['unit_price'] != null){
+    if (json['unit_price'] != null) {
       _unitPrice = json['unit_price'].toDouble();
     }
-    if(json['purchase_price']!=null){
+    if (json['purchase_price'] != null) {
       _purchasePrice = json['purchase_price'].toDouble();
     }
 
-    if(json['tax'] != null){
+    if (json['tax'] != null) {
       _tax = json['tax'].toDouble();
     }
 
-    if(json['tax_model'] != null){
+    if (json['tax_model'] != null) {
       _taxModel = json['tax_model'];
-    }else{
+    } else {
       _taxModel = 'exclude';
     }
 
     _taxType = json['tax_type'];
-    if(json['discount'] != null ){
+    if (json['discount'] != null) {
       _discount = json['discount'].toDouble();
     }
     _discountType = json['discount_type'];
-    _currentStock = json['current_stock']??0;
+    _currentStock = json['current_stock'] ?? 0;
     _details = json['details'];
     _createdAt = json['created_at'];
     _updatedAt = json['updated_at'];
@@ -344,36 +351,32 @@ class Product {
       json['rating'].forEach((v) {
         _rating!.add(Rating.fromJson(v));
       });
-    }else{
-
-    }
-    if(json['shipping_cost']!=null){
+    } else {}
+    if (json['shipping_cost'] != null) {
       _shippingCost = double.parse(json['shipping_cost'].toString());
     }
-    if(json['multiply_qty']!=null){
+    if (json['multiply_qty'] != null) {
       _isMultiPly = int.parse(json['multiply_qty'].toString());
     }
-    if(json['reviews_count']!=null){
+    if (json['reviews_count'] != null) {
       _reviewCount = int.parse(json['reviews_count'].toString());
     }
     _videoUrl = json['video_url'];
-    if(json['minimum_order_qty'] != null){
-      try{
+    if (json['minimum_order_qty'] != null) {
+      try {
         _minimumOrderQty = json['minimum_order_qty'];
-      }catch(e){
+      } catch (e) {
         _minimumOrderQty = int.parse(json['minimum_order_qty'].toString());
       }
-
-    }else{
+    } else {
       _minimumOrderQty = 1;
     }
-    if(json['wish_list_count'] != null){
-      try{
+    if (json['wish_list_count'] != null) {
+      try {
         wishList = json['wish_list_count'];
-      }catch(e){
+      } catch (e) {
         wishList = int.parse(json['wish_list_count'].toString());
       }
-
     }
     brand = json['brand'] != null ? Brand.fromJson(json['brand']) : null;
     _thumbnailFullUrl = json['thumbnail_full_url'] != null
@@ -381,9 +384,10 @@ class Product {
         : null;
 
     digitalFileReadyFullUrl = json['digital_file_ready_full_url'] != null
-        ? ImageFullUrl.fromJson(json['digital_file_ready_full_url']) : null;
+        ? ImageFullUrl.fromJson(json['digital_file_ready_full_url'])
+        : null;
 
-    previewFileFullUrl  = json['preview_file_full_url'] != null
+    previewFileFullUrl = json['preview_file_full_url'] != null
         ? ImageFullUrl.fromJson(json['preview_file_full_url'])
         : null;
 
@@ -405,7 +409,6 @@ class CategoryIds {
   CategoryIds.fromJson(Map<String, dynamic> json) {
     _position = json['position'];
   }
-
 }
 
 class ProductColors {
@@ -424,7 +427,6 @@ class ProductColors {
     _name = json['name'];
     _code = json['code'];
   }
-
 }
 
 class ChoiceOptions {
@@ -445,12 +447,10 @@ class ChoiceOptions {
   ChoiceOptions.fromJson(Map<String, dynamic> json) {
     _name = json['name'];
     _title = json['title'];
-    if(json['options'] != null){
+    if (json['options'] != null) {
       _options = json['options'].cast<String>();
     }
-
   }
-
 }
 
 class Variation {
@@ -491,23 +491,19 @@ class Rating {
   Rating.fromJson(Map<String, dynamic> json) {
     _average = json['average'].toString();
   }
-
 }
 
 class Brand {
   String? name;
 
-
-  Brand(
-      {
-        this.name,
-        });
+  Brand({
+    this.name,
+  });
 
   Brand.fromJson(Map<String, dynamic> json) {
     name = json['name'];
   }
 }
-
 
 class ClearanceSale {
   int? id;
@@ -524,16 +520,16 @@ class ClearanceSale {
 
   ClearanceSale(
       {this.id,
-        this.addedBy,
-        this.productId,
-        this.setupId,
-        this.userId,
-        this.shopId,
-        this.isActive,
-        this.discountType,
-        this.discountAmount,
-        this.createdAt,
-        this.updatedAt});
+      this.addedBy,
+      this.productId,
+      this.setupId,
+      this.userId,
+      this.shopId,
+      this.isActive,
+      this.discountType,
+      this.discountAmount,
+      this.createdAt,
+      this.updatedAt});
 
   ClearanceSale.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -544,8 +540,9 @@ class ClearanceSale {
     shopId = json['shop_id'];
     isActive = json['is_active'];
     discountType = json['discount_type'];
-    discountAmount = json['discount_amount'] != null ?
-    double.tryParse(json['discount_amount'].toString()) : null;
+    discountAmount = json['discount_amount'] != null
+        ? double.tryParse(json['discount_amount'].toString())
+        : null;
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
   }

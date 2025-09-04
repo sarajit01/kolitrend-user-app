@@ -4,9 +4,7 @@ class AttributeModel {
   String? createdAt;
   String? updatedAt;
 
-
-  AttributeModel(
-      {this.id, this.name, this.createdAt, this.updatedAt});
+  AttributeModel({this.id, this.name, this.createdAt, this.updatedAt});
 
   AttributeModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -14,5 +12,4 @@ class AttributeModel {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
   }
-
 }

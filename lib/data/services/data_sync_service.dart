@@ -9,7 +9,8 @@ class DataSyncService implements DataSyncServiceInterface {
   DataSyncService({required this.dataSyncRepoInterface});
 
   @override
-  Future<ApiResponseModel<T>> fetchData<T>(String uri, DataSourceEnum source) async {
+  Future<ApiResponseModel<T>> fetchData<T>(
+      String uri, DataSourceEnum source) async {
     return await dataSyncRepoInterface.fetchData(uri, source);
   }
 }

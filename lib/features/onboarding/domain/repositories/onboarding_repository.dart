@@ -9,7 +9,7 @@ import 'package:flutter_sixvalley_ecommerce/main.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/images.dart';
 
-class OnBoardingRepository implements OnBoardingRepositoryInterface{
+class OnBoardingRepository implements OnBoardingRepositoryInterface {
   final DioClient? dioClient;
   OnBoardingRepository({required this.dioClient});
 
@@ -17,18 +17,24 @@ class OnBoardingRepository implements OnBoardingRepositoryInterface{
   Future<ApiResponseModel> getList({int? offset}) async {
     try {
       List<OnboardingModel> onBoardingList = [
-        OnboardingModel(Images.onBoarding1,
-          '${getTranslated('on_boarding_title_one', Get.context!)} ${AppConstants.appName}',
-          getTranslated('on_boarding_description_one', Get.context!)),
-        OnboardingModel(Images.onBoarding2,
-          getTranslated('on_boarding_title_two', Get.context!),
-          getTranslated('on_boarding_description_two', Get.context!)),
-        OnboardingModel(Images.onBoarding3,
-          getTranslated('on_boarding_title_three', Get.context!),
-          getTranslated('on_boarding_description_three', Get.context!)),
+        OnboardingModel(
+            Images.onBoarding1,
+            '${getTranslated('on_boarding_title_one', Get.context!)} ${AppConstants.appName}',
+            getTranslated('on_boarding_description_one', Get.context!)),
+        OnboardingModel(
+            Images.onBoarding2,
+            getTranslated('on_boarding_title_two', Get.context!),
+            getTranslated('on_boarding_description_two', Get.context!)),
+        OnboardingModel(
+            Images.onBoarding3,
+            getTranslated('on_boarding_title_three', Get.context!),
+            getTranslated('on_boarding_description_three', Get.context!)),
       ];
 
-      Response response = Response(requestOptions: RequestOptions(path: ''), data: onBoardingList,statusCode: 200);
+      Response response = Response(
+          requestOptions: RequestOptions(path: ''),
+          data: onBoardingList,
+          statusCode: 200);
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -52,7 +58,6 @@ class OnBoardingRepository implements OnBoardingRepositoryInterface{
     // TODO: implement get
     throw UnimplementedError();
   }
-
 
   @override
   Future update(Map<String, dynamic> body, int id) {

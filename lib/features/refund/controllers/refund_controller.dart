@@ -13,7 +13,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-
 class RefundController with ChangeNotifier {
   final RefundServiceInterface refundServiceInterface;
   RefundController({required this.refundServiceInterface});
@@ -24,7 +23,7 @@ class RefundController with ChangeNotifier {
   bool get isLoading => _isLoading;
   XFile? _imageFile;
   XFile? get imageFile => _imageFile;
-  List <XFile?>_refundImage = [];
+  List<XFile?> _refundImage = [];
   List<XFile?> get refundImage => _refundImage;
   List<File> reviewImages = [];
   RefundInfoModel? _refundInfoModel;
@@ -32,18 +31,18 @@ class RefundController with ChangeNotifier {
   RefundResultModel? _refundResultModel;
   RefundResultModel? get refundResultModel => _refundResultModel;
 
-
   void pickImage(bool isRemove, {bool fromReview = false}) async {
-    if(isRemove) {
+    if (isRemove) {
       _imageFile = null;
       _refundImage = [];
       reviewImages = [];
-    }else {
-      _imageFile = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 20);
+    } else {
+      _imageFile = await ImagePicker()
+          .pickImage(source: ImageSource.gallery, imageQuality: 20);
       if (_imageFile != null) {
-        if(fromReview){
+        if (fromReview) {
           reviewImages.add(File(_imageFile!.path));
-        }else{
+        } else {
           _refundImage.add(_imageFile);
         }
       }
@@ -51,25 +50,30 @@ class RefundController with ChangeNotifier {
     notifyListeners();
   }
 
-
-  void removeImage(int index, {bool fromReview = false}){
-    if(fromReview){
+  void removeImage(int index, {bool fromReview = false}) {
+    if (fromReview) {
       reviewImages.removeAt(index);
-    }else{
+    } else {
       _refundImage.removeAt(index);
     }
     notifyListeners();
   }
 
-  Future<http.StreamedResponse> refundRequest(String orderId, int orderDetailsId, double? amount, String refundReason) async {
+  Future<http.StreamedResponse> refundRequest(String orderId,
+      int orderDetailsId, double? amount, String refundReason) async {
     _isLoading = true;
     notifyListeners();
-    http.StreamedResponse response = await refundServiceInterface.refundRequest(orderDetailsId, amount, refundReason,refundImage);
+    http.StreamedResponse response = await refundServiceInterface.refundRequest(
+        orderDetailsId, amount, refundReason, refundImage);
     if (response.statusCode == 200) {
       Navigator.pop(Get.context!);
-      showCustomSnackBar(getTranslated('successfully_requested_for_refund', Get.context!), Get.context!, isError: false);
+      showCustomSnackBar(
+          getTranslated('successfully_requested_for_refund', Get.context!),
+          Get.context!,
+          isError: false);
       getRefundReqInfo(orderDetailsId);
-      Provider.of<OrderDetailsController>(Get.context!, listen: false).getOrderDetails(orderId.toString());
+      Provider.of<OrderDetailsController>(Get.context!, listen: false)
+          .getOrderDetails(orderId.toString());
     }
     _imageFile = null;
     _refundImage = [];
@@ -78,29 +82,33 @@ class RefundController with ChangeNotifier {
     return response;
   }
 
-
-
   Future<ApiResponseModel> getRefundReqInfo(int? orderDetailId) async {
     _isRefund = true;
-    ApiResponseModel apiResponse = await refundServiceInterface.getRefundInfo(orderDetailId);
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+    ApiResponseModel apiResponse =
+        await refundServiceInterface.getRefundInfo(orderDetailId);
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
       _refundInfoModel = RefundInfoModel.fromJson(apiResponse.response!.data);
       _isRefund = false;
-    } else if(apiResponse.response!.statusCode == 202){
+    } else if (apiResponse.response!.statusCode == 202) {
       _isRefund = false;
-      showCustomSnackBar('${apiResponse.response!.data['message']}', Get.context!);
+      showCustomSnackBar(
+          '${apiResponse.response!.data['message']}', Get.context!);
     }
     notifyListeners();
     return apiResponse;
   }
 
-
-  Future<ApiResponseModel> getRefundResult(BuildContext context, int? orderDetailId) async {
-    _isLoading =true;
-    ApiResponseModel apiResponse = await refundServiceInterface.getRefundResult(orderDetailId);
-    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+  Future<ApiResponseModel> getRefundResult(
+      BuildContext context, int? orderDetailId) async {
+    _isLoading = true;
+    ApiResponseModel apiResponse =
+        await refundServiceInterface.getRefundResult(orderDetailId);
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
       _isLoading = false;
-      _refundResultModel = RefundResultModel.fromJson(apiResponse.response!.data);
+      _refundResultModel =
+          RefundResultModel.fromJson(apiResponse.response!.data);
     }
     notifyListeners();
     return apiResponse;

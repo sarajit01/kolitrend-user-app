@@ -11,8 +11,6 @@ class WalletBonusModel {
       });
     }
   }
-
-
 }
 
 class BonusList {
@@ -31,17 +29,17 @@ class BonusList {
 
   BonusList(
       {this.id,
-        this.title,
-        this.description,
-        this.bonusType,
-        this.bonusAmount,
-        this.minAddMoneyAmount,
-        this.maxBonusAmount,
-        this.startDateTime,
-        this.endDateTime,
-        this.isActive,
-        this.createdAt,
-        this.updatedAt});
+      this.title,
+      this.description,
+      this.bonusType,
+      this.bonusAmount,
+      this.minAddMoneyAmount,
+      this.maxBonusAmount,
+      this.startDateTime,
+      this.endDateTime,
+      this.isActive,
+      this.createdAt,
+      this.updatedAt});
 
   BonusList.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -53,9 +51,8 @@ class BonusList {
     maxBonusAmount = json['max_bonus_amount'].toDouble();
     startDateTime = json['start_date_time'];
     endDateTime = json['end_date_time'];
-    isActive = json['is_active']? 1 : 0;
+    isActive = json['is_active'] ? 1 : 0;
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
   }
-
 }

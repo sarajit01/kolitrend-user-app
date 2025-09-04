@@ -9,10 +9,10 @@ class NotificationItemModel {
 
   NotificationItemModel(
       {this.totalSize,
-        this.limit,
-        this.offset,
-        this.newNotificationItem,
-        this.notification});
+      this.limit,
+      this.offset,
+      this.newNotificationItem,
+      this.notification});
 
   NotificationItemModel.fromJson(Map<String, dynamic> json) {
     totalSize = json['total_size'];
@@ -42,21 +42,19 @@ class NotificationItem {
   String? updatedAt;
   NotificationSeenBy? seen;
 
-
   NotificationItem(
       {this.id,
-        this.sentBy,
-        this.sentTo,
-        this.title,
-        this.description,
-        this.notificationCount,
-        this.image,
-        this.status,
-        this.createdAt,
-        this.updatedAt,
-        this.seen,
-        this.imageFullUrl
-      });
+      this.sentBy,
+      this.sentTo,
+      this.title,
+      this.description,
+      this.notificationCount,
+      this.image,
+      this.status,
+      this.createdAt,
+      this.updatedAt,
+      this.seen,
+      this.imageFullUrl});
 
   NotificationItem.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -67,13 +65,14 @@ class NotificationItem {
     notificationCount = int.parse(json['notification_count'].toString());
     image = json['image'];
     imageFullUrl = json['image_full_url'] != null
-      ? ImageFullUrl.fromJson(json['image_full_url'])
-      : null;
+        ? ImageFullUrl.fromJson(json['image_full_url'])
+        : null;
     status = json['status'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    seen = json['notification_seen_by'] != null ? NotificationSeenBy.fromJson(json['notification_seen_by']) : null;
-
+    seen = json['notification_seen_by'] != null
+        ? NotificationSeenBy.fromJson(json['notification_seen_by'])
+        : null;
   }
 }
 
@@ -83,13 +82,12 @@ class NotificationSeenBy {
   int? notificationId;
   String? createdAt;
 
-
-  NotificationSeenBy(
-      {this.id,
-        this.userId,
-        this.notificationId,
-        this.createdAt,
-        });
+  NotificationSeenBy({
+    this.id,
+    this.userId,
+    this.notificationId,
+    this.createdAt,
+  });
 
   NotificationSeenBy.fromJson(Map<String, dynamic> json) {
     id = json['id'];

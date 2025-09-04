@@ -4,7 +4,7 @@ import 'package:flutter_sixvalley_ecommerce/data/model/api_response.dart';
 import 'package:flutter_sixvalley_ecommerce/features/coupon/domain/repositories/coupon_repository_interface.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 
-class CouponRepository implements CouponRepositoryInterface{
+class CouponRepository implements CouponRepositoryInterface {
   final DioClient? dioClient;
   CouponRepository({required this.dioClient});
 
@@ -21,7 +21,8 @@ class CouponRepository implements CouponRepositoryInterface{
   @override
   Future<ApiResponseModel> getList({int? offset}) async {
     try {
-      final response = await dioClient!.get('${AppConstants.couponListApi}$offset');
+      final response =
+          await dioClient!.get('${AppConstants.couponListApi}$offset');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -41,7 +42,8 @@ class CouponRepository implements CouponRepositoryInterface{
   @override
   Future<ApiResponseModel> getSellerCouponList(int sellerId, int offset) async {
     try {
-      final response = await dioClient!.get('${AppConstants.sellerWiseCouponListApi}$sellerId/seller-wise-coupons?limit=100&offset=$offset');
+      final response = await dioClient!.get(
+          '${AppConstants.sellerWiseCouponListApi}$sellerId/seller-wise-coupons?limit=100&offset=$offset');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -60,12 +62,9 @@ class CouponRepository implements CouponRepositoryInterface{
     throw UnimplementedError();
   }
 
-
-
   @override
   Future update(Map<String, dynamic> body, int id) {
     // TODO: implement update
     throw UnimplementedError();
   }
-
 }

@@ -19,48 +19,78 @@ class SellerSectionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
+      padding:
+          const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
       color: Theme.of(context).highlightColor,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        InkWell(onTap: (){
-          if(Provider.of<AuthController>(context, listen: false).isLoggedIn()){
-            Provider.of<ChatController>(context, listen: false).setUserTypeIndex(context, 1);
-            if(order!.orderDetails![0].seller != null){
-              Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(
-                id: order!.orderDetails![0].order?.sellerIs == 'admin' ? 0 :order!.orderDetails![0].seller!.id,
-                name: order!.orderDetails![0].order?.sellerIs == 'admin' ?
-                "${Provider.of<SplashController>(context, listen: false).configModel?.companyName}"
-                : order!.orderDetails![0].seller!.shop!.name,
-                image: order!.orderDetails![0].order?.sellerIs == 'admin' ?
-                "${Provider.of<SplashController>(context, listen: false).configModel?.companyFavIcon?.path}"
-                    : order!.orderDetails![0].seller?.imageFullUrl?.path,
-              )));
-
-
-            }else{
-              showCustomSnackBar(getTranslated('seller_not_available', context), context,isToaster: true);
+        InkWell(
+          onTap: () {
+            if (Provider.of<AuthController>(context, listen: false)
+                .isLoggedIn()) {
+              Provider.of<ChatController>(context, listen: false)
+                  .setUserTypeIndex(context, 1);
+              if (order!.orderDetails![0].seller != null) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => ChatScreen(
+                              id: order!.orderDetails![0].order?.sellerIs ==
+                                      'admin'
+                                  ? 0
+                                  : order!.orderDetails![0].seller!.id,
+                              name: order!.orderDetails![0].order?.sellerIs ==
+                                      'admin'
+                                  ? "${Provider.of<SplashController>(context, listen: false).configModel?.companyName}"
+                                  : order!.orderDetails![0].seller!.shop!.name,
+                              image: order!.orderDetails![0].order?.sellerIs ==
+                                      'admin'
+                                  ? "${Provider.of<SplashController>(context, listen: false).configModel?.companyFavIcon?.path}"
+                                  : order!.orderDetails![0].seller?.imageFullUrl
+                                      ?.path,
+                            )));
+              } else {
+                showCustomSnackBar(
+                    getTranslated('seller_not_available', context), context,
+                    isToaster: true);
+              }
+            } else {
+              showModalBottomSheet(
+                  backgroundColor: Colors.transparent,
+                  context: context,
+                  builder: (_) => const NotLoggedInBottomSheetWidget());
             }
-          }else{
-            showModalBottomSheet(backgroundColor: Colors.transparent, context: context, builder: (_)=> const NotLoggedInBottomSheetWidget());}
           },
-              child: Padding(padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-                child: Row(children: [
-                  Icon(Icons.storefront_outlined, color: Theme.of(context).primaryColor, size: 20),
-                  const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-
-                  if( order != null && order!.orderDetails != null && order!.orderDetails != null && order!.orderDetails!.isNotEmpty)
-                  SizedBox(width: MediaQuery.of(context).size.width * 0.6,
-                    child: Text(maxLines: 1, overflow: TextOverflow.ellipsis,
-                      (order?.orderDetails != null && order!.orderDetails!.isNotEmpty && order!.orderDetails![0].order?.sellerIs == 'admin' )? '${Provider.of<SplashController>(context, listen: false).configModel?.companyName}' :
-                      '${order?.orderDetails?[0].seller?.shop?.name??'${getTranslated('seller_not_available', context)}'} ',
-                      style: textRegular.copyWith())),
-                  const Spacer(),
-                  SizedBox(width: Dimensions.iconSizeDefault, child: Image.asset(Images.chat))
-
-                ]),
-              ),
-            ),
-          ]),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                vertical: Dimensions.paddingSizeSmall),
+            child: Row(children: [
+              Icon(Icons.storefront_outlined,
+                  color: Theme.of(context).primaryColor, size: 20),
+              const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+              if (order != null &&
+                  order!.orderDetails != null &&
+                  order!.orderDetails != null &&
+                  order!.orderDetails!.isNotEmpty)
+                SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    child: Text(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        (order?.orderDetails != null &&
+                                order!.orderDetails!.isNotEmpty &&
+                                order!.orderDetails![0].order?.sellerIs ==
+                                    'admin')
+                            ? '${Provider.of<SplashController>(context, listen: false).configModel?.companyName}'
+                            : '${order?.orderDetails?[0].seller?.shop?.name ?? '${getTranslated('seller_not_available', context)}'} ',
+                        style: textRegular.copyWith())),
+              const Spacer(),
+              SizedBox(
+                  width: Dimensions.iconSizeDefault,
+                  child: Image.asset(Images.chat))
+            ]),
+          ),
+        ),
+      ]),
     );
   }
 }

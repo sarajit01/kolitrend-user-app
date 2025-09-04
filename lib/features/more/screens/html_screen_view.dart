@@ -11,34 +11,38 @@ class HtmlViewScreen extends StatelessWidget {
   const HtmlViewScreen({super.key, required this.page});
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: Theme.of(context).cardColor,
-      body: Column(children: [
+    return Scaffold(
+      backgroundColor: Theme.of(context).cardColor,
+      body: Column(
+        children: [
           CustomAppBar(title: page?.title ?? ''),
-          Expanded(child: SingleChildScrollView(
-              padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-              physics: const BouncingScrollPhysics(),
-            child:  Column(
+          Expanded(
+              child: SingleChildScrollView(
+            padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+            physics: const BouncingScrollPhysics(),
+            child: Column(
               children: [
-
                 const SizedBox(height: Dimensions.paddingSizeSmall),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                    child: SizedBox(
-                      height: 70,
-                      width: double.infinity,
-                      child: CustomImageWidget(
-                        fit: BoxFit.cover,
-                        image: page?.bannerFullUrl?.path ?? "",
-                      ),
+                  child: SizedBox(
+                    height: 70,
+                    width: double.infinity,
+                    child: CustomImageWidget(
+                      fit: BoxFit.cover,
+                      image: page?.bannerFullUrl?.path ?? "",
                     ),
+                  ),
                 ),
                 const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                HtmlWidget(page?.description ?? '',
+                HtmlWidget(
+                  page?.description ?? '',
                   onTapUrl: (String url) {
-                    return launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                    return launchUrl(Uri.parse(url),
+                        mode: LaunchMode.externalApplication);
                   },
-                  textStyle: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+                  textStyle: TextStyle(
+                      color: Theme.of(context).textTheme.bodyLarge?.color),
                 ),
               ],
             ),

@@ -12,7 +12,6 @@ import 'package:flutter_sixvalley_ecommerce/utill/images.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-
 class BlogScreen extends StatefulWidget {
   final String url;
   const BlogScreen({super.key, required this.url});
@@ -25,10 +24,10 @@ class _BlogScreenState extends State<BlogScreen> {
   late final WebViewController _controller;
   bool isWebLoadingFinished = false;
   late String currentUrl;
-  
 
-  void _instantiateWebController(){
-    final SplashController splashController = Provider.of<SplashController>(context, listen: false);
+  void _instantiateWebController() {
+    final SplashController splashController =
+        Provider.of<SplashController>(context, listen: false);
 
     final WebViewController controller = WebViewController();
     controller
@@ -37,22 +36,21 @@ class _BlogScreenState extends State<BlogScreen> {
         NavigationDelegate(
           onProgress: (int progress) {
             debugPrint('WebView is loading (progress : $progress%)');
-
           },
           onPageStarted: (String url) {
             debugPrint('Page started loading: $url');
           },
           onPageFinished: (String url) {
-            if(!isWebLoadingFinished) {
+            if (!isWebLoadingFinished) {
               setState(() {
                 isWebLoadingFinished = true;
               });
             }
-            if(_isBlogNotActive(redirectUrl: url)) {
+            if (_isBlogNotActive(redirectUrl: url)) {
               splashController.initConfig(context, null, null);
 
-              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) => const DashBoardScreen()));
-
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (BuildContext context) => const DashBoardScreen()));
             }
             debugPrint('Page finished loading: $url');
           },
@@ -72,15 +70,22 @@ class _BlogScreenState extends State<BlogScreen> {
     _controller = controller;
   }
 
-  bool _isBlogNotActive({required String redirectUrl}) => !redirectUrl.contains('app/');
+  bool _isBlogNotActive({required String redirectUrl}) =>
+      !redirectUrl.contains('app/');
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    final String locale = Provider.of<LocalizationController>(context, listen: false).locale.languageCode;
-    final String theme = Provider.of<ThemeController>(context, listen: false).darkTheme ? 'dark' : 'light';
+    final String locale =
+        Provider.of<LocalizationController>(context, listen: false)
+            .locale
+            .languageCode;
+    final String theme =
+        Provider.of<ThemeController>(context, listen: false).darkTheme
+            ? 'dark'
+            : 'light';
 
     currentUrl = '${widget.url}?theme=$theme&locale=$locale';
 
@@ -95,50 +100,48 @@ class _BlogScreenState extends State<BlogScreen> {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (canPop, _) async {
-        if(await _controller.canGoBack()) {
+        if (await _controller.canGoBack()) {
           _controller.goBack();
           return;
         }
 
-        if(canPop) return;
+        if (canPop) return;
 
-        if(context.mounted) {
+        if (context.mounted) {
           Navigator.of(context).pop();
         }
       },
       child: Scaffold(
-        appBar: CustomAppBar(
-          title: getTranslated('blog', context)!,
-          centerTitle: true,
-          onBackPressed: () async {
-            if(await _controller.canGoBack()) {
-              _controller.goBack();
-
-            }else {
-              if(context.mounted) {
-                Navigator.of(context).pop();
+          appBar: CustomAppBar(
+            title: getTranslated('blog', context)!,
+            centerTitle: true,
+            onBackPressed: () async {
+              if (await _controller.canGoBack()) {
+                _controller.goBack();
+              } else {
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
               }
-            }
-          },
-          reset: InkWell(
-            splashColor: Theme.of(context).splashColor,
-            highlightColor: Theme.of(context).splashColor,
-            onTap: (){
-              Navigator.pop(context);
             },
-            child: const _CrossIconButtonAppBar(),
+            reset: InkWell(
+              splashColor: Theme.of(context).splashColor,
+              highlightColor: Theme.of(context).splashColor,
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: const _CrossIconButtonAppBar(),
+            ),
+            showResetIcon: true,
           ),
-          showResetIcon: true,
-        ),
           body: Stack(children: [
             WebViewWidget(controller: _controller),
-
-            isWebLoadingFinished ? const SizedBox.shrink() : const Center(child: CustomLoaderWidget())
-          ])
-      ),
+            isWebLoadingFinished
+                ? const SizedBox.shrink()
+                : const Center(child: CustomLoaderWidget())
+          ])),
     );
   }
-
 }
 
 class _CrossIconButtonAppBar extends StatelessWidget {
@@ -147,7 +150,9 @@ class _CrossIconButtonAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeExtraSmall),
+      padding: EdgeInsets.symmetric(
+          horizontal: Dimensions.paddingSizeDefault,
+          vertical: Dimensions.paddingSizeExtraSmall),
       child: CustomAssetImageWidget(Images.crossIcon),
     );
   }

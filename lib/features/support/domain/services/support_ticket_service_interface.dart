@@ -1,9 +1,9 @@
 import 'package:flutter_sixvalley_ecommerce/features/support/domain/models/support_ticket_body.dart';
 import 'package:image_picker/image_picker.dart';
 
-abstract class SupportTicketServiceInterface{
-
-  Future<dynamic> createNewSupportTicket(SupportTicketBody supportTicketModel, List<XFile?> file);
+abstract class SupportTicketServiceInterface {
+  Future<dynamic> createNewSupportTicket(
+      SupportTicketBody supportTicketModel, List<XFile?> file);
 
   Future<dynamic> getSupportReplyList(String ticketID);
 

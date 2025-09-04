@@ -11,7 +11,6 @@ class SuggestionModel {
       });
     }
   }
-
 }
 
 class Products {
@@ -24,5 +23,4 @@ class Products {
     id = json['id'];
     name = json['name'];
   }
-
 }

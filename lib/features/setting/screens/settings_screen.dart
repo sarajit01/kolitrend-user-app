@@ -15,69 +15,89 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     Provider.of<SplashController>(context, listen: false).setFromSetting(true);
 
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
-        Provider.of<SplashController>(context, listen: false).setFromSetting(false);
+        Provider.of<SplashController>(context, listen: false)
+            .setFromSetting(false);
         return;
       },
-      child: CustomExpandedAppBarWidget(title: getTranslated('settings', context),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-             const SizedBox(height: Dimensions.paddingSizeDefault),
-
-            Padding(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
-              child: Text(getTranslated('settings', context)!,
-                  style: titilliumSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge))),
-
-            Expanded(child: ListView(
+      child: CustomExpandedAppBarWidget(
+          title: getTranslated('settings', context),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const SizedBox(height: Dimensions.paddingSizeDefault),
+            Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: Dimensions.paddingSizeLarge),
+                child: Text(getTranslated('settings', context)!,
+                    style: titilliumSemiBold.copyWith(
+                        fontSize: Dimensions.fontSizeLarge))),
+            Expanded(
+                child: ListView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: Dimensions.paddingSizeExtraSmall),
               children: [
-                SwitchListTile(value: Provider.of<ThemeController>(context).darkTheme,
-                  onChanged: (bool isActive) => Provider.of<ThemeController>(context, listen: false).toggleTheme(),
-                  title: Text(getTranslated('dark_theme', context)!, style: titilliumRegular.copyWith(
-                      fontSize: Dimensions.fontSizeLarge,
-                  )),
+                SwitchListTile(
+                  value: Provider.of<ThemeController>(context).darkTheme,
+                  onChanged: (bool isActive) =>
+                      Provider.of<ThemeController>(context, listen: false)
+                          .toggleTheme(),
+                  title: Text(getTranslated('dark_theme', context)!,
+                      style: titilliumRegular.copyWith(
+                        fontSize: Dimensions.fontSizeLarge,
+                      )),
                 ),
-
-                TitleButton(image: Images.language,
+                TitleButton(
+                  image: Images.language,
                   title: getTranslated('choose_language', context),
-                  onTap: () => showModalBottomSheet(backgroundColor: Colors.transparent,
-                      isScrollControlled: true,
-                      context: context, builder: (_)=> const SelectLanguageBottomSheetWidget(),
+                  onTap: () => showModalBottomSheet(
+                    backgroundColor: Colors.transparent,
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (_) => const SelectLanguageBottomSheetWidget(),
                   ),
                 ),
-
-                TitleButton(image: Images.currency,
-                  title: '${getTranslated('currency', context)} (${Provider.of<SplashController>(context).myCurrency!.name})',
-                    onTap: () => showModalBottomSheet(backgroundColor: Colors.transparent,
+                TitleButton(
+                    image: Images.currency,
+                    title:
+                        '${getTranslated('currency', context)} (${Provider.of<SplashController>(context).myCurrency!.name})',
+                    onTap: () => showModalBottomSheet(
+                        backgroundColor: Colors.transparent,
                         isScrollControlled: true,
-                        context: context, builder: (_)=> const SelectCurrencyBottomSheetWidget())
-                ),
+                        context: context,
+                        builder: (_) =>
+                            const SelectCurrencyBottomSheetWidget())),
               ],
-        )),
-
-      ])),
+            )),
+          ])),
     );
   }
-
 }
 
 class TitleButton extends StatelessWidget {
   final String image;
   final String? title;
   final Function onTap;
-  const TitleButton({super.key, required this.image, required this.title, required this.onTap});
+  const TitleButton(
+      {super.key,
+      required this.image,
+      required this.title,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Image.asset(image, width: 25, height: 25, fit: BoxFit.fill, color: Theme.of(context).textTheme.bodyMedium?.color),
-      title: Text(title!, style: titilliumRegular.copyWith(fontSize: Dimensions.fontSizeLarge)),
+      leading: Image.asset(image,
+          width: 25,
+          height: 25,
+          fit: BoxFit.fill,
+          color: Theme.of(context).textTheme.bodyMedium?.color),
+      title: Text(title!,
+          style: titilliumRegular.copyWith(fontSize: Dimensions.fontSizeLarge)),
       onTap: onTap as void Function()?,
     );
   }
 }
-

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -9,13 +10,16 @@ import 'package:flutter_sixvalley_ecommerce/data/local/cache_response.dart';
 import 'package:flutter_sixvalley_ecommerce/features/auth/controllers/facebook_login_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/auth/controllers/google_login_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/banner/controllers/banner_controller.dart';
+import 'package:flutter_sixvalley_ecommerce/features/buy_for_me/controllers/buy_for_me_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/checkout/controllers/checkout_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/compare/controllers/compare_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/contact_us/controllers/contact_us_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/deal/controllers/featured_deal_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/deal/controllers/flash_deal_controller.dart';
+import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/controllers/shipping_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/location/controllers/location_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/loyaltyPoint/controllers/loyalty_point_controller.dart';
+import 'package:flutter_sixvalley_ecommerce/features/my_requests/controllers/my_requests_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/notification/controllers/notification_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/onboarding/controllers/onboarding_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/order/controllers/order_controller.dart';
@@ -55,90 +59,118 @@ import 'di_container.dart' as di;
 import 'helper/custom_delegate.dart';
 import 'localization/app_localization.dart';
 
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 final database = AppDatabase();
-
 
 Future<void> main() async {
   HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
 
-  if(Firebase.apps.isEmpty) {
-    if(Platform.isAndroid) {
-      try{
-        ///todo you need to configure that firebase Option with your own firebase to run your app
-        await Firebase.initializeApp(options: const FirebaseOptions(
-            apiKey: "current_key here",
-            projectId: "mobilesdk_app_id here",
-            messagingSenderId: "project_number here",
-            appId: "project_id here"
-        ));
-      }finally{
-        await Firebase.initializeApp();
-      }
-    }else{
-      await Firebase.initializeApp();
-    }
+  if (Firebase.apps.isEmpty) {
+    // if(Platform.isAndroid) {
+    //   try{
+    //     ///todo you need to configure that firebase Option with your own firebase to run your app
+    //     await Firebase.initializeApp(options: const FirebaseOptions(
+    //         apiKey: "current_key here",
+    //         projectId: "mobilesdk_app_id here",
+    //         messagingSenderId: "project_number here",
+    //         appId: "project_id here"
+    //     ));
+    //   } catch(exception) {
+    //
+    //   }
+    //
+    //   finally{
+    //     await Firebase.initializeApp();
+    //   }
+    // }else{
+    //   await Firebase.initializeApp();
+    // }
   }
   await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
   await di.init();
 
-  flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+  flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.requestNotificationsPermission();
 
   NotificationBody? body;
   try {
-    final RemoteMessage? remoteMessage = await FirebaseMessaging.instance.getInitialMessage();
+    final RemoteMessage? remoteMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
     if (remoteMessage != null) {
       body = NotificationHelper.convertNotification(remoteMessage.data);
     }
     await NotificationHelper.initialize(flutterLocalNotificationsPlugin);
     FirebaseMessaging.onBackgroundMessage(myBackgroundMessageHandler);
-  }catch(_) {}
-
+  } catch (_) {}
 
   // await NotificationHelper.initialize(flutterLocalNotificationsPlugin);
   // FirebaseMessaging.onBackgroundMessage(myBackgroundMessageHandler);
 
-  runApp(MultiProvider(providers: [
+  runApp(MultiProvider(
+    providers: [
       ChangeNotifierProvider(create: (context) => di.sl<CategoryController>()),
       ChangeNotifierProvider(create: (context) => di.sl<ShopController>()),
       ChangeNotifierProvider(create: (context) => di.sl<FlashDealController>()),
-      ChangeNotifierProvider(create: (context) => di.sl<FeaturedDealController>()),
+      ChangeNotifierProvider(
+          create: (context) => di.sl<FeaturedDealController>()),
       ChangeNotifierProvider(create: (context) => di.sl<BrandController>()),
       ChangeNotifierProvider(create: (context) => di.sl<ProductController>()),
       ChangeNotifierProvider(create: (context) => di.sl<BannerController>()),
-      ChangeNotifierProvider(create: (context) => di.sl<ProductDetailsController>()),
-      ChangeNotifierProvider(create: (context) => di.sl<OnBoardingController>()),
+      ChangeNotifierProvider(
+          create: (context) => di.sl<ProductDetailsController>()),
+      ChangeNotifierProvider(
+          create: (context) => di.sl<OnBoardingController>()),
       ChangeNotifierProvider(create: (context) => di.sl<AuthController>()),
-      ChangeNotifierProvider(create: (context) => di.sl<SearchProductController>()),
+      ChangeNotifierProvider(
+          create: (context) => di.sl<SearchProductController>()),
       ChangeNotifierProvider(create: (context) => di.sl<CouponController>()),
       ChangeNotifierProvider(create: (context) => di.sl<ChatController>()),
       ChangeNotifierProvider(create: (context) => di.sl<OrderController>()),
-      ChangeNotifierProvider(create: (context) => di.sl<NotificationController>()),
+      // custom code
+      ChangeNotifierProvider(
+          create: (context) => di.sl<MyRequestsController>()),
+      ChangeNotifierProvider(
+          create: (context) => di.sl<KolitrendShippingController>()),
+      ChangeNotifierProvider(
+          create: (context) => di.sl<BuyForMeController>()),
+      // end custom code
+      ChangeNotifierProvider(
+          create: (context) => di.sl<NotificationController>()),
       ChangeNotifierProvider(create: (context) => di.sl<ProfileController>()),
       ChangeNotifierProvider(create: (context) => di.sl<WishListController>()),
       ChangeNotifierProvider(create: (context) => di.sl<SplashController>()),
       ChangeNotifierProvider(create: (context) => di.sl<CartController>()),
-      ChangeNotifierProvider(create: (context) => di.sl<SupportTicketController>()),
-      ChangeNotifierProvider(create: (context) => di.sl<LocalizationController>()),
+      ChangeNotifierProvider(
+          create: (context) => di.sl<SupportTicketController>()),
+      ChangeNotifierProvider(
+          create: (context) => di.sl<LocalizationController>()),
       ChangeNotifierProvider(create: (context) => di.sl<ThemeController>()),
-      ChangeNotifierProvider(create: (context) => di.sl<GoogleSignInController>()),
-      ChangeNotifierProvider(create: (context) => di.sl<FacebookLoginController>()),
+      ChangeNotifierProvider(
+          create: (context) => di.sl<GoogleSignInController>()),
+      ChangeNotifierProvider(
+          create: (context) => di.sl<FacebookLoginController>()),
       ChangeNotifierProvider(create: (context) => di.sl<AddressController>()),
       ChangeNotifierProvider(create: (context) => di.sl<WalletController>()),
       ChangeNotifierProvider(create: (context) => di.sl<CompareController>()),
       ChangeNotifierProvider(create: (context) => di.sl<CheckoutController>()),
-      ChangeNotifierProvider(create: (context) => di.sl<LoyaltyPointController>()),
+      ChangeNotifierProvider(
+          create: (context) => di.sl<LoyaltyPointController>()),
       ChangeNotifierProvider(create: (context) => di.sl<LocationController>()),
       ChangeNotifierProvider(create: (context) => di.sl<ContactUsController>()),
       ChangeNotifierProvider(create: (context) => di.sl<ShippingController>()),
-      ChangeNotifierProvider(create: (context) => di.sl<OrderDetailsController>()),
+      ChangeNotifierProvider(
+          create: (context) => di.sl<OrderDetailsController>()),
       ChangeNotifierProvider(create: (context) => di.sl<RefundController>()),
       ChangeNotifierProvider(create: (context) => di.sl<ReOrderController>()),
       ChangeNotifierProvider(create: (context) => di.sl<ReviewController>()),
-      ChangeNotifierProvider(create: (context) => di.sl<SellerProductController>()),
+      ChangeNotifierProvider(
+          create: (context) => di.sl<SellerProductController>()),
       ChangeNotifierProvider(create: (context) => di.sl<RestockController>()),
     ],
     child: MyApp(body: body),
@@ -149,39 +181,43 @@ class MyApp extends StatelessWidget {
   final NotificationBody? body;
   const MyApp({super.key, required this.body});
 
-
   @override
   Widget build(BuildContext context) {
     List<Locale> locals = [];
     for (var language in AppConstants.languages) {
       locals.add(Locale(language.languageCode!, language.countryCode));
     }
-    return Consumer<ThemeController>(
-      builder: (context, themeController, _) {
-        return MaterialApp(
-          title: AppConstants.appName,
-          navigatorKey: navigatorKey,
-          debugShowCheckedModeBanner: false,
-          theme: themeController.darkTheme ? dark : light(
-            primaryColor: themeController.selectedPrimaryColor,
-            secondaryColor: themeController.selectedPrimaryColor,
-          ),
-          locale: Provider.of<LocalizationController>(context).locale,
-          localizationsDelegates: [
-            AppLocalization.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            FallbackLocalizationDelegate()
-          ],
-          builder:(context,child) {
-            return MediaQuery(data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling), child: SafeArea(top: false, child: child!));
-          },
-          supportedLocales: locals,
-          home: SplashScreen(body: body,),
-        );
-      }
-    );
+    return Consumer<ThemeController>(builder: (context, themeController, _) {
+      return MaterialApp(
+        title: AppConstants.appName,
+        navigatorKey: navigatorKey,
+        debugShowCheckedModeBanner: false,
+        theme: themeController.darkTheme
+            ? dark
+            : light(
+                primaryColor: themeController.selectedPrimaryColor,
+                secondaryColor: themeController.selectedPrimaryColor,
+              ),
+        locale: Provider.of<LocalizationController>(context).locale,
+        localizationsDelegates: [
+          AppLocalization.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          FallbackLocalizationDelegate()
+        ],
+        builder: (context, child) {
+          return MediaQuery(
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: TextScaler.noScaling),
+              child: SafeArea(top: false, child: child!));
+        },
+        supportedLocales: locals,
+        home: SplashScreen(
+          body: body,
+        ),
+      );
+    });
   }
 }
 
@@ -189,9 +225,12 @@ class Get {
   static BuildContext? get context => navigatorKey.currentContext;
   static NavigatorState? get navigator => navigatorKey.currentState;
 }
+
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }

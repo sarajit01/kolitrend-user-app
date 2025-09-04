@@ -1,4 +1,4 @@
-enum  FromPage{
+enum FromPage {
   forgetPassword,
   digitalProduct,
   verification,

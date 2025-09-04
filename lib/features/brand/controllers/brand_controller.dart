@@ -5,11 +5,9 @@ import 'package:flutter_sixvalley_ecommerce/features/brand/domain/models/brand_m
 import 'package:flutter_sixvalley_ecommerce/features/brand/domain/repositories/brand_repository.dart';
 import 'package:flutter_sixvalley_ecommerce/helper/data_sync_helper.dart';
 
-
 class BrandController extends ChangeNotifier {
   final BrandRepository? brandRepo;
   BrandController({required this.brandRepo});
-
 
   Brand? _brandModel;
   Brand? _sellerWiseBrandModel;
@@ -20,34 +18,33 @@ class BrandController extends ChangeNotifier {
   List<BrandModel> get brandList => _brandList;
 
   Future<void> getBrandList({required int offset, bool isUpdate = true}) async {
-
-    if(offset == 1) {
+    if (offset == 1) {
       _brandModel = null;
 
-      if(isUpdate) {
+      if (isUpdate) {
         notifyListeners();
       }
     }
 
-    if(offset == 1) {
+    if (offset == 1) {
       DataSyncHelper.fetchAndSyncData(
-        fetchFromLocal: ()=> brandRepo!.getBrandList(offset: offset, source: DataSourceEnum.local),
-        fetchFromClient: ()=> brandRepo!.getBrandList(offset: offset, source: DataSourceEnum.client),
+        fetchFromLocal: () => brandRepo!
+            .getBrandList(offset: offset, source: DataSourceEnum.local),
+        fetchFromClient: () => brandRepo!
+            .getBrandList(offset: offset, source: DataSourceEnum.client),
         onResponse: (data, source) {
           _brandModel = Brand.fromJson(data);
 
           // onUpdateFiltererBrandList(isSeller: false);
 
           notifyListeners();
-
         },
       );
-    }else {
+    } else {
+      final ApiResponseModel apiResponse = await brandRepo!
+          .getBrandList(offset: offset, source: DataSourceEnum.client);
 
-      final ApiResponseModel apiResponse = await brandRepo!.getBrandList(offset: offset, source: DataSourceEnum.client);
-
-
-      if(apiResponse.response?.statusCode == 200) {
+      if (apiResponse.response?.statusCode == 200) {
         final Brand parsedBrand = Brand.fromJson(apiResponse.response?.data);
 
         _brandModel?.offset = parsedBrand.offset;
@@ -56,21 +53,19 @@ class BrandController extends ChangeNotifier {
 
         // onUpdateFiltererBrandList(isSeller: false);
 
-
         notifyListeners();
       }
-
     }
   }
 
   Future<void> getSellerWiseBrandList(int sellerId) async {
-    ApiResponseModel apiResponse = await brandRepo!.getSellerWiseBrandList(sellerId);
+    ApiResponseModel apiResponse =
+        await brandRepo!.getSellerWiseBrandList(sellerId);
 
-    if(apiResponse.response?.statusCode == 200) {
+    if (apiResponse.response?.statusCode == 200) {
       _sellerWiseBrandModel = Brand.fromJson(apiResponse.response?.data);
 
       onUpdateFiltererBrandList(isSeller: true);
-
     }
 
     notifyListeners();
@@ -81,20 +76,19 @@ class BrandController extends ChangeNotifier {
 
   void onUpdateFiltererBrandList({required bool isSeller}) {
     _brandList.clear();
-    _brandList.addAll(isSeller ? _sellerWiseBrandModel?.brands ?? [] : _brandModel?.brands ?? [] );
-
+    _brandList.addAll(isSeller
+        ? _sellerWiseBrandModel?.brands ?? []
+        : _brandModel?.brands ?? []);
   }
 
-
-
-  void checkedToggleBrand(int index){
+  void checkedToggleBrand(int index) {
     _brandList[index].checked = !_brandList[index].checked!;
 
-    if(_brandList[index].checked ?? false) {
-      if(!_selectedBrandIds.contains(index)) {
+    if (_brandList[index].checked ?? false) {
+      if (!_selectedBrandIds.contains(index)) {
         _selectedBrandIds.add(index);
       }
-    }else {
+    } else {
       _selectedBrandIds.remove(index);
     }
     notifyListeners();
@@ -114,14 +108,16 @@ class BrandController extends ChangeNotifier {
     } else if (value == 1) {
       _brandList.clear();
       _brandList.addAll(brandModel?.brands ?? []);
-      _brandList.sort((a, b) => a.name!.toLowerCase().compareTo(b.name!.toLowerCase()));
+      _brandList.sort(
+          (a, b) => a.name!.toLowerCase().compareTo(b.name!.toLowerCase()));
       isTopBrand = false;
       isAZ = true;
       isZA = false;
     } else if (value == 2) {
       _brandList.clear();
       _brandList.addAll(brandModel?.brands ?? []);
-      _brandList.sort((a, b) => a.name!.toLowerCase().compareTo(b.name!.toLowerCase()));
+      _brandList.sort(
+          (a, b) => a.name!.toLowerCase().compareTo(b.name!.toLowerCase()));
       Iterable iterable = _brandList.reversed;
       _brandList = iterable.toList() as List<BrandModel>;
       isTopBrand = false;

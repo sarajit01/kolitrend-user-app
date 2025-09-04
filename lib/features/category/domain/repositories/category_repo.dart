@@ -6,15 +6,16 @@ import 'package:flutter_sixvalley_ecommerce/data/services/data_sync_service.dart
 import 'package:flutter_sixvalley_ecommerce/features/category/domain/repositories/category_repo_interface.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 
-class CategoryRepository extends DataSyncService implements CategoryRepoInterface {
+class CategoryRepository extends DataSyncService
+    implements CategoryRepoInterface {
   final DioClient? dioClient;
-  CategoryRepository({required this.dioClient, required super.dataSyncRepoInterface});
+  CategoryRepository(
+      {required this.dioClient, required super.dataSyncRepoInterface});
 
   @override
   Future<ApiResponseModel> getList({int? offset}) async {
     try {
-      final response = await dioClient!.get(
-        AppConstants.categoriesUri);
+      final response = await dioClient!.get(AppConstants.categoriesUri);
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -24,7 +25,8 @@ class CategoryRepository extends DataSyncService implements CategoryRepoInterfac
   @override
   Future<ApiResponseModel> getSellerWiseCategoryList(int sellerId) async {
     try {
-      final response = await dioClient!.get('${AppConstants.sellerWiseCategoryList}$sellerId');
+      final response = await dioClient!
+          .get('${AppConstants.sellerWiseCategoryList}$sellerId');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -49,8 +51,6 @@ class CategoryRepository extends DataSyncService implements CategoryRepoInterfac
     throw UnimplementedError();
   }
 
-
-
   @override
   Future update(Map<String, dynamic> body, int id) {
     // TODO: implement update
@@ -58,7 +58,9 @@ class CategoryRepository extends DataSyncService implements CategoryRepoInterfac
   }
 
   @override
-  Future<ApiResponseModel<T>> getCategoryList<T>({required DataSourceEnum source}) async {
-    return await fetchData<T>('${AppConstants.categoriesUri}?guest_id=1',  source);
+  Future<ApiResponseModel<T>> getCategoryList<T>(
+      {required DataSourceEnum source}) async {
+    return await fetchData<T>(
+        '${AppConstants.categoriesUri}?guest_id=1', source);
   }
 }

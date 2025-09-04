@@ -9,7 +9,12 @@ class SellerInfoModel {
   double? minimumOrderAmount;
 
   SellerInfoModel(
-      {Seller? seller, String? avgRating, int? totalReview, int? totalOrder, int? totalProduct, double? minimumOrderAmount}) {
+      {Seller? seller,
+      String? avgRating,
+      int? totalReview,
+      int? totalOrder,
+      int? totalProduct,
+      double? minimumOrderAmount}) {
     if (seller != null) {
       _seller = seller;
     }
@@ -36,24 +41,22 @@ class SellerInfoModel {
   int? get totalOrder => _totalOrder;
   int? get totalProduct => _totalProduct;
 
-
   SellerInfoModel.fromJson(Map<String, dynamic> json) {
-    _seller =
-    json['seller'] != null ? Seller.fromJson(json['seller']) : null;
+    _seller = json['seller'] != null ? Seller.fromJson(json['seller']) : null;
     _avgRating = json['avg_rating'].toString();
     _totalReview = json['total_review'];
     _totalOrder = json['total_order'];
     _totalProduct = json['total_product'];
-    if(json['minimum_order_amount'] != null){
-      try{
+    if (json['minimum_order_amount'] != null) {
+      try {
         minimumOrderAmount = json['minimum_order_amount'].toDouble();
-      }catch(e){
-        minimumOrderAmount = double.parse(json['minimum_order_amount'].toString());
+      } catch (e) {
+        minimumOrderAmount =
+            double.parse(json['minimum_order_amount'].toString());
       }
-    }else{
+    } else {
       minimumOrderAmount = 0;
     }
-
   }
 
   Map<String, dynamic> toJson() {
@@ -79,11 +82,11 @@ class Seller {
 
   Seller(
       {int? id,
-        String? fName,
-        String? lName,
-        String? phone,
-        String? image,
-        Shop? shop}) {
+      String? fName,
+      String? lName,
+      String? phone,
+      String? image,
+      Shop? shop}) {
     if (id != null) {
       _id = id;
     }
@@ -151,23 +154,23 @@ class Shop {
   bool? _vacationStatus;
   ImageFullUrl? _bannerFullUrl;
 
-  Shop(
-      {int? id,
-        int? sellerId,
-        String? name,
-        String? address,
-        String? contact,
-        String? image,
-        ImageFullUrl? imageFullUrl,
-        String? createdAt,
-        String? updatedAt,
-        String? banner,
-        bool? temporaryClose,
-        String? vacationEndDate,
-        String? vacationStartDate,
-        bool? vacationStatus,
-        ImageFullUrl? bannerFullUrl,
-      }) {
+  Shop({
+    int? id,
+    int? sellerId,
+    String? name,
+    String? address,
+    String? contact,
+    String? image,
+    ImageFullUrl? imageFullUrl,
+    String? createdAt,
+    String? updatedAt,
+    String? banner,
+    bool? temporaryClose,
+    String? vacationEndDate,
+    String? vacationStartDate,
+    bool? vacationStatus,
+    ImageFullUrl? bannerFullUrl,
+  }) {
     if (id != null) {
       _id = id;
     }
@@ -219,7 +222,6 @@ class Shop {
   bool? get vacationStatus => _vacationStatus;
   ImageFullUrl? get bannerFullUrl => _bannerFullUrl;
 
-
   Shop.fromJson(Map<String, dynamic> json) {
     _id = json['id'];
     _sellerId = int.parse(json['seller_id'].toString());
@@ -230,10 +232,10 @@ class Shop {
     _createdAt = json['created_at'];
     _updatedAt = json['updated_at'];
     _banner = json['banner'];
-    _temporaryClose = json['temporary_close']??false;
+    _temporaryClose = json['temporary_close'] ?? false;
     _vacationEndDate = json['vacation_end_date'];
     _vacationStartDate = json['vacation_start_date'];
-    _vacationStatus = json['vacation_status']??false;
+    _vacationStatus = json['vacation_status'] ?? false;
     _imageFullUrl = json['image_full_url'] != null
         ? ImageFullUrl.fromJson(json['image_full_url'])
         : null;

@@ -13,7 +13,6 @@ class FindWhatYouNeedModel {
       });
     }
   }
-
 }
 
 class FindWhatYouNeed {
@@ -33,19 +32,18 @@ class FindWhatYouNeed {
 
   FindWhatYouNeed(
       {this.id,
-        this.name,
-        this.slug,
-        this.icon,
-        this.parentId,
-        this.position,
-        this.createdAt,
-        this.updatedAt,
-        this.homeStatus,
-        this.priority,
-        this.productCount,
-        this.childes,
-        this.iconFullUrl
-      });
+      this.name,
+      this.slug,
+      this.icon,
+      this.parentId,
+      this.position,
+      this.createdAt,
+      this.updatedAt,
+      this.homeStatus,
+      this.priority,
+      this.productCount,
+      this.childes,
+      this.iconFullUrl});
 
   FindWhatYouNeed.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -68,9 +66,7 @@ class FindWhatYouNeed {
         childes!.add(Childes.fromJson(v));
       });
     }
-
   }
-
 }
 
 class Childes {
@@ -87,20 +83,19 @@ class Childes {
   int? priority;
   int? subCategoryProductCount;
 
-
   Childes(
       {this.id,
-        this.name,
-        this.slug,
-        this.icon,
-        this.parentId,
-        this.position,
-        this.createdAt,
-        this.updatedAt,
-        this.homeStatus,
-        this.priority,
-        this.subCategoryProductCount,
-        this.iconFullUrl});
+      this.name,
+      this.slug,
+      this.icon,
+      this.parentId,
+      this.position,
+      this.createdAt,
+      this.updatedAt,
+      this.homeStatus,
+      this.priority,
+      this.subCategoryProductCount,
+      this.iconFullUrl});
 
   Childes.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -113,7 +108,8 @@ class Childes {
     updatedAt = json['updated_at'];
     homeStatus = json['home_status'];
     priority = json['priority'];
-    subCategoryProductCount = int.parse(json['sub_category_product_count'].toString());
+    subCategoryProductCount =
+        int.parse(json['sub_category_product_count'].toString());
     if (json['icon_full_url'] != null) {
       iconFullUrl = ImageFullUrl.fromJson(json['icon_full_url']);
     }

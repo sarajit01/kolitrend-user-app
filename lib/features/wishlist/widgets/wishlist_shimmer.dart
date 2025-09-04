@@ -15,18 +15,47 @@ class WishListShimmer extends StatelessWidget {
           highlightColor: Colors.grey[100]!,
           enabled: true,
           child: ListTile(
-            leading: Container(height: 50, width: 50, color:  Theme.of(context).colorScheme.secondaryContainer),
-            title: Container(height: 20, color:  Theme.of(context).colorScheme.secondaryContainer),
-            subtitle: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Container(height: 10, width: 70, color:  Theme.of(context).colorScheme.secondaryContainer),
-              Container(height: 10, width: 20, color:  Theme.of(context).colorScheme.secondaryContainer),
-              Container(height: 10, width: 50, color:  Theme.of(context).colorScheme.secondaryContainer),
-            ]),
-            trailing: Column(crossAxisAlignment: CrossAxisAlignment.end, mainAxisAlignment: MainAxisAlignment.center, children: [
-              Container(height: 15, width: 15, decoration: BoxDecoration(shape: BoxShape.circle, color: Theme.of(context).colorScheme.secondaryContainer)),
-              const SizedBox(height: 10),
-              Container(height: 10, width: 50, color:  Theme.of(context).colorScheme.secondaryContainer),
-            ]),
+            leading: Container(
+                height: 50,
+                width: 50,
+                color: Theme.of(context).colorScheme.secondaryContainer),
+            title: Container(
+                height: 20,
+                color: Theme.of(context).colorScheme.secondaryContainer),
+            subtitle: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                      height: 10,
+                      width: 70,
+                      color: Theme.of(context).colorScheme.secondaryContainer),
+                  Container(
+                      height: 10,
+                      width: 20,
+                      color: Theme.of(context).colorScheme.secondaryContainer),
+                  Container(
+                      height: 10,
+                      width: 50,
+                      color: Theme.of(context).colorScheme.secondaryContainer),
+                ]),
+            trailing: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                      height: 15,
+                      width: 15,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondaryContainer)),
+                  const SizedBox(height: 10),
+                  Container(
+                      height: 10,
+                      width: 50,
+                      color: Theme.of(context).colorScheme.secondaryContainer),
+                ]),
           ),
         );
       },
