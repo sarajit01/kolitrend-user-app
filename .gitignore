@@ -1,0 +1,43 @@
+# General
+.DS_Store
+.idea/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.metadata
+
+# Build
+build/
+.pub/
+.dart_tool/
+
+# Android
+**/android/.gradle
+**/android/local.properties
+**/android/*.iml
+
+# iOS
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/*.xcworkspace/
+**/ios/*.xcodeproj/project.xcworkspace/
+**/ios/*.xcodeproj/xcuserdata/
+
+# macOS
+**/macos/Flutter/ephemeral/
+
+# Windows
+**/windows/flutter/ephemeral/
+
+# Linux
+**/linux/flutter/ephemeral/
+
+# Web
+**/web/.dart_tool/
+
+# Dart and Flutter-related files
+*.dart.js
+*.dart.js.map
+*.dart.sum
+.flutter-tool-history
+generated_plugin_registrant.dart
