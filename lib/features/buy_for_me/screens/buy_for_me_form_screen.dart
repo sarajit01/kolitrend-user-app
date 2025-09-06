@@ -1,9 +1,12 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_image_widget.dart';
+import 'package:flutter_sixvalley_ecommerce/features/address/domain/models/address_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/buy_for_me/controllers/buy_for_me_controller.dart';
+import 'package:flutter_sixvalley_ecommerce/features/buy_for_me/domain/models/buy_for_me_product_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/buy_for_me/domain/models/category_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/buy_for_me/widgets/select_buy_for_me_currency_bottom_sheet_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/features/profile/controllers/profile_contrroller.dart';
@@ -91,6 +94,8 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
   List<File> files = [];
   File? file;
 
+  List<BuyForMeProduct> products = [];
+
   final picker = ImagePicker();
   final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
       GlobalKey<ScaffoldMessengerState>();
@@ -117,17 +122,15 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
 
   void _openItemLocalCurrencyBottomSheet() async {
     final value = await showModalBottomSheet<String?>(
-      context: Get.context!,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) => SelectBuyForMeCurrencyBottomSheetWidget(
-          selectedCurrency:
-          _localItemCurrencyController.text )
-    );
+        context: Get.context!,
+        backgroundColor: Colors.transparent,
+        isScrollControlled: true,
+        builder: (_) => SelectBuyForMeCurrencyBottomSheetWidget(
+            selectedCurrency: _localItemCurrencyController.text));
     if (value != null) {
       print("Result from Dialog");
       setState(() {
-         _localItemCurrencyController.text = value!;
+        _localItemCurrencyController.text = value!;
       });
     }
   }
@@ -138,9 +141,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
         builder: (_) => SelectBuyForMeCurrencyBottomSheetWidget(
-            selectedCurrency:
-            _localShipCurrencyController.text )
-    );
+            selectedCurrency: _localShipCurrencyController.text));
     if (value != null) {
       print("Result from Dialog");
       setState(() {
@@ -178,6 +179,57 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
     setState(() {
       _images.removeAt(index);
     });
+  }
+
+  _calculateProductFee(String value) async {
+    BuyForMeProduct product = _setProduct();
+    print("Product in action");
+    print(product.deliveryCountry);
+    print(product.buyingCountry);
+    Provider.of<BuyForMeController>(Get.context!, listen: false)
+        .productInAction = product;
+    Provider.of<BuyForMeController>(Get.context!, listen: false)
+        .calculateProductFee();
+  }
+
+  BuyForMeProduct _setProduct() {
+    BuyForMeProduct product = BuyForMeProduct();
+    product.product = _productNameController.text;
+    product.url = _linkController.text;
+    product.categoryId =
+        Provider.of<BuyForMeController>(Get.context!, listen: false)
+            .selectedCategory
+            ?.id;
+    product.color = _productColorController.text;
+    product.size = _productSizeController.text;
+    product.description = _descriptionController.text;
+    product.quantity = int.tryParse(_quantityController.text);
+    product.itemLocalPrice = double.tryParse(_localItemPriceController.text);
+    product.itemPriceLocalCurrency = _localItemCurrencyController.text;
+    product.shipLocalPrice = double.tryParse(_shipCostController.text);
+    product.shipLocalCurrency = _shipCurrencyController.text;
+    product.storeName = _storeNameController.text;
+    product.deliveryCountry = _deliveryCountryCodeController.text;
+    product.buyingCountry = _buyingCountryCodeController.text;
+
+    return product;
+  }
+
+  void _addProduct() async {
+    BuyForMeProduct product = BuyForMeProduct();
+    product.product = _productNameController.text;
+    product.url = _linkController.text;
+    product.categoryId =
+        Provider.of<BuyForMeController>(Get.context!).selectedCategory?.id;
+    product.color = _productColorController.text;
+    product.size = _productSizeController.text;
+    product.description = _descriptionController.text;
+    product.quantity = _quantityController.text as int?;
+    product.itemLocalPrice = double.tryParse(_localItemPriceController.text);
+    product.itemPriceLocalCurrency = _localItemCurrencyController.text;
+    product.shipLocalPrice = double.tryParse(_shipCostController.text);
+    product.shipLocalCurrency = _shipCurrencyController.text;
+    product.storeName = _storeNameController.text;
   }
 
   _updateUserAccount() async {
@@ -271,21 +323,16 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
           _itemPriceCurrencyController.text = 'EUR';
           _shipCurrencyController.text = 'EUR';
 
-          if (Provider.of<SplashController>(context).myCurrency != null){
+          if (Provider.of<SplashController>(context).myCurrency != null) {
             if (_localItemCurrencyController.text.isEmpty) {
-              _localItemCurrencyController.text = Provider
-                  .of<SplashController>(context)
-                  .myCurrency!
-                  .code!;
+              _localItemCurrencyController.text =
+                  Provider.of<SplashController>(context).myCurrency!.code!;
             }
             if (_localShipCurrencyController.text.isEmpty) {
-              _localShipCurrencyController.text = Provider
-                  .of<SplashController>(context)
-                  .myCurrency!
-                  .code!;
+              _localShipCurrencyController.text =
+                  Provider.of<SplashController>(context).myCurrency!.code!;
             }
           }
-
 
           _productCategoryController.text =
               (buyForMeController.selectedCategory != null
@@ -538,33 +585,35 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                         InkWell(
                           onTap: _pickImages,
                           child: Column(children: [
-                            _images.isEmpty ?
-                              Container(
-                                margin: const EdgeInsets.only(
-                                    top: Dimensions.marginSizeExtraLarge),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor,
-                                  border:
-                                      Border.all(color: Colors.white, width: 3),
-                                  shape: BoxShape.circle,
-                                ),
-                                child:
-                                    Stack(clipBehavior: Clip.none, children: [
-                                  ClipRRect(
-                                      borderRadius: BorderRadius.circular(20),
-                                      child: CustomImageWidget(
-                                        image: "",
-                                        // "${profile.userInfoModel!.imageFullUrl?.path}",
-                                        height: Dimensions.profileImageSize,
-                                        fit: BoxFit.cover,
-                                        width: Dimensions.profileImageSize,
-                                      )),
-                                ]),
-                              ) :
-
-                                SizedBox(height: 12),
-
+                            _images.isEmpty
+                                ? Container(
+                                    margin: const EdgeInsets.only(
+                                        top: Dimensions.marginSizeExtraLarge),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).cardColor,
+                                      border: Border.all(
+                                          color: Colors.white, width: 3),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              child: CustomImageWidget(
+                                                image: "",
+                                                // "${profile.userInfoModel!.imageFullUrl?.path}",
+                                                height:
+                                                    Dimensions.profileImageSize,
+                                                fit: BoxFit.cover,
+                                                width:
+                                                    Dimensions.profileImageSize,
+                                              )),
+                                        ]),
+                                  )
+                                : SizedBox(height: 12),
                             Text(
                               _images.isEmpty
                                   ? getTranslated(
@@ -611,6 +660,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                 focusNode: _localItemPriceFocus,
                                 nextFocus: _localShipCostFocus,
                                 required: true,
+                                onChanged: _calculateProductFee,
                                 hintText: "Price in Local Currency",
                                 controller: _localItemPriceController,
                               ),
@@ -618,13 +668,13 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                             SizedBox(width: 12), // optional spacing
                             Expanded(
                               child: CustomTextFieldWidget(
-                                labelText: getTranslated('Currency', context),
-                                inputType: TextInputType.name,
-                                required: true,
-                                readOnly: true,
-                                controller: _localItemCurrencyController,
-                                onTap: () => _openItemLocalCurrencyBottomSheet()
-                              ),
+                                  labelText: getTranslated('Currency', context),
+                                  inputType: TextInputType.name,
+                                  required: true,
+                                  readOnly: true,
+                                  controller: _localItemCurrencyController,
+                                  onTap: () =>
+                                      _openItemLocalCurrencyBottomSheet()),
                             ),
                           ],
                         ),
@@ -684,14 +734,14 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                             SizedBox(width: 12), // optional spacing
                             Expanded(
                               child: CustomTextFieldWidget(
-                                labelText: getTranslated('Currency', context),
-                                inputType: TextInputType.name,
-                                required: true,
-                                readOnly: true,
-                                hintText: "Select",
-                                controller: _localShipCurrencyController,
-                                onTap: () => _openShippingCostLocalCurrencyBottomSheet()
-                              ),
+                                  labelText: getTranslated('Currency', context),
+                                  inputType: TextInputType.name,
+                                  required: true,
+                                  readOnly: true,
+                                  hintText: "Select",
+                                  controller: _localShipCurrencyController,
+                                  onTap: () =>
+                                      _openShippingCostLocalCurrencyBottomSheet()),
                             ),
                           ],
                         ),
@@ -892,7 +942,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                 flagWidth: 25,
                                                 onChanged: (val) {
                                                   _buyingCountryCodeController
-                                                      .text = val.name!;
+                                                      .text = val.code!;
                                                   print(
                                                       "Selected country code");
                                                   print(val.code);
@@ -1083,7 +1133,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                 flagWidth: 25,
                                                 onChanged: (val) {
                                                   _deliveryCountryCodeController
-                                                      .text = val.name!;
+                                                      .text = val.code!;
                                                   print(
                                                       "Selected country code");
                                                   print(val.code);
@@ -1130,7 +1180,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                               })),
                         ],
 
-                        Text(getTranslated('order_summary', context) ?? '',
+                        Text(getTranslated('Order Summary', context) ?? '',
                             style: textMedium.copyWith(
                                 fontSize: Dimensions.fontSizeLarge,
                                 color: Theme.of(context)
@@ -1143,38 +1193,93 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                           children: [
                             AmountWidget(
                                 title: getTranslated('Subtotal', context),
-                                amount:
-                                    PriceConverter.convertPrice(context, 0)),
+                                amount: PriceConverter.convertPrice(
+                                    context,
+                                    buyForMeController
+                                                .buyForMeProductOrderSummary !=
+                                            null
+                                        ? buyForMeController
+                                            .buyForMeProductOrderSummary!
+                                            .subtotal
+                                        : 0)),
                             AmountWidget(
                                 title: getTranslated('Service Fee', context),
-                                amount:
-                                    PriceConverter.convertPrice(context, 0)),
+                                amount: PriceConverter.convertPrice(
+                                    context,
+                                    buyForMeController
+                                                .buyForMeProductOrderSummary !=
+                                            null
+                                        ? buyForMeController
+                                            .buyForMeProductOrderSummary!
+                                            .serviceFee
+                                        : 0)),
                             AmountWidget(
                                 title:
                                     getTranslated('Quality Control', context),
-                                amount:
-                                    PriceConverter.convertPrice(context, 0)),
+                                amount: PriceConverter.convertPrice(
+                                    context,
+                                    buyForMeController
+                                                .buyForMeProductOrderSummary !=
+                                            null
+                                        ? buyForMeController
+                                            .buyForMeProductOrderSummary!
+                                            .inspectionFee
+                                        : 0)),
                             AmountWidget(
                                 title: getTranslated('VAT', context),
-                                amount:
-                                    PriceConverter.convertPrice(context, 0)),
+                                amount: PriceConverter.convertPrice(
+                                    context,
+                                    buyForMeController
+                                                .buyForMeProductOrderSummary !=
+                                            null
+                                        ? buyForMeController
+                                            .buyForMeProductOrderSummary!.vat
+                                        : 0)),
                             AmountWidget(
                                 title: getTranslated('Customs Duty', context),
-                                amount:
-                                    PriceConverter.convertPrice(context, 0)),
+                                amount: PriceConverter.convertPrice(
+                                    context,
+                                    buyForMeController
+                                                .buyForMeProductOrderSummary !=
+                                            null
+                                        ? buyForMeController
+                                            .buyForMeProductOrderSummary!
+                                            .customsFee
+                                        : 0)),
                             AmountWidget(
                                 title: getTranslated('Local Delivery', context),
-                                amount:
-                                    PriceConverter.convertPrice(context, 0)),
+                                amount: PriceConverter.convertPrice(
+                                    context,
+                                    buyForMeController
+                                                .buyForMeProductOrderSummary !=
+                                            null
+                                        ? buyForMeController
+                                            .buyForMeProductOrderSummary!
+                                            .localDeliveryFee
+                                        : 0)),
                             AmountWidget(
                                 title: getTranslated(
                                     'International Delivery', context),
-                                amount:
-                                    PriceConverter.convertPrice(context, 0)),
+                                amount: PriceConverter.convertPrice(
+                                    context,
+                                    buyForMeController
+                                                .buyForMeProductOrderSummary !=
+                                            null
+                                        ? buyForMeController
+                                            .buyForMeProductOrderSummary!
+                                            .internationalDeliveryFee
+                                        : 0)),
                             AmountWidget(
                                 title:
                                     getTranslated('TOTAL TO BE PAID', context),
-                                amount: PriceConverter.convertPrice(context, 0))
+                                amount: PriceConverter.convertPrice(
+                                    context,
+                                    buyForMeController
+                                                .buyForMeProductOrderSummary !=
+                                            null
+                                        ? buyForMeController
+                                            .buyForMeProductOrderSummary!.total
+                                        : 0))
                           ],
                         ),
 
@@ -1205,7 +1310,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                               child: Container(
                                 child: !buyForMeController.isLoading
                                     ? CustomButton(
-                                        onTap: _updateUserAccount,
+                                        onTap: _addProduct,
                                         backgroundColor:
                                             Theme.of(context).primaryColor,
                                         buttonText:

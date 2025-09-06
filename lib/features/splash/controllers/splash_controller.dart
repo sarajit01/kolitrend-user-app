@@ -81,7 +81,7 @@ class SplashController extends ChangeNotifier {
           }
           _defaultCurrency = currencyList;
         }
-        if (currencyList.code == 'USD') {
+        if (currencyList.code == 'EUR') {
           _usdCurrency = currencyList;
         }
       }
@@ -135,7 +135,7 @@ class SplashController extends ChangeNotifier {
           }
           _defaultCurrency = currencyList;
         }
-        if (currencyList.code == 'USD') {
+        if (currencyList.code == 'EUR') {
           _usdCurrency = currencyList;
         }
       }

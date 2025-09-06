@@ -6,35 +6,39 @@ class BuyForMeProduct {
   String? tempSessionToken;
   String? url ;
   String? product;
+  int? categoryId;
   String? size;
   String? color;
   String? description;
   int? quantity;
-  Double? itemPrice;
+  double? itemPrice;
   String? storeName;
-  String? country;
-  Double? subTotal;
-  Double? localShip;
-  Double? serviceFee;
-  Double? inspectionFee;
-  Double? total;
+  String? buyingCountry;
+  String? deliveryCountry;
+  double? subTotal;
+  double? localShip;
+  double? serviceFee;
+  double? inspectionFee;
+  double? total;
   String? itemPriceLocalCurrency;
-  Double? itemLocalPrice;
+  double? itemLocalPrice;
   String? shipLocalCurrency;
-  Double? shipLocalPrice;
+  double? shipLocalPrice;
 
   BuyForMeProduct({
     this.id,
     this.tempSessionToken,
     this.url,
     this.product,
+    this.categoryId,
     this.size,
     this.color,
     this.description,
     this.quantity,
     this.itemPrice,
     this.storeName,
-    this.country,
+    this.buyingCountry,
+    this.deliveryCountry,
     this.subTotal,
     this.localShip,
     this.serviceFee,
@@ -45,26 +49,35 @@ class BuyForMeProduct {
     this.shipLocalCurrency,
     this.shipLocalPrice
   });
-  //
-  // Map<String, dynamic> toJson() {
-  //   final Map<String, dynamic> data = <String, dynamic>{};
-  //   data['id'] = id;
-  //   data['name'] = name;
-  //   data['_method'] = method;
-  //   data['f_name'] = fName;
-  //   data['l_name'] = lName;
-  //   data['phone'] = phone;
-  //   data['image'] = image;
-  //   data['email'] = email;
-  //   data['email_verified_at'] = emailVerifiedAt;
-  //   data['created_at'] = createdAt;
-  //   data['updated_at'] = updatedAt;
-  //   data['wallet_balance'] = walletBalance;
-  //   data['loyalty_point'] = loyaltyPoint;
-  //   return data;
-  // }
-  //
-  //
-  //
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['session_token'] = tempSessionToken;
+    data['url'] = url;
+    data['product'] = product;
+    data['category_id'] = categoryId;
+    data['size'] = size;
+    data['color'] = color;
+    data['description'] = description;
+    data['quantity'] = quantity;
+    data['item_price'] = itemPrice;
+    data['store_name'] = storeName;
+    data['buying_country'] = buyingCountry;
+    data['delivery_country'] = deliveryCountry;
+    data['sub_total'] = subTotal;
+    data['local_ship'] = localShip;
+    data['service_fee'] = serviceFee;
+    data['inspection_fee'] = inspectionFee;
+    data['total'] = total;
+    data['item_price_local_currency'] = itemPriceLocalCurrency;
+    data['item_local_price'] = itemLocalPrice;
+    data['ship_local_currency'] = shipLocalCurrency;
+    data['ship_local_price'] = shipLocalPrice;
+    return data;
+  }
+
+
+
 
 }

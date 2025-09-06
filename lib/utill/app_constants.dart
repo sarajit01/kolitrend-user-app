@@ -65,6 +65,11 @@ class AppConstants {
   static const String shippingBranchesUri = '/shipping-branches?country_of_origin=';
   static const String combineShipRelatedOrdersUri = '/api/v1/customer/combine-and-ship-related-orders';
   static const String buyForMeCategoriesUri = '/buy-for-me-categories';
+  // buy for me action urls
+  static const String buyForMeAddProductUri = '/api/v1/customer/buy-for-me/add-product';
+  static const String buyForMeCalculateFees = '/api/v1/customer/buy-for-me/calculate-fees';
+
+
 
   static const String shippingModes = '/shipping-modes';
   static const String shippingCompanies = '/shipping-companies';
