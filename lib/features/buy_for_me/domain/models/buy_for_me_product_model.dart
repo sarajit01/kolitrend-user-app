@@ -50,6 +50,30 @@ class BuyForMeProduct {
     this.shipLocalPrice
   });
 
+
+  BuyForMeProduct.fromJson(Map<String, dynamic> json) {
+    id = int.tryParse(json['id'].toString());
+    tempSessionToken = json['session_token'];
+    url = json['url'];
+    product = json['product'];
+    categoryId = int.tryParse(json['category_id']);
+    size = json['size'];
+    color = json['color'];
+    description = json['description'];
+    quantity = int.tryParse(json['quantity'].toString());
+    itemPrice = double.tryParse(json['item_price']);
+    storeName = json["store_name"];
+    buyingCountry = json['buying_country'];
+    deliveryCountry = json['delivery_country'];
+    subTotal = double.tryParse(json['sub_total'].toString());
+    localShip = double.tryParse(json['local_ship'].toString());
+    serviceFee = double.tryParse(json['service_fee'].toString());
+    inspectionFee = double.tryParse(json['inspection_fee'].toString());
+    total = double.tryParse(json['total'].toString());
+    itemPriceLocalCurrency = json['item_price_local_currency'];
+    itemLocalPrice = double.tryParse(json['item_local_price'].toString());
+  }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;

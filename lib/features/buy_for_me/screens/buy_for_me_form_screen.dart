@@ -12,6 +12,7 @@ import 'package:flutter_sixvalley_ecommerce/features/buy_for_me/widgets/select_b
 import 'package:flutter_sixvalley_ecommerce/features/profile/controllers/profile_contrroller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/profile/domain/models/profile_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/profile/screens/profile_screen1.dart';
+import 'package:flutter_sixvalley_ecommerce/helper/debounce_helper.dart';
 import 'package:flutter_sixvalley_ecommerce/localization/language_constrants.dart';
 import 'package:flutter_sixvalley_ecommerce/features/auth/controllers/auth_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/main.dart';
@@ -99,6 +100,20 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
   final picker = ImagePicker();
   final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
       GlobalKey<ScaffoldMessengerState>();
+
+  final _debouncer = DebounceHelper(milliseconds: 500); // 500ms delay
+
+  @override
+  void dispose() {
+    _debouncer.dispose(); // Important for preventing memory leaks
+    super.dispose();
+  }
+
+  void _onFormFieldUpdate(String value){
+    _debouncer.run(() {
+      print("Testing debouncer");
+    });
+  }
 
   void _openCategoryBottomSheet() async {
     final value = await showModalBottomSheet<BuyForMeCategory>(
@@ -216,20 +231,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
   }
 
   void _addProduct() async {
-    BuyForMeProduct product = BuyForMeProduct();
-    product.product = _productNameController.text;
-    product.url = _linkController.text;
-    product.categoryId =
-        Provider.of<BuyForMeController>(Get.context!).selectedCategory?.id;
-    product.color = _productColorController.text;
-    product.size = _productSizeController.text;
-    product.description = _descriptionController.text;
-    product.quantity = _quantityController.text as int?;
-    product.itemLocalPrice = double.tryParse(_localItemPriceController.text);
-    product.itemPriceLocalCurrency = _localItemCurrencyController.text;
-    product.shipLocalPrice = double.tryParse(_shipCostController.text);
-    product.shipLocalCurrency = _shipCurrencyController.text;
-    product.storeName = _storeNameController.text;
+    _setProduct();
   }
 
   _updateUserAccount() async {
@@ -637,6 +639,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                           required: true,
                           hintText: "Enter Quantity",
                           controller: _quantityController,
+                          onChanged: _onFormFieldUpdate,
                         ),
 
                         const SizedBox(height: Dimensions.paddingSizeLarge),
@@ -660,7 +663,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                 focusNode: _localItemPriceFocus,
                                 nextFocus: _localShipCostFocus,
                                 required: true,
-                                onChanged: _calculateProductFee,
+                                onChanged: _onFormFieldUpdate,
                                 hintText: "Price in Local Currency",
                                 controller: _localItemPriceController,
                               ),
@@ -729,6 +732,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                 required: true,
                                 hintText: "Cost in Local Currency",
                                 controller: _localShipCostController,
+                                onChanged: _onFormFieldUpdate,
                               ),
                             ),
                             SizedBox(width: 12), // optional spacing
@@ -884,6 +888,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                 onChanged: (value) {
                                                   _buyingCountryCodeController
                                                       .text = value!;
+                                                  _calculateProductFee("");
                                                   print(
                                                       "Selected Country of Origin");
                                                   print(value);
@@ -943,6 +948,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                 onChanged: (val) {
                                                   _buyingCountryCodeController
                                                       .text = val.code!;
+                                                  _calculateProductFee("");
                                                   print(
                                                       "Selected country code");
                                                   print(val.code);
@@ -951,7 +957,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                     _buyingCountryCodeController
                                                         .text,
                                                 showDropDownButton: true,
-                                                showCountryOnly: false,
+                                                showCountryOnly: true,
                                                 showOnlyCountryWhenClosed: true,
                                                 showFlagDialog: true,
                                                 hideMainText: false,
@@ -1134,6 +1140,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                 onChanged: (val) {
                                                   _deliveryCountryCodeController
                                                       .text = val.code!;
+                                                  _calculateProductFee("");
                                                   print(
                                                       "Selected country code");
                                                   print(val.code);
@@ -1142,7 +1149,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                     _deliveryCountryCodeController
                                                         .text,
                                                 showDropDownButton: true,
-                                                showCountryOnly: false,
+                                                showCountryOnly: true,
                                                 showOnlyCountryWhenClosed: true,
                                                 showFlagDialog: true,
                                                 hideMainText: false,

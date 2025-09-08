@@ -2,21 +2,21 @@ import 'dart:ffi';
 
 class BuyForMeProductOrderSummary {
 
-  double? subtotal;
+  double? subtotal = 0;
   String? subtotalHint;
-  double? serviceFee ;
+  double? serviceFee = 0 ;
   String? serviceFeeHint;
-  double? inspectionFee;
+  double? inspectionFee = 0;
   String? inspectionFeeHint;
-  double? vat;
+  double? vat = 0;
   String? vatHint;
-  double? customsFee;
+  double? customsFee = 0;
   String? customsFeeHint;
-  double? localDeliveryFee;
+  double? localDeliveryFee = 0;
   String? localDeliveryFeeHint;
-  double? internationalDeliveryFee;
+  double? internationalDeliveryFee = 0;
   String? internationalDeliveryFeeHint;
-  double? total;
+  double? total = 0;
 
   BuyForMeProductOrderSummary({
     this.subtotal,
@@ -50,7 +50,7 @@ class BuyForMeProductOrderSummary {
     localDeliveryFeeHint = json['local_delivery_fee_tooltip'];
     internationalDeliveryFee = double.tryParse(json['international_delivery_fee'].toString());
     internationalDeliveryFeeHint = json['international_delivery_fee_tooltip'];
-    total = double.tryParse(json['total'].toString());
+    total = double.tryParse(json['total_payable'].toString());
   }
 
 
