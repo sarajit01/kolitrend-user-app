@@ -1,20 +1,16 @@
-import 'dart:ffi';
 import 'dart:io';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_image_widget.dart';
-import 'package:flutter_sixvalley_ecommerce/features/address/domain/models/address_model.dart';
+import 'package:flutter_sixvalley_ecommerce/common/basewidget/tappable_tooltip.dart';
 import 'package:flutter_sixvalley_ecommerce/features/buy_for_me/controllers/buy_for_me_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/buy_for_me/domain/models/buy_for_me_product_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/buy_for_me/domain/models/category_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/buy_for_me/widgets/select_buy_for_me_currency_bottom_sheet_widget.dart';
-import 'package:flutter_sixvalley_ecommerce/features/profile/controllers/profile_contrroller.dart';
-import 'package:flutter_sixvalley_ecommerce/features/profile/domain/models/profile_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/profile/screens/profile_screen1.dart';
 import 'package:flutter_sixvalley_ecommerce/helper/debounce_helper.dart';
 import 'package:flutter_sixvalley_ecommerce/localization/language_constrants.dart';
-import 'package:flutter_sixvalley_ecommerce/features/auth/controllers/auth_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/main.dart';
 import 'package:flutter_sixvalley_ecommerce/theme/controllers/theme_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/custom_themes.dart';
@@ -22,19 +18,14 @@ import 'package:flutter_sixvalley_ecommerce/utill/dimensions.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/images.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_button_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_textfield_widget.dart';
-import 'package:flutter_sixvalley_ecommerce/features/profile/widgets/delete_account_bottom_sheet_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/show_custom_snakbar_widget.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common/basewidget/amount_widget.dart';
 import '../../../helper/price_converter.dart';
 import '../../address/controllers/address_controller.dart';
 import '../../auth/widgets/code_picker_widget.dart';
-import '../../setting/screens/settings_screen.dart';
-import '../../setting/widgets/select_currency_bottom_sheet_widget.dart';
-import '../../setting/widgets/select_language_bottom_sheet_widget.dart';
 import '../../splash/controllers/splash_controller.dart';
 import '../widgets/select_buy_for_me_category_bottom_sheet_widget.dart';
 
@@ -101,7 +92,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
   final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
       GlobalKey<ScaffoldMessengerState>();
 
-  final _debouncer = DebounceHelper(milliseconds: 500); // 500ms delay
+  final _debouncer = DebounceHelper(milliseconds: 2000); // 500ms delay
 
   @override
   void dispose() {
@@ -111,7 +102,8 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
 
   void _onFormFieldUpdate(String value){
     _debouncer.run(() {
-      print("Testing debouncer");
+      print("Order summary to be updated");
+      _updateProductOrderSummary();
     });
   }
 
@@ -131,6 +123,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
       setState(() {
         Provider.of<BuyForMeController>(Get.context!, listen: false)
             .selectedCategory = value as BuyForMeCategory?;
+        _updateProductOrderSummary();
       });
     }
   }
@@ -146,6 +139,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
       print("Result from Dialog");
       setState(() {
         _localItemCurrencyController.text = value!;
+        _updateProductOrderSummary();
       });
     }
   }
@@ -161,6 +155,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
       print("Result from Dialog");
       setState(() {
         _localShipCurrencyController.text = value!;
+        _updateProductOrderSummary();
       });
     }
   }
@@ -196,7 +191,57 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
     });
   }
 
-  _calculateProductFee(String value) async {
+  bool _checkIfOrderSummaryUpdatable()  {
+    // check if category was selected
+    if (Provider.of<BuyForMeController>(Get.context!, listen: false).selectedCategory == null) {
+      return false;
+    }
+
+    // check if quantity was filled up
+    if (_quantityController.text.isEmpty) {
+      return false;
+    }
+
+    // check if local item price was filled up
+    if (_localItemPriceController.text.isEmpty) {
+      return false;
+    }
+
+    // check if local item currency was filled up
+    if (_localItemCurrencyController.text.isEmpty) {
+      return false;
+    }
+
+    // check if ship cost was filled up
+    if (_localShipCostController.text.isEmpty) {
+      return false;
+    }
+
+    // check if ship currency was filled up
+    if (_localShipCurrencyController.text.isEmpty) {
+      return false;
+    }
+
+    // check if buying country was filled up
+    if (_buyingCountryCodeController.text.isEmpty){
+      return false;
+    }
+
+    // check if delivery country was filled up
+    if (_deliveryCountryCodeController.text.isEmpty){
+      return false;
+    }
+
+    return true;
+  }
+
+  _updateProductOrderSummary() async {
+
+    if (_checkIfOrderSummaryUpdatable() == false){
+      print("All fields required to be filled");
+      return;
+    }
+
     BuyForMeProduct product = _setProduct();
     print("Product in action");
     print(product.deliveryCountry);
@@ -888,7 +933,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                 onChanged: (value) {
                                                   _buyingCountryCodeController
                                                       .text = value!;
-                                                  _calculateProductFee("");
+                                                  _updateProductOrderSummary();
                                                   print(
                                                       "Selected Country of Origin");
                                                   print(value);
@@ -948,10 +993,10 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                 onChanged: (val) {
                                                   _buyingCountryCodeController
                                                       .text = val.code!;
-                                                  _calculateProductFee("");
+                                                  _updateProductOrderSummary();
                                                   print(
                                                       "Selected country code");
-                                                  print(val.code);
+                                                       print(val.code);
                                                 },
                                                 initialSelection:
                                                     _buyingCountryCodeController
@@ -1140,7 +1185,9 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                 onChanged: (val) {
                                                   _deliveryCountryCodeController
                                                       .text = val.code!;
-                                                  _calculateProductFee("");
+
+                                                  _updateProductOrderSummary();
+
                                                   print(
                                                       "Selected country code");
                                                   print(val.code);
@@ -1199,6 +1246,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                         Column(
                           children: [
                             AmountWidget(
+                                hintText: getTranslated( "Subtotal", context),
                                 title: getTranslated('Subtotal', context),
                                 amount: PriceConverter.convertPrice(
                                     context,
