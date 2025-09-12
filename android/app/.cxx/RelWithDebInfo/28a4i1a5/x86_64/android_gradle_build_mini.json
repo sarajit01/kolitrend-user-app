@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/sarajitbarmon/Desktop/projects/Flutter/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/sarajitbarmon/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/sarajitbarmon/Desktop/projects/Flutter/kolitrend-user-app/android/app/.cxx/RelWithDebInfo/28a4i1a5/x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/sarajitbarmon/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/sarajitbarmon/Desktop/projects/Flutter/kolitrend-user-app/android/app/.cxx/RelWithDebInfo/28a4i1a5/x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

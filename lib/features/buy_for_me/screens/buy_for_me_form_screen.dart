@@ -98,6 +98,22 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
   final TextEditingController _deliveryCountryCodeController =
       TextEditingController();
 
+  // Error text state variables
+  String? _linkErrorText;
+  String? _productNameErrorText;
+  String? _categoryErrorText;
+  String? _productColorErrorText;
+  String? _productSizeErrorText;
+  String? _descriptionErrorText;
+  String? _quantityErrorText;
+  String? _localItemPriceErrorText;
+  String? _localItemCurrencyErrorText;
+  String? _localShipCostErrorText;
+  String? _localShipCurrencyErrorText;
+  String? _storeNameErrorText;
+  String? _buyingCountryErrorText;
+  String? _deliveryCountryErrorText;
+
   List<File> files = [];
   File? file;
 
@@ -115,22 +131,26 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
     ListItem(id: '1', name: 'Flutter Pro', category: 'Book', price: 29.99),
     ListItem(id: '2', name: 'Dart Essentials', category: 'Book', price: 19.50),
     ListItem(id: '3', name: 'Mobile UX', category: 'Course', price: 99.00),
-    ListItem(id: '4', name: 'State Management Guide', category: 'PDF', price: 9.99),
+    ListItem(
+        id: '4', name: 'State Management Guide', category: 'PDF', price: 9.99),
     ListItem(id: '5', name: 'Widget Mastery', category: 'Book', price: 35.00),
     ListItem(id: '1', name: 'Flutter Pro', category: 'Book', price: 29.99),
     ListItem(id: '2', name: 'Dart Essentials', category: 'Book', price: 19.50),
     ListItem(id: '3', name: 'Mobile UX', category: 'Course', price: 99.00),
-    ListItem(id: '4', name: 'State Management Guide', category: 'PDF', price: 9.99),
+    ListItem(
+        id: '4', name: 'State Management Guide', category: 'PDF', price: 9.99),
     ListItem(id: '5', name: 'Widget Mastery', category: 'Book', price: 35.00),
     ListItem(id: '1', name: 'Flutter Pro', category: 'Book', price: 29.99),
     ListItem(id: '2', name: 'Dart Essentials', category: 'Book', price: 19.50),
     ListItem(id: '3', name: 'Mobile UX', category: 'Course', price: 99.00),
-    ListItem(id: '4', name: 'State Management Guide', category: 'PDF', price: 9.99),
+    ListItem(
+        id: '4', name: 'State Management Guide', category: 'PDF', price: 9.99),
     ListItem(id: '5', name: 'Widget Mastery', category: 'Book', price: 35.00),
     ListItem(id: '1', name: 'Flutter Pro', category: 'Book', price: 29.99),
     ListItem(id: '2', name: 'Dart Essentials', category: 'Book', price: 19.50),
     ListItem(id: '3', name: 'Mobile UX', category: 'Course', price: 99.00),
-    ListItem(id: '4', name: 'State Management Guide', category: 'PDF', price: 9.99),
+    ListItem(
+        id: '4', name: 'State Management Guide', category: 'PDF', price: 9.99),
     ListItem(id: '5', name: 'Widget Mastery', category: 'Book', price: 35.00),
   ];
 
@@ -297,9 +317,16 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
     BuyForMeProduct product = BuyForMeProduct();
     product.product = _productNameController.text;
     product.url = _linkController.text;
-    if (Provider.of<BuyForMeController>(Get.context!, listen: false).selectedCategory != null){
-      product.categoryId = Provider.of<BuyForMeController>(Get.context!, listen: false).selectedCategory!.id;
-      product.category = Provider.of<BuyForMeController>(Get.context!, listen: false).selectedCategory;
+    if (Provider.of<BuyForMeController>(Get.context!, listen: false)
+            .selectedCategory !=
+        null) {
+      product.categoryId =
+          Provider.of<BuyForMeController>(Get.context!, listen: false)
+              .selectedCategory!
+              .id;
+      product.category =
+          Provider.of<BuyForMeController>(Get.context!, listen: false)
+              .selectedCategory;
     }
     product.color = _productColorController.text;
     product.size = _productSizeController.text;
@@ -330,142 +357,200 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
   }
 
   void _addProduct() async {
-    // check if product url is valid
+    bool hasError = false;
+    // Clear previous errors
+    setState(() {
+      _linkErrorText = null;
+      _productNameErrorText = null;
+      _categoryErrorText = null;
+      _productColorErrorText = null;
+      _productSizeErrorText = null;
+      _descriptionErrorText = null;
+      _quantityErrorText = null;
+      _localItemPriceErrorText = null;
+      _localItemCurrencyErrorText = null;
+      _localShipCostErrorText = null;
+      _localShipCurrencyErrorText = null;
+      _storeNameErrorText = null;
+      _buyingCountryErrorText = null;
+      _deliveryCountryErrorText = null;
+    });
+
+    // Validate product URL
     if (_linkController.text.isEmpty) {
-      showCustomSnackBar(
-          getTranslated('Product url is required', Get.context!), Get.context!,
-          isError: true);
-      return;
+      _linkErrorText = getTranslated('Product url is required', Get.context!);
+      hasError = true;
+    } else {
+      final Uri? uri = Uri.tryParse(_linkController.text);
+      if (uri == null || (!uri.isScheme('HTTP') && !uri.isScheme('HTTPS'))) {
+        _linkErrorText =
+            getTranslated('Please enter a valid product url', Get.context!);
+        hasError = true;
+      }
     }
 
-    // Add URL format validation
-    final Uri? uri = Uri.tryParse(_linkController.text);
-    if (uri == null || (!uri.isScheme('HTTP') && !uri.isScheme('HTTPS'))) {
-      showCustomSnackBar(
-          getTranslated('Please enter a valid product url', Get.context!), Get.context!,
-          isError: true);
-      return;
-    }
-
-    // check if product name is valid
+    // Validate product name
     if (_productNameController.text.isEmpty) {
-      showCustomSnackBar(
-          getTranslated('Product name is required', Get.context!), Get.context!,
-          isError: true);
-      return;
+      _productNameErrorText =
+          getTranslated('Product name is required', Get.context!);
+      hasError = true;
     }
 
-    // check if product category is valid
+    // Validate product category
     if (Provider.of<BuyForMeController>(Get.context!, listen: false)
             .selectedCategory ==
         null) {
-      showCustomSnackBar(
-          getTranslated('Product category is required', Get.context!),
-          Get.context!,
-          isError: true);
-      return;
+      _categoryErrorText =
+          getTranslated('Product category is required', Get.context!);
+      hasError = true;
     }
 
-    // check if product color is valid
+    // Validate product color
     if (_productColorController.text.isEmpty) {
-      showCustomSnackBar(
-          getTranslated('Product color is required', Get.context!),
-          Get.context!,
-          isError: true);
-      return;
+      _productColorErrorText =
+          getTranslated('Product color is required', Get.context!);
+      hasError = true;
     }
 
-    // check if product size is valid
+    // Validate product size
     if (_productSizeController.text.isEmpty) {
-      showCustomSnackBar(
-          getTranslated('Product size is required', Get.context!), Get.context!,
-          isError: true);
-      return;
+      _productSizeErrorText =
+          getTranslated('Product size is required', Get.context!);
+      hasError = true;
     }
 
-    // check if product description is valid
-
+    // Validate product description
     if (_descriptionController.text.isEmpty) {
-      showCustomSnackBar(
-          getTranslated('Product description is required', Get.context!),
-          Get.context!,
-          isError: true);
-      return;
+      _descriptionErrorText =
+          getTranslated('Product description is required', Get.context!);
+      hasError = true;
     }
 
-    // check if product quantity is valid
+    // Validate product quantity
     if (_quantityController.text.isEmpty) {
-      showCustomSnackBar(
-          getTranslated('Product quantity is required', Get.context!),
-          Get.context!,
-          isError: true);
-      return;
+      _quantityErrorText =
+          getTranslated('Product quantity is required', Get.context!);
+      hasError = true;
     }
 
-    // check if item local price is valid
+    // Validate item local price
     if (_localItemPriceController.text.isEmpty) {
-      showCustomSnackBar(
-          getTranslated('Please enter item local price', Get.context!),
-          Get.context!,
-          isError: true);
-      return;
+      _localItemPriceErrorText =
+          getTranslated('Please enter item local price', Get.context!);
+      hasError = true;
     }
 
-    // check if item local currency is valid
+    // Validate item local currency
     if (_localItemCurrencyController.text.isEmpty) {
-      showCustomSnackBar(
-          getTranslated('Please select item local currency', Get.context!),
-          Get.context!,
-          isError: true);
-      return;
+      _localItemCurrencyErrorText =
+          getTranslated('Please select item local currency', Get.context!);
+      hasError = true;
     }
 
-    // check if ship cost is valid
+    // Validate ship cost
     if (_localShipCostController.text.isEmpty) {
-      showCustomSnackBar(
-          getTranslated('Please enter ship cost', Get.context!), Get.context!,
-          isError: true);
-      return;
+      _localShipCostErrorText =
+          getTranslated('Please enter ship cost', Get.context!);
+      hasError = true;
     }
 
-    // check if store name is valid
+    // Validate ship local currency
+    if (_localShipCurrencyController.text.isEmpty) {
+      _localShipCurrencyErrorText =
+          getTranslated('Please select ship local currency', Get.context!) ??
+              'Please select ship local currency'; // Added a default value
+      hasError = true;
+    }
+
+    // Validate store name
     if (_storeNameController.text.isEmpty) {
-      showCustomSnackBar(
-          getTranslated('Please enter store name', Get.context!), Get.context!,
-          isError: true);
-      return;
+      _storeNameErrorText =
+          getTranslated('Please enter store name', Get.context!);
+      hasError = true;
     }
 
-    // check if buying country is valid
+    // Validate buying country
     if (_buyingCountryCodeController.text.isEmpty) {
-      showCustomSnackBar(
-          getTranslated('Please select buying country', Get.context!),
-          Get.context!,
-          isError: true);
-      return;
+      _buyingCountryErrorText =
+          getTranslated('Please select buying country', Get.context!);
+      hasError = true;
     }
 
-    // check if delivery country is valid
+    // Validate delivery country
     if (_deliveryCountryCodeController.text.isEmpty) {
-      showCustomSnackBar(
-          getTranslated('Please select delivery country', Get.context!),
-          Get.context!,
-          isError: true);
-      return;
+      _deliveryCountryErrorText =
+          getTranslated('Please select delivery country', Get.context!);
+      hasError = true;
     }
 
+    if (hasError) {
+      setState(() {}); // Trigger UI update to show errors
+      return;
+    }
 
     // Add Product to list
     BuyForMeProduct product = _setProduct();
-    product.total = Provider.of<BuyForMeController>(Get.context!, listen: false).buyForMeProductOrderSummary!.total!;
+    product.total = Provider.of<BuyForMeController>(Get.context!, listen: false)
+        .buyForMeProductOrderSummary!
+        .total!;
 
     product.tempSessionToken = Uuid().v1().toString();
     products.add(product);
 
+    // Clear form fields
+    _linkController.clear();
+    _productNameController.clear();
+    Provider.of<BuyForMeController>(Get.context!, listen: false)
+        .selectedCategory = null;
+    _productCategoryController.clear();
+    _productColorController.clear();
+    _productSizeController.clear();
+    _descriptionController.clear();
+    _quantityController.clear();
+    _localItemPriceController.clear();
+    // _localItemCurrencyController.clear(); // Usually auto-populated or reset by splash
+    // _localShipCurrencyController.clear(); // Usually auto-populated or reset by splash
+    _storeNameController.clear();
+    // _buyingCountryCodeController.clear(); // Usually has default
+    // _deliveryCountryCodeController.clear(); // Usually has default
+    _images.clear();
+
     setState(() {
       showForm = false;
+      // Clear error messages explicitly after successful submission
+      _linkErrorText = null;
+      _productNameErrorText = null;
+      _categoryErrorText = null;
+      _productColorErrorText = null;
+      _productSizeErrorText = null;
+      _descriptionErrorText = null;
+      _quantityErrorText = null;
+      _localItemPriceErrorText = null;
+      _localItemCurrencyErrorText = null;
+      _localShipCostErrorText = null;
+      _localShipCurrencyErrorText = null;
+      _storeNameErrorText = null;
+      _buyingCountryErrorText = null;
+      _deliveryCountryErrorText = null;
     });
-    showCustomSnackBar("Added successfully", context);
+
+    // Resetting default values for currency and quantity as in initial build
+    _quantityController.text = '1';
+    if (Provider.of<SplashController>(Get.context!, listen: false).myCurrency !=
+        null) {
+      _localItemCurrencyController.text =
+          Provider.of<SplashController>(Get.context!, listen: false)
+              .myCurrency!
+              .code!;
+      _localShipCurrencyController.text =
+          Provider.of<SplashController>(Get.context!, listen: false)
+              .myCurrency!
+              .code!;
+    }
+    _buyingCountryCodeController.text = 'tr'; // Reset to default
+    _deliveryCountryCodeController.text = 'fr'; // Reset to default
+
+    showCustomSnackBar("Added successfully", context, isError: false, isToaster: true);
   }
 
   _updateUserAccount() async {
@@ -540,6 +625,20 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
     //     }
     //   });
     // }
+  }
+
+  Widget _buildErrorText(String? errorText) {
+    if (errorText != null) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 4.0, left: 2.0),
+        child: Text(
+          errorText,
+          style:
+              TextStyle(color: Colors.red, fontSize: Dimensions.fontSizeSmall),
+        ),
+      );
+    }
+    return SizedBox.shrink();
   }
 
   @override
@@ -618,66 +717,64 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                           fontSize: 20, color: Colors.white),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
-
-                  if (showForm == true)
-                    ...[
-                      Spacer(),
-                      OutlinedButton(
-                        onPressed: () {
-                          // Handle submit action
-                          setState(() {
-                            showForm = false;
-                          });
-                        },
-                        child: Text(
-                          getTranslated("View Added Items", context)!,
-                          style: TextStyle(color: Colors.white), // Text color
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.white, width: 2), // White outline
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0), // Optional: for rounded corners
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0), // Optional: padding
-                          // You can also set foregroundColor here if you don't want to set it in TextStyle
-                          // foregroundColor: Colors.white,
-                        ),
+                  if (showForm == true) ...[
+                    Spacer(),
+                    OutlinedButton(
+                      onPressed: () {
+                        // Handle submit action
+                        setState(() {
+                          showForm = false;
+                        });
+                      },
+                      child: Text(
+                        getTranslated("View Added Items", context)!,
+                        style: TextStyle(color: Colors.white), // Text color
                       ),
-                      SizedBox(width: 16),
-                    ],
-
-
-                  if (showForm == false)
-                    ...[
-                      Spacer(),
-                      OutlinedButton(
-                        onPressed: () {
-                          // Handle submit action
-                          setState(() {
-                            showForm = false;
-                          });
-                        },
-                        child: Text(
-                          getTranslated("Submit", context)!,
-                          style: TextStyle(color: Colors.white), // Text color
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                            color: Colors.white, width: 2), // White outline
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              12.0), // Optional: for rounded corners
                         ),
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.white, width: 2), // White outline
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0), // Optional: for rounded corners
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0), // Optional: padding
-                          // You can also set foregroundColor here if you don't want to set it in TextStyle
-                          // foregroundColor: Colors.white,
-                        ),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 4.0), // Optional: padding
+                        // You can also set foregroundColor here if you don't want to set it in TextStyle
+                        // foregroundColor: Colors.white,
                       ),
-                      SizedBox(width: 16),
-                    ],
-
-
-
-
-
+                    ),
+                    SizedBox(width: 16),
+                  ],
+                  if (showForm == false) ...[
+                    Spacer(),
+                    OutlinedButton(
+                      onPressed: () {
+                        // Handle submit action
+                        setState(() {
+                          showForm = false;
+                        });
+                      },
+                      child: Text(
+                        getTranslated("Submit", context)!,
+                        style: TextStyle(color: Colors.white), // Text color
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                            color: Colors.white, width: 2), // White outline
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              12.0), // Optional: for rounded corners
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 4.0), // Optional: padding
+                        // You can also set foregroundColor here if you don't want to set it in TextStyle
+                        // foregroundColor: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                  ],
                 ])),
             Container(
               padding: const EdgeInsets.only(top: 75),
@@ -719,260 +816,301 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                 //   ),
                 // ]),
 
-                if (showForm == false)
-
-                  ...[
-
-                      SizedBox(height: 16),
-                      // Container holding the ListView
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.3),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: Offset(0, 3),
-                              ),
-                            ],
+                if (showForm == false) ...[
+                  SizedBox(height: 16),
+                  // Container holding the ListView
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: Offset(0, 3),
                           ),
-                          child: products.isEmpty
-                              ? Center(
+                        ],
+                      ),
+                      child: products.isEmpty
+                          ? Center(
                               child: Text(
-                                'No items yet!',
-                                style: TextStyle(fontSize: 18, color: Colors.grey),
-                              ))
-                              : ListView.builder(
-                            itemCount: products.length,
-                            itemBuilder: (context, index) {
-                              final item = products[index];
-                              return Card(
-                                elevation:
-                                2.0, // Slight elevation for each card
-                                margin: const EdgeInsets.symmetric(
-                                    vertical: 8.0, horizontal: 4.0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      // Left side: Name and Category
-                                      Expanded(
-                                        // Use Expanded to prevent overflow if text is long
-                                        child: Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                              'No items yet!',
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.grey),
+                            ))
+                          : ListView.builder(
+                              itemCount: products.length,
+                              itemBuilder: (context, index) {
+                                final item = products[index];
+                                return Card(
+                                  elevation:
+                                      2.0, // Slight elevation for each card
+                                  margin: const EdgeInsets.symmetric(
+                                      vertical: 8.0, horizontal: 4.0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        // Left side: Name and Category
+                                        Expanded(
+                                          // Use Expanded to prevent overflow if text is long
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Text(
+                                                item.product!,
+                                                style: TextStyle(
+                                                  fontSize: 16.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              SizedBox(height: 4.0),
+                                              Text(
+                                                item.category!.name!,
+                                                style: TextStyle(
+                                                  fontSize: 14.0,
+                                                  color: Colors.grey.shade700,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(
+                                            width:
+                                                16), // Spacing between left and right content
+
+                                        // Right side: Price and Delete Icon
+                                        Row(
                                           children: <Widget>[
                                             Text(
-                                              item.product!,
+                                              '\$${item.total!.toStringAsFixed(2)}', // Format price
                                               style: TextStyle(
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold,
+                                                fontSize: 15.0,
+                                                fontWeight: FontWeight.w500,
+                                                color: Theme.of(context)
+                                                    .primaryColor,
                                               ),
-                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            SizedBox(height: 4.0),
-                                            Text(
-                                              item.category!.name!,
-                                              style: TextStyle(
-                                                fontSize: 14.0,
-                                                color: Colors.grey.shade700,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
+                                            SizedBox(width: 8.0),
+                                            IconButton(
+                                              icon: Icon(
+                                                  Icons.delete_outline_rounded),
+                                              color: Colors.red.shade400,
+                                              onPressed: () {
+                                                _deleteItem(
+                                                    item.tempSessionToken!);
+                                              },
+                                              tooltip: 'Delete Item',
+                                              constraints:
+                                                  BoxConstraints(), // Removes default padding if needed
+                                              padding: EdgeInsets
+                                                  .zero, // Removes default padding
                                             ),
                                           ],
                                         ),
-                                      ),
-                                      SizedBox(
-                                          width:
-                                          16), // Spacing between left and right content
-
-                                      // Right side: Price and Delete Icon
-                                      Row(
-                                        children: <Widget>[
-                                          Text(
-                                            '\$${item.total!.toStringAsFixed(2)}', // Format price
-                                            style: TextStyle(
-                                              fontSize: 15.0,
-                                              fontWeight: FontWeight.w500,
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                            ),
-                                          ),
-                                          SizedBox(width: 8.0),
-                                          IconButton(
-                                            icon: Icon(
-                                                Icons.delete_outline_rounded),
-                                            color: Colors.red.shade400,
-                                            onPressed: () {
-                                              _deleteItem(item.tempSessionToken!);
-                                            },
-                                            tooltip: 'Delete Item',
-                                            constraints:
-                                            BoxConstraints(), // Removes default padding if needed
-                                            padding: EdgeInsets
-                                                .zero, // Removes default padding
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-
-                    SizedBox(height: Dimensions.paddingSizeSmall),
-
-                    Container(
-                      padding: EdgeInsets.fromLTRB( Dimensions.paddingSizeDefault, 0, Dimensions.paddingSizeDefault, 6),
-                      child: true
-                          ? CustomButton(
-                          onTap: () => {
-                            setState(() {
-                              showForm = true;
-                            })
-                          },
-                          buttonText:
-                          getTranslated('Add New Item', context))
-                          : Center(
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                Theme
-                                    .of(context)
-                                    .primaryColor),
-                          )),
+                                );
+                              },
+                            ),
                     ),
+                  ),
 
-                  ],
+                  SizedBox(height: Dimensions.paddingSizeSmall),
 
+                  Container(
+                    padding: EdgeInsets.fromLTRB(Dimensions.paddingSizeDefault,
+                        0, Dimensions.paddingSizeDefault, 6),
+                    child: true
+                        ? CustomButton(
+                            onTap: () => {
+                                  setState(() {
+                                    showForm = true;
+                                  })
+                                },
+                            buttonText: getTranslated('Add New Item', context))
+                        : Center(
+                            child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                Theme.of(context).primaryColor),
+                          )),
+                  ),
+                ],
 
-
-                if (showForm == true)
-
-                  ...[
+                if (showForm == true) ...[
                   const SizedBox(height: Dimensions.paddingSizeLarge),
-
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: Dimensions.paddingSizeDefault),
                       decoration: BoxDecoration(
-                        color: Theme
-                            .of(context)
-                            .highlightColor,
+                        color: Theme.of(context).highlightColor,
                         borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(
-                              Dimensions.marginSizeDefault),
-                          topRight: Radius.circular(
-                              Dimensions.marginSizeDefault),
+                          topLeft:
+                              Radius.circular(Dimensions.marginSizeDefault),
+                          topRight:
+                              Radius.circular(Dimensions.marginSizeDefault),
                         ),
                       ),
                       child: ListView(
                         physics: const BouncingScrollPhysics(),
                         children: [
-                          CustomTextFieldWidget(
-                            labelText: getTranslated('Link', context),
-                            // labelText: "Your First Name",
-                            inputType: TextInputType.name,
-                            focusNode: _linkFocus,
-                            nextFocus: _productNameFocus,
-                            required: true,
-                            hintText: 'https://',
-                            controller: _linkController,
-                          ),
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomTextFieldWidget(
+                                  labelText: getTranslated('Link', context),
+                                  inputType: TextInputType.name,
+                                  focusNode: _linkFocus,
+                                  nextFocus: _productNameFocus,
+                                  required: true,
+                                  hintText: 'https://',
+                                  controller: _linkController,
+                                  onChanged: (value) {
+                                    if (_linkErrorText != null)
+                                      setState(() => _linkErrorText = null);
+                                  },
+                                ),
+                                _buildErrorText(_linkErrorText),
+                              ]),
+
                           const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                          InkWell(
-                            child: const Text('Product Information'),
-                            onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (
-                                      context) => const ProfileScreen1()));
-                            },
-                          ),
+                          InkWell(child: const Text('Product Information')),
 
                           const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                          CustomTextFieldWidget(
-                            labelText: getTranslated('Product Name', context),
-                            inputType: TextInputType.name,
-                            focusNode: _productNameFocus,
-                            nextFocus: _productCategoryFocus,
-                            required: true,
-                            hintText: "Product Name",
-                            controller: _productNameController,
-                          ),
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomTextFieldWidget(
+                                  labelText:
+                                      getTranslated('Product Name', context),
+                                  inputType: TextInputType.name,
+                                  focusNode: _productNameFocus,
+                                  nextFocus: _productCategoryFocus,
+                                  required: true,
+                                  hintText:
+                                      getTranslated("Product Name", context),
+                                  controller: _productNameController,
+                                  onChanged: (value) {
+                                    if (_productNameErrorText != null)
+                                      setState(
+                                          () => _productNameErrorText = null);
+                                  },
+                                ),
+                                _buildErrorText(_productNameErrorText),
+                              ]),
                           const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                          CustomTextFieldWidget(
-                            labelText: getTranslated(
-                                'Product Category', context),
-                            inputType: TextInputType.name,
-                            focusNode: _productCategoryFocus,
-                            nextFocus: _productColorFocus,
-                            required: true,
-                            readOnly: true,
-                            hintText: "Select a Category",
-                            controller: _productCategoryController,
-                            // onTap: () => showModalBottomSheet(
-                            //   backgroundColor: Colors.transparent,
-                            //   isScrollControlled: true,
-                            //   context: context,
-                            //   builder: (_) =>
-                            //       const SelectBuyForMeCategoryBottomSheetWidget(),
-                            // ),
-                            onTap: _openCategoryBottomSheet,
-                          ),
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomTextFieldWidget(
+                                  labelText: getTranslated(
+                                      'Product Category', context),
+                                  inputType: TextInputType.name,
+                                  focusNode: _productCategoryFocus,
+                                  nextFocus: _productColorFocus,
+                                  required: true,
+                                  readOnly: true,
+                                  hintText: getTranslated(
+                                      "Select a Category", context),
+                                  controller: _productCategoryController,
+                                  onTap: _openCategoryBottomSheet,
+                                ),
+                                _buildErrorText(_categoryErrorText),
+                              ]),
 
                           const SizedBox(height: Dimensions.paddingSizeLarge),
 
                           Row(
                             children: [
                               Expanded(
-                                child: CustomTextFieldWidget(
-                                  labelText: getTranslated('Color', context),
-                                  inputType: TextInputType.name,
-                                  focusNode: _productColorFocus,
-                                  nextFocus: _productSizeFocus,
-                                  required: true,
-                                  controller: _productColorController,
-                                ),
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CustomTextFieldWidget(
+                                        labelText:
+                                            getTranslated('Color', context),
+                                        inputType: TextInputType.name,
+                                        focusNode: _productColorFocus,
+                                        nextFocus: _productSizeFocus,
+                                        required: true,
+                                        controller: _productColorController,
+                                        onChanged: (value) {
+                                          if (_productColorErrorText != null)
+                                            setState(() =>
+                                                _productColorErrorText = null);
+                                        },
+                                      ),
+                                      _buildErrorText(_productColorErrorText),
+                                    ]),
                               ),
+
                               SizedBox(width: 12), // optional spacing
                               Expanded(
-                                child: CustomTextFieldWidget(
-                                  labelText: getTranslated('Size', context),
-                                  inputType: TextInputType.name,
-                                  focusNode: _productSizeFocus,
-                                  nextFocus: _descriptionFocus,
-                                  required: true,
-                                  controller: _productSizeController,
-                                ),
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CustomTextFieldWidget(
+                                        labelText:
+                                            getTranslated('Size', context),
+                                        inputType: TextInputType.name,
+                                        focusNode: _productSizeFocus,
+                                        nextFocus: _descriptionFocus,
+                                        required: true,
+                                        controller: _productSizeController,
+                                        onChanged: (value) {
+                                          if (_productSizeErrorText != null)
+                                            setState(() =>
+                                                _productSizeErrorText = null);
+                                        },
+                                      ),
+                                      _buildErrorText(_productSizeErrorText),
+                                    ]),
                               ),
                             ],
                           ),
 
                           const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                          CustomTextFieldWidget(
-                            labelText: getTranslated('Description', context),
-                            inputType: TextInputType.name,
-                            focusNode: _descriptionFocus,
-                            nextFocus: _quantityFocus,
-                            required: true,
-                            hintText: "Enter Product Description",
-                            controller: _descriptionController,
-                          ),
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomTextFieldWidget(
+                                  labelText:
+                                      getTranslated('Description', context),
+                                  inputType: TextInputType.multiline,
+                                  maxLines:
+                                      3, // Allow multiple lines for description
+                                  focusNode: _descriptionFocus,
+                                  nextFocus: _quantityFocus,
+                                  required: true,
+                                  hintText: getTranslated(
+                                      "Enter Product Description", context),
+                                  controller: _descriptionController,
+                                  onChanged: (value) {
+                                    if (_descriptionErrorText != null)
+                                      setState(
+                                          () => _descriptionErrorText = null);
+                                  },
+                                ),
+                                _buildErrorText(_descriptionErrorText),
+                              ]),
 
                           if (_images.isNotEmpty)
                             Container(
@@ -986,7 +1124,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                       child: GridView.builder(
                                         itemCount: _images.length,
                                         gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                            SliverGridDelegateWithFixedCrossAxisCount(
                                           crossAxisCount: 3,
                                           crossAxisSpacing: 8,
                                           mainAxisSpacing: 8,
@@ -1031,46 +1169,42 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                             child: Column(children: [
                               _images.isEmpty
                                   ? Container(
-                                margin: const EdgeInsets.only(
-                                    top: Dimensions.marginSizeExtraLarge),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: Theme
-                                      .of(context)
-                                      .cardColor,
-                                  border: Border.all(
-                                      color: Colors.white, width: 3),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Stack(
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      ClipRRect(
-                                          borderRadius:
-                                          BorderRadius.circular(20),
-                                          child: CustomImageWidget(
-                                            image: "",
-                                            // "${profile.userInfoModel!.imageFullUrl?.path}",
-                                            height:
-                                            Dimensions.profileImageSize,
-                                            fit: BoxFit.cover,
-                                            width:
-                                            Dimensions.profileImageSize,
-                                          )),
-                                    ]),
-                              )
+                                      margin: const EdgeInsets.only(
+                                          top: Dimensions.marginSizeExtraLarge),
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).cardColor,
+                                        border: Border.all(
+                                            color: Colors.white, width: 3),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Stack(
+                                          clipBehavior: Clip.none,
+                                          children: [
+                                            ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                child: CustomImageWidget(
+                                                  image: "",
+                                                  // "${profile.userInfoModel!.imageFullUrl?.path}",
+                                                  height: Dimensions
+                                                      .profileImageSize,
+                                                  fit: BoxFit.cover,
+                                                  width: Dimensions
+                                                      .profileImageSize,
+                                                )),
+                                          ]),
+                                    )
                                   : SizedBox(height: 12),
                               Text(
                                 _images.isEmpty
                                     ? getTranslated(
-                                    "Upload Photos", Get.context!)!
+                                        "Upload Photos", Get.context!)!
                                     : getTranslated(
-                                    "Add More Photos", Get.context!)!,
+                                        "Add More Photos", Get.context!)!,
                                 style: textBold.copyWith(
-                                    color: Theme
-                                        .of(context)
-                                        .colorScheme
-                                        .primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     fontSize: Dimensions.fontSizeLarge),
                               ),
                             ]),
@@ -1078,16 +1212,27 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
 
                           const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                          CustomTextFieldWidget(
-                            labelText: getTranslated('Quantity', context),
-                            inputType: TextInputType.name,
-                            focusNode: _quantityFocus,
-                            nextFocus: _localItemPriceFocus,
-                            required: true,
-                            hintText: "Enter Quantity",
-                            controller: _quantityController,
-                            onChanged: _onFormFieldUpdate,
-                          ),
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomTextFieldWidget(
+                                  labelText: getTranslated('Quantity', context),
+                                  inputType:
+                                      TextInputType.number, // Changed to number
+                                  focusNode: _quantityFocus,
+                                  nextFocus: _localItemPriceFocus,
+                                  required: true,
+                                  hintText:
+                                      getTranslated("Enter Quantity", context),
+                                  controller: _quantityController,
+                                  onChanged: (value) {
+                                    _onFormFieldUpdate(value);
+                                    if (_quantityErrorText != null)
+                                      setState(() => _quantityErrorText = null);
+                                  },
+                                ),
+                                _buildErrorText(_quantityErrorText),
+                              ]),
 
                           const SizedBox(height: Dimensions.paddingSizeLarge),
 
@@ -1095,8 +1240,8 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                             child: const Text('Local Item Price'),
                             onTap: () {
                               Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (
-                                      context) => const ProfileScreen1()));
+                                  builder: (context) =>
+                                      const ProfileScreen1()));
                             },
                           ),
 
@@ -1105,29 +1250,54 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: CustomTextFieldWidget(
-                                  labelText: getTranslated(
-                                      'Item Price', context),
-                                  inputType: TextInputType.name,
-                                  focusNode: _localItemPriceFocus,
-                                  nextFocus: _localShipCostFocus,
-                                  required: true,
-                                  onChanged: _onFormFieldUpdate,
-                                  hintText: "Price in Local Currency",
-                                  controller: _localItemPriceController,
-                                ),
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CustomTextFieldWidget(
+                                        labelText: getTranslated(
+                                            'Item Price', context),
+                                        inputType:
+                                            TextInputType.numberWithOptions(
+                                                decimal:
+                                                    true), // For decimal input
+                                        focusNode: _localItemPriceFocus,
+                                        nextFocus:
+                                            _localShipCostFocus, // Check next focus
+                                        required: true,
+                                        onChanged: (value) {
+                                          _onFormFieldUpdate(value);
+                                          if (_localItemPriceErrorText != null)
+                                            setState(() =>
+                                                _localItemPriceErrorText =
+                                                    null);
+                                        },
+                                        hintText: getTranslated(
+                                            "Price in Local Currency", context),
+                                        controller: _localItemPriceController,
+                                      ),
+                                      _buildErrorText(_localItemPriceErrorText),
+                                    ]),
                               ),
                               SizedBox(width: 12), // optional spacing
                               Expanded(
-                                child: CustomTextFieldWidget(
-                                    labelText: getTranslated(
-                                        'Currency', context),
-                                    inputType: TextInputType.name,
-                                    required: true,
-                                    readOnly: true,
-                                    controller: _localItemCurrencyController,
-                                    onTap: () =>
-                                        _openItemLocalCurrencyBottomSheet()),
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CustomTextFieldWidget(
+                                          labelText: getTranslated(
+                                              'Currency', context),
+                                          inputType: TextInputType.name,
+                                          required: true,
+                                          readOnly: true,
+                                          controller:
+                                              _localItemCurrencyController,
+                                          onTap: () =>
+                                              _openItemLocalCurrencyBottomSheet()),
+                                      _buildErrorText(
+                                          _localItemCurrencyErrorText),
+                                    ]),
                               ),
                             ],
                           ),
@@ -1138,8 +1308,8 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                             children: [
                               Expanded(
                                 child: CustomTextFieldWidget(
-                                  labelText: getTranslated(
-                                      'Item Price', context),
+                                  labelText:
+                                      getTranslated('Item Price', context),
                                   inputType: TextInputType.name,
                                   required: true,
                                   hintText: "Price in EUR",
@@ -1163,42 +1333,63 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
 
                           InkWell(
                             child: const Text('Local Ship'),
-                            onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (
-                                      context) => const ProfileScreen1()));
-                            },
                           ),
 
                           const SizedBox(height: Dimensions.paddingSizeSmall),
 
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(
-                                child: CustomTextFieldWidget(
-                                  labelText:
-                                  getTranslated('Shipping Cost', context),
-                                  inputType: TextInputType.name,
-                                  focusNode: _localShipCostFocus,
-                                  nextFocus: _storeNameFocus,
-                                  required: true,
-                                  hintText: "Cost in Local Currency",
-                                  controller: _localShipCostController,
-                                  onChanged: _onFormFieldUpdate,
-                                ),
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CustomTextFieldWidget(
+                                        labelText: getTranslated(
+                                            'Shipping Cost', context),
+                                        inputType:
+                                            TextInputType.numberWithOptions(
+                                                decimal:
+                                                    true), // For decimal input
+                                        focusNode: _localShipCostFocus,
+                                        nextFocus:
+                                            _storeNameFocus, // Check next focus
+                                        required: true,
+                                        hintText: getTranslated(
+                                            "Cost in Local Currency", context),
+                                        controller: _localShipCostController,
+                                        onChanged: (value) {
+                                          _onFormFieldUpdate(value);
+                                          if (_localShipCostErrorText != null)
+                                            setState(() =>
+                                                _localShipCostErrorText = null);
+                                        },
+                                      ),
+                                      _buildErrorText(_localShipCostErrorText),
+                                    ]),
                               ),
                               SizedBox(width: 12), // optional spacing
                               Expanded(
-                                child: CustomTextFieldWidget(
-                                    labelText: getTranslated(
-                                        'Currency', context),
-                                    inputType: TextInputType.name,
-                                    required: true,
-                                    readOnly: true,
-                                    hintText: "Select",
-                                    controller: _localShipCurrencyController,
-                                    onTap: () =>
-                                        _openShippingCostLocalCurrencyBottomSheet()),
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CustomTextFieldWidget(
+                                          labelText: getTranslated(
+                                              'Currency', context),
+                                          inputType: TextInputType.name,
+                                          required: true,
+                                          readOnly: true,
+                                          hintText:
+                                              getTranslated("Select", context),
+                                          controller:
+                                              _localShipCurrencyController,
+                                          onTap: () =>
+                                              _openShippingCostLocalCurrencyBottomSheet()),
+                                      _buildErrorText(
+                                          _localShipCurrencyErrorText),
+                                    ]),
                               ),
                             ],
                           ),
@@ -1210,7 +1401,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                               Expanded(
                                 child: CustomTextFieldWidget(
                                   labelText:
-                                  getTranslated('Shipping Cost', context),
+                                      getTranslated('Shipping Cost', context),
                                   inputType: TextInputType.name,
                                   required: true,
                                   hintText: "Cost in EUR",
@@ -1224,7 +1415,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                   inputType: TextInputType.name,
                                   required: true,
                                   readOnly: true,
-                                  hintText: "Select",
+                                  hintText: "EUR",
                                   controller: _shipCurrencyController,
                                 ),
                               ),
@@ -1233,459 +1424,482 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
 
                           const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                          InkWell(
-                            child: const Text('Other Information'),
-                            onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (
-                                      context) => const ProfileScreen1()));
-                            },
-                          ),
+                          InkWell(child: const Text('Other Information')),
 
                           const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                          CustomTextFieldWidget(
-                            labelText: getTranslated('Store Name', context),
-                            inputType: TextInputType.name,
-                            focusNode: _storeNameFocus,
-                            nextFocus: _buyingCountryFocus,
-                            required: true,
-                            hintText: "",
-                            controller: _storeNameController,
-                          ),
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomTextFieldWidget(
+                                  labelText:
+                                      getTranslated('Store Name', context),
+                                  inputType: TextInputType.name,
+                                  focusNode: _storeNameFocus,
+                                  nextFocus: _buyingCountryFocus,
+                                  required: true,
+                                  hintText: getTranslated(
+                                      "Enter Store Name", context),
+                                  controller: _storeNameController,
+                                  onChanged: (value) {
+                                    if (_storeNameErrorText != null)
+                                      setState(
+                                          () => _storeNameErrorText = null);
+                                  },
+                                ),
+                                _buildErrorText(_storeNameErrorText),
+                              ]),
 
                           const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                          ...[
-                            Text(getTranslated('Buying Country', context)!,
-                                style: textRegular.copyWith(
-                                  color: Theme
-                                      .of(context)
-                                      .hintColor,
-                                  fontSize: Dimensions.fontSizeSmall,
-                                )),
-                            const SizedBox(
-                                height: Dimensions.paddingSizeExtraSmall),
-                            SizedBox(
-                                height: 60,
-                                child: Consumer<AddressController>(
-                                    builder: (context, addressController, _) {
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(getTranslated('Buying Country', context)!,
+                                    style: textRegular.copyWith(
+                                      color: Theme.of(context).hintColor,
+                                      fontSize: Dimensions.fontSizeSmall,
+                                    )),
+                                const SizedBox(
+                                    height: Dimensions.paddingSizeExtraSmall),
+                                SizedBox(
+                                    height: 60,
+                                    child: Consumer<AddressController>(builder:
+                                        (context, addressController, _) {
                                       return Column(
                                           crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Provider
-                                                .of<SplashController>(context,
-                                                listen: false)
-                                                .configModel!
-                                                .deliveryCountryRestriction ==
-                                                1
+                                            Provider.of<SplashController>(
+                                                            context,
+                                                            listen: false)
+                                                        .configModel!
+                                                        .deliveryCountryRestriction ==
+                                                    1
                                                 ? Container(
-                                              width: MediaQuery
-                                                  .of(context)
-                                                  .size
-                                                  .width,
-                                              decoration: BoxDecoration(
-                                                  color: Theme
-                                                      .of(context)
-                                                      .cardColor,
-                                                  borderRadius:
-                                                  BorderRadius.circular(5),
-                                                  border: Border.all(
-                                                      width: .1,
-                                                      color: Theme
-                                                          .of(context)
-                                                          .hintColor
-                                                          .withValues(
-                                                          alpha: 0.1))),
-                                              child: DropdownButtonFormField2<
-                                                  String>(
-                                                isExpanded: true,
-                                                isDense: true,
-                                                decoration: InputDecoration(
-                                                    contentPadding:
-                                                    const EdgeInsets
-                                                        .symmetric(
-                                                        vertical: 0),
-                                                    border: OutlineInputBorder(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                    decoration: BoxDecoration(
+                                                        color: Theme.of(context)
+                                                            .cardColor,
                                                         borderRadius:
-                                                        BorderRadius
-                                                            .circular(5))),
-                                                hint: Row(
-                                                  children: [
-                                                    Image.asset(Images.country),
-                                                    const SizedBox(
-                                                        width: Dimensions
-                                                            .paddingSizeSmall),
-                                                    Text(
+                                                            BorderRadius
+                                                                .circular(5),
+                                                        border: Border.all(
+                                                            width: .1,
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .hintColor
+                                                                .withValues(
+                                                                    alpha:
+                                                                        0.1))),
+                                                    child:
+                                                        DropdownButtonFormField2<
+                                                            String>(
+                                                      isExpanded: true,
+                                                      isDense: true,
+                                                      decoration: InputDecoration(
+                                                          contentPadding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  vertical: 0),
+                                                          border: OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          5))),
+                                                      hint: Row(
+                                                        children: [
+                                                          Image.asset(
+                                                              Images.country),
+                                                          const SizedBox(
+                                                              width: Dimensions
+                                                                  .paddingSizeSmall),
+                                                          Text(
+                                                              _buyingCountryCodeController
+                                                                  .text,
+                                                              style: textRegular.copyWith(
+                                                                  fontSize:
+                                                                      Dimensions
+                                                                          .fontSizeDefault,
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .textTheme
+                                                                      .bodyLarge!
+                                                                      .color)),
+                                                        ],
+                                                      ),
+                                                      items: addressController
+                                                          .restrictedCountryList
+                                                          .map((item) => DropdownMenuItem<
+                                                                  String>(
+                                                              value: item,
+                                                              child: Text(
+                                                                  item,
+                                                                  style: textRegular.copyWith(
+                                                                      fontSize:
+                                                                          Dimensions
+                                                                              .fontSizeSmall,
+                                                                      color: Theme.of(
+                                                                              context)
+                                                                          .textTheme
+                                                                          .bodyLarge
+                                                                          ?.color))))
+                                                          .toList(),
+                                                      onChanged: (value) {
                                                         _buyingCountryCodeController
-                                                            .text,
-                                                        style: textRegular
-                                                            .copyWith(
-                                                            fontSize: Dimensions
-                                                                .fontSizeDefault,
-                                                            color: Theme
-                                                                .of(
-                                                                context)
-                                                                .textTheme
-                                                                .bodyLarge!
-                                                                .color)),
-                                                  ],
-                                                ),
-                                                items: addressController
-                                                    .restrictedCountryList
-                                                    .map((item) =>
-                                                    DropdownMenuItem<String>(
-                                                        value: item,
-                                                        child: Text(item,
-                                                            style: textRegular
-                                                                .copyWith(
-                                                                fontSize: Dimensions
-                                                                    .fontSizeSmall,
-                                                                color: Theme
-                                                                    .of(
-                                                                    context)
-                                                                    .textTheme
-                                                                    .bodyLarge
-                                                                    ?.color))))
-                                                    .toList(),
-                                                onChanged: (value) {
-                                                  _buyingCountryCodeController
-                                                      .text = value!;
-                                                  _updateProductOrderSummary();
-                                                  print(
-                                                      "Selected Country of Origin");
-                                                  print(value);
-                                                },
-                                                buttonStyleData:
-                                                const ButtonStyleData(
-                                                  padding:
-                                                  EdgeInsets.only(right: 8),
-                                                ),
-                                                iconStyleData: IconStyleData(
-                                                    icon: Icon(
-                                                        Icons.arrow_drop_down,
-                                                        color: Theme
-                                                            .of(context)
-                                                            .hintColor),
-                                                    iconSize: 24),
-                                                dropdownStyleData:
-                                                DropdownStyleData(
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                    BorderRadius.circular(
-                                                        5),
-                                                  ),
-                                                ),
-                                                menuItemStyleData:
-                                                const MenuItemStyleData(
-                                                    padding: EdgeInsets
-                                                        .symmetric(
-                                                        horizontal:
-                                                        16)),
-                                              ),
-                                            )
+                                                            .text = value!;
+                                                        _updateProductOrderSummary();
+                                                        print(
+                                                            "Selected Country of Origin");
+                                                        print(value);
+                                                      },
+                                                      buttonStyleData:
+                                                          const ButtonStyleData(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                right: 8),
+                                                      ),
+                                                      iconStyleData: IconStyleData(
+                                                          icon: Icon(
+                                                              Icons
+                                                                  .arrow_drop_down,
+                                                              color: Theme.of(
+                                                                      context)
+                                                                  .hintColor),
+                                                          iconSize: 24),
+                                                      dropdownStyleData:
+                                                          DropdownStyleData(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(5),
+                                                        ),
+                                                      ),
+                                                      menuItemStyleData:
+                                                          const MenuItemStyleData(
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          16)),
+                                                    ),
+                                                  )
                                                 : Container(
-                                              width: MediaQuery
-                                                  .of(context)
-                                                  .size
-                                                  .width,
-                                              padding:
-                                              const EdgeInsets.symmetric(
-                                                  vertical: Dimensions
-                                                      .paddingSizeSmall),
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius
-                                                      .circular(Dimensions
-                                                      .paddingSizeSmall),
-                                                  color: Theme
-                                                      .of(context)
-                                                      .cardColor,
-                                                  border: Border.all(
-                                                      color: Theme
-                                                          .of(context)
-                                                          .hintColor
-                                                          .withValues(
-                                                          alpha: .5))),
-                                              child: CodePickerWidget(
-                                                fromCountryList: true,
-                                                padding: const EdgeInsets.only(
-                                                    left: Dimensions
-                                                        .paddingSizeSmall),
-                                                flagWidth: 25,
-                                                onChanged: (val) {
-                                                  _buyingCountryCodeController
-                                                      .text = val.code!;
-                                                  _updateProductOrderSummary();
-                                                  print(
-                                                      "Selected country code");
-                                                  print(val.code);
-                                                },
-                                                initialSelection:
-                                                _buyingCountryCodeController
-                                                    .text,
-                                                showDropDownButton: true,
-                                                showCountryOnly: true,
-                                                showOnlyCountryWhenClosed: true,
-                                                showFlagDialog: true,
-                                                hideMainText: false,
-                                                showFlagMain: false,
-                                                dialogBackgroundColor:
-                                                Theme
-                                                    .of(context)
-                                                    .cardColor,
-                                                barrierColor:
-                                                Provider
-                                                    .of<ThemeController>(
-                                                    context)
-                                                    .darkTheme
-                                                    ? Colors.black
-                                                    .withValues(
-                                                    alpha: 0.4)
-                                                    : null,
-                                                textStyle: textRegular.copyWith(
-                                                  fontSize:
-                                                  Dimensions.fontSizeLarge,
-                                                  color: Theme
-                                                      .of(context)
-                                                      .textTheme
-                                                      .bodyLarge!
-                                                      .color,
-                                                ),
-                                                dialogTextStyle:
-                                                textRegular.copyWith(
-                                                  fontSize: Dimensions
-                                                      .fontSizeDefault,
-                                                  color: Theme
-                                                      .of(context)
-                                                      .textTheme
-                                                      .bodyLarge!
-                                                      .color,
-                                                ),
-                                              ),
-                                            ),
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: Dimensions
+                                                            .paddingSizeSmall),
+                                                    decoration: BoxDecoration(
+                                                        borderRadius: BorderRadius
+                                                            .circular(Dimensions
+                                                                .paddingSizeSmall),
+                                                        color: Theme.of(context)
+                                                            .cardColor,
+                                                        border: Border.all(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .hintColor
+                                                                .withValues(
+                                                                    alpha:
+                                                                        .5))),
+                                                    child: CodePickerWidget(
+                                                      fromCountryList: true,
+                                                      padding: const EdgeInsets
+                                                          .only(
+                                                          left: Dimensions
+                                                              .paddingSizeSmall),
+                                                      flagWidth: 25,
+                                                      onChanged: (val) {
+                                                        _buyingCountryCodeController
+                                                            .text = val.code!;
+                                                        _updateProductOrderSummary();
+                                                        print(
+                                                            "Selected country code");
+                                                        print(val.code);
+                                                      },
+                                                      initialSelection:
+                                                          _buyingCountryCodeController
+                                                              .text,
+                                                      showDropDownButton: true,
+                                                      showCountryOnly: true,
+                                                      showOnlyCountryWhenClosed:
+                                                          true,
+                                                      showFlagDialog: true,
+                                                      hideMainText: false,
+                                                      showFlagMain: false,
+                                                      dialogBackgroundColor:
+                                                          Theme.of(context)
+                                                              .cardColor,
+                                                      barrierColor:
+                                                          Provider.of<ThemeController>(
+                                                                      context)
+                                                                  .darkTheme
+                                                              ? Colors.black
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          0.4)
+                                                              : null,
+                                                      textStyle:
+                                                          textRegular.copyWith(
+                                                        fontSize: Dimensions
+                                                            .fontSizeLarge,
+                                                        color: Theme.of(context)
+                                                            .textTheme
+                                                            .bodyLarge!
+                                                            .color,
+                                                      ),
+                                                      dialogTextStyle:
+                                                          textRegular.copyWith(
+                                                        fontSize: Dimensions
+                                                            .fontSizeDefault,
+                                                        color: Theme.of(context)
+                                                            .textTheme
+                                                            .bodyLarge!
+                                                            .color,
+                                                      ),
+                                                    ),
+                                                  ),
                                           ]);
                                     })),
-                          ],
+                                _buildErrorText(
+                                    _buyingCountryErrorText), // Error text for buying country
+                              ]),
 
-                          ...[
-                            Text(getTranslated('Delivery Country', context)!,
-                                style: textRegular.copyWith(
-                                  color: Theme
-                                      .of(context)
-                                      .hintColor,
-                                  fontSize: Dimensions.fontSizeSmall,
-                                )),
-                            const SizedBox(
-                                height: Dimensions.paddingSizeExtraSmall),
-                            SizedBox(
-                                height: 60,
-                                child: Consumer<AddressController>(
-                                    builder: (context, addressController, _) {
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    getTranslated('Delivery Country', context)!,
+                                    style: textRegular.copyWith(
+                                      color: Theme.of(context).hintColor,
+                                      fontSize: Dimensions.fontSizeSmall,
+                                    )),
+                                const SizedBox(
+                                    height: Dimensions.paddingSizeExtraSmall),
+                                SizedBox(
+                                    height: 60,
+                                    child: Consumer<AddressController>(builder:
+                                        (context, addressController, _) {
                                       return Column(
                                           crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Provider
-                                                .of<SplashController>(context,
-                                                listen: false)
-                                                .configModel!
-                                                .deliveryCountryRestriction ==
-                                                1
+                                            Provider.of<SplashController>(
+                                                            context,
+                                                            listen: false)
+                                                        .configModel!
+                                                        .deliveryCountryRestriction ==
+                                                    1
                                                 ? Container(
-                                              width: MediaQuery
-                                                  .of(context)
-                                                  .size
-                                                  .width,
-                                              decoration: BoxDecoration(
-                                                  color: Theme
-                                                      .of(context)
-                                                      .cardColor,
-                                                  borderRadius:
-                                                  BorderRadius.circular(5),
-                                                  border: Border.all(
-                                                      width: .1,
-                                                      color: Theme
-                                                          .of(context)
-                                                          .hintColor
-                                                          .withValues(
-                                                          alpha: 0.1))),
-                                              child: DropdownButtonFormField2<
-                                                  String>(
-                                                isExpanded: true,
-                                                isDense: true,
-                                                decoration: InputDecoration(
-                                                    contentPadding:
-                                                    const EdgeInsets
-                                                        .symmetric(
-                                                        vertical: 0),
-                                                    border: OutlineInputBorder(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                    decoration: BoxDecoration(
+                                                        color: Theme.of(context)
+                                                            .cardColor,
                                                         borderRadius:
-                                                        BorderRadius
-                                                            .circular(5))),
-                                                hint: Row(
-                                                  children: [
-                                                    Image.asset(Images.country),
-                                                    const SizedBox(
-                                                        width: Dimensions
-                                                            .paddingSizeSmall),
-                                                    Text(
-                                                        _deliveryCountryCodeController
-                                                            .text,
-                                                        style: textRegular
-                                                            .copyWith(
-                                                            fontSize: Dimensions
-                                                                .fontSizeDefault,
-                                                            color: Theme
-                                                                .of(
-                                                                context)
-                                                                .textTheme
-                                                                .bodyLarge!
-                                                                .color)),
-                                                  ],
-                                                ),
-                                                items: addressController
-                                                    .restrictedCountryList
-                                                    .map((item) =>
-                                                    DropdownMenuItem<String>(
-                                                        value: item,
-                                                        child: Text(item,
-                                                            style: textRegular
-                                                                .copyWith(
-                                                                fontSize: Dimensions
-                                                                    .fontSizeSmall,
-                                                                color: Theme
-                                                                    .of(
+                                                            BorderRadius
+                                                                .circular(5),
+                                                        border: Border.all(
+                                                            width: .1,
+                                                            color: Theme.of(
                                                                     context)
-                                                                    .textTheme
-                                                                    .bodyLarge
-                                                                    ?.color))))
-                                                    .toList(),
-                                                onChanged: (value) {
-                                                  _deliveryCountryCodeController
-                                                      .text = value!;
-                                                  print(
-                                                      "Selected Country of Origin");
-                                                  print(value);
-                                                },
-                                                buttonStyleData:
-                                                const ButtonStyleData(
-                                                  padding:
-                                                  EdgeInsets.only(right: 8),
-                                                ),
-                                                iconStyleData: IconStyleData(
-                                                    icon: Icon(
-                                                        Icons.arrow_drop_down,
-                                                        color: Theme
-                                                            .of(context)
-                                                            .hintColor),
-                                                    iconSize: 24),
-                                                dropdownStyleData:
-                                                DropdownStyleData(
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                    BorderRadius.circular(
-                                                        5),
-                                                  ),
-                                                ),
-                                                menuItemStyleData:
-                                                const MenuItemStyleData(
-                                                    padding: EdgeInsets
-                                                        .symmetric(
-                                                        horizontal:
-                                                        16)),
-                                              ),
-                                            )
+                                                                .hintColor
+                                                                .withValues(
+                                                                    alpha:
+                                                                        0.1))),
+                                                    child:
+                                                        DropdownButtonFormField2<
+                                                            String>(
+                                                      isExpanded: true,
+                                                      isDense: true,
+                                                      decoration: InputDecoration(
+                                                          contentPadding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  vertical: 0),
+                                                          border: OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          5))),
+                                                      hint: Row(
+                                                        children: [
+                                                          Image.asset(
+                                                              Images.country),
+                                                          const SizedBox(
+                                                              width: Dimensions
+                                                                  .paddingSizeSmall),
+                                                          Text(
+                                                              _deliveryCountryCodeController
+                                                                  .text,
+                                                              style: textRegular.copyWith(
+                                                                  fontSize:
+                                                                      Dimensions
+                                                                          .fontSizeDefault,
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .textTheme
+                                                                      .bodyLarge!
+                                                                      .color)),
+                                                        ],
+                                                      ),
+                                                      items: addressController
+                                                          .restrictedCountryList
+                                                          .map((item) => DropdownMenuItem<
+                                                                  String>(
+                                                              value: item,
+                                                              child: Text(
+                                                                  item,
+                                                                  style: textRegular.copyWith(
+                                                                      fontSize:
+                                                                          Dimensions
+                                                                              .fontSizeSmall,
+                                                                      color: Theme.of(
+                                                                              context)
+                                                                          .textTheme
+                                                                          .bodyLarge
+                                                                          ?.color))))
+                                                          .toList(),
+                                                      onChanged: (value) {
+                                                        _deliveryCountryCodeController
+                                                            .text = value!;
+                                                        print(
+                                                            "Selected Country of Origin");
+                                                        print(value);
+                                                      },
+                                                      buttonStyleData:
+                                                          const ButtonStyleData(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                right: 8),
+                                                      ),
+                                                      iconStyleData: IconStyleData(
+                                                          icon: Icon(
+                                                              Icons
+                                                                  .arrow_drop_down,
+                                                              color: Theme.of(
+                                                                      context)
+                                                                  .hintColor),
+                                                          iconSize: 24),
+                                                      dropdownStyleData:
+                                                          DropdownStyleData(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(5),
+                                                        ),
+                                                      ),
+                                                      menuItemStyleData:
+                                                          const MenuItemStyleData(
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          16)),
+                                                    ),
+                                                  )
                                                 : Container(
-                                              width: MediaQuery
-                                                  .of(context)
-                                                  .size
-                                                  .width,
-                                              padding:
-                                              const EdgeInsets.symmetric(
-                                                  vertical: Dimensions
-                                                      .paddingSizeSmall),
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius
-                                                      .circular(Dimensions
-                                                      .paddingSizeSmall),
-                                                  color: Theme
-                                                      .of(context)
-                                                      .cardColor,
-                                                  border: Border.all(
-                                                      color: Theme
-                                                          .of(context)
-                                                          .hintColor
-                                                          .withValues(
-                                                          alpha: .5))),
-                                              child: CodePickerWidget(
-                                                fromCountryList: true,
-                                                padding: const EdgeInsets.only(
-                                                    left: Dimensions
-                                                        .paddingSizeSmall),
-                                                flagWidth: 25,
-                                                onChanged: (val) {
-                                                  _deliveryCountryCodeController
-                                                      .text = val.code!;
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: Dimensions
+                                                            .paddingSizeSmall),
+                                                    decoration: BoxDecoration(
+                                                        borderRadius: BorderRadius
+                                                            .circular(Dimensions
+                                                                .paddingSizeSmall),
+                                                        color: Theme.of(context)
+                                                            .cardColor,
+                                                        border: Border.all(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .hintColor
+                                                                .withValues(
+                                                                    alpha:
+                                                                        .5))),
+                                                    child: CodePickerWidget(
+                                                      fromCountryList: true,
+                                                      padding: const EdgeInsets
+                                                          .only(
+                                                          left: Dimensions
+                                                              .paddingSizeSmall),
+                                                      flagWidth: 25,
+                                                      onChanged: (val) {
+                                                        _deliveryCountryCodeController
+                                                            .text = val.code!;
 
-                                                  _updateProductOrderSummary();
+                                                        _updateProductOrderSummary();
 
-                                                  print(
-                                                      "Selected country code");
-                                                  print(val.code);
-                                                },
-                                                initialSelection:
-                                                _deliveryCountryCodeController
-                                                    .text,
-                                                showDropDownButton: true,
-                                                showCountryOnly: true,
-                                                showOnlyCountryWhenClosed: true,
-                                                showFlagDialog: true,
-                                                hideMainText: false,
-                                                showFlagMain: false,
-                                                dialogBackgroundColor:
-                                                Theme
-                                                    .of(context)
-                                                    .cardColor,
-                                                barrierColor:
-                                                Provider
-                                                    .of<ThemeController>(
-                                                    context)
-                                                    .darkTheme
-                                                    ? Colors.black
-                                                    .withValues(
-                                                    alpha: 0.4)
-                                                    : null,
-                                                textStyle: textRegular.copyWith(
-                                                  fontSize:
-                                                  Dimensions.fontSizeLarge,
-                                                  color: Theme
-                                                      .of(context)
-                                                      .textTheme
-                                                      .bodyLarge!
-                                                      .color,
-                                                ),
-                                                dialogTextStyle:
-                                                textRegular.copyWith(
-                                                  fontSize: Dimensions
-                                                      .fontSizeDefault,
-                                                  color: Theme
-                                                      .of(context)
-                                                      .textTheme
-                                                      .bodyLarge!
-                                                      .color,
-                                                ),
-                                              ),
-                                            ),
+                                                        print(
+                                                            "Selected country code");
+                                                        print(val.code);
+                                                      },
+                                                      initialSelection:
+                                                          _deliveryCountryCodeController
+                                                              .text,
+                                                      showDropDownButton: true,
+                                                      showCountryOnly: true,
+                                                      showOnlyCountryWhenClosed:
+                                                          true,
+                                                      showFlagDialog: true,
+                                                      hideMainText: false,
+                                                      showFlagMain: false,
+                                                      dialogBackgroundColor:
+                                                          Theme.of(context)
+                                                              .cardColor,
+                                                      barrierColor:
+                                                          Provider.of<ThemeController>(
+                                                                      context)
+                                                                  .darkTheme
+                                                              ? Colors.black
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          0.4)
+                                                              : null,
+                                                      textStyle:
+                                                          textRegular.copyWith(
+                                                        fontSize: Dimensions
+                                                            .fontSizeLarge,
+                                                        color: Theme.of(context)
+                                                            .textTheme
+                                                            .bodyLarge!
+                                                            .color,
+                                                      ),
+                                                      dialogTextStyle:
+                                                          textRegular.copyWith(
+                                                        fontSize: Dimensions
+                                                            .fontSizeDefault,
+                                                        color: Theme.of(context)
+                                                            .textTheme
+                                                            .bodyLarge!
+                                                            .color,
+                                                      ),
+                                                    ),
+                                                  ),
                                           ]);
                                     })),
-                          ],
+                                _buildErrorText(
+                                    _deliveryCountryErrorText), // Error text for delivery country
+                              ]),
 
                           Text(getTranslated('Order Summary', context) ?? '',
                               style: textMedium.copyWith(
                                   fontSize: Dimensions.fontSizeLarge,
-                                  color: Theme
-                                      .of(context)
+                                  color: Theme.of(context)
                                       .textTheme
                                       .bodyLarge
                                       ?.color)),
@@ -1694,102 +1908,125 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                           Column(
                             children: [
                               AmountWidget(
-                                  hintText: buyForMeController.buyForMeProductOrderSummary?.subtotalHint,
+                                  hintText: buyForMeController
+                                      .buyForMeProductOrderSummary
+                                      ?.subtotalHint,
                                   title: getTranslated('Subtotal', context),
                                   amount: PriceConverter.convertPrice(
                                       context,
                                       buyForMeController
-                                          .buyForMeProductOrderSummary !=
-                                          null
+                                                  .buyForMeProductOrderSummary !=
+                                              null
                                           ? buyForMeController
-                                          .buyForMeProductOrderSummary!
-                                          .subtotal
+                                              .buyForMeProductOrderSummary!
+                                              .subtotal
                                           : 0)),
                               AmountWidget(
-                                  hintText: buyForMeController.buyForMeProductOrderSummary?.serviceFeeHint,
+                                  hintText: buyForMeController
+                                      .buyForMeProductOrderSummary
+                                      ?.serviceFeeHint,
                                   title: getTranslated('Service Fee', context),
                                   amount: PriceConverter.convertPrice(
                                       context,
                                       buyForMeController
-                                          .buyForMeProductOrderSummary !=
-                                          null
+                                                  .buyForMeProductOrderSummary !=
+                                              null
                                           ? buyForMeController
-                                          .buyForMeProductOrderSummary!
-                                          .serviceFee
+                                              .buyForMeProductOrderSummary!
+                                              .serviceFee
                                           : 0)),
                               AmountWidget(
-                                  hintText: buyForMeController.buyForMeProductOrderSummary?.inspectionFeeHint,
+                                  hintText: buyForMeController
+                                      .buyForMeProductOrderSummary
+                                      ?.inspectionFeeHint,
                                   title:
-                                  getTranslated('Quality Control', context),
+                                      getTranslated('Quality Control', context),
                                   amount: PriceConverter.convertPrice(
                                       context,
                                       buyForMeController
-                                          .buyForMeProductOrderSummary !=
-                                          null
+                                                  .buyForMeProductOrderSummary !=
+                                              null
                                           ? buyForMeController
-                                          .buyForMeProductOrderSummary!
-                                          .inspectionFee
+                                              .buyForMeProductOrderSummary!
+                                              .inspectionFee
                                           : 0)),
                               AmountWidget(
-                                  hintText: buyForMeController.buyForMeProductOrderSummary?.vatHint,
+                                  hintText: buyForMeController
+                                      .buyForMeProductOrderSummary?.vatHint,
                                   title: getTranslated('VAT', context),
                                   amount: PriceConverter.convertPrice(
                                       context,
                                       buyForMeController
-                                          .buyForMeProductOrderSummary !=
-                                          null
+                                                  .buyForMeProductOrderSummary !=
+                                              null
                                           ? buyForMeController
-                                          .buyForMeProductOrderSummary!.vat
+                                              .buyForMeProductOrderSummary!.vat
                                           : 0)),
                               AmountWidget(
-                                  hintText: buyForMeController.buyForMeProductOrderSummary?.customsFeeHint,
+                                  hintText: buyForMeController
+                                      .buyForMeProductOrderSummary
+                                      ?.customsFeeHint,
                                   title: getTranslated('Customs Duty', context),
                                   amount: PriceConverter.convertPrice(
                                       context,
                                       buyForMeController
-                                          .buyForMeProductOrderSummary !=
-                                          null
+                                                  .buyForMeProductOrderSummary !=
+                                              null
                                           ? buyForMeController
-                                          .buyForMeProductOrderSummary!
-                                          .customsFee
+                                              .buyForMeProductOrderSummary!
+                                              .customsFee
                                           : 0)),
                               AmountWidget(
-                                 hintText: buyForMeController.buyForMeProductOrderSummary?.localDeliveryFeeHint,
-                                  title: getTranslated(
-                                      'Local Delivery', context),
+                                  hintText: buyForMeController
+                                      .buyForMeProductOrderSummary
+                                      ?.localDeliveryFeeHint,
+                                  title:
+                                      getTranslated('Local Delivery', context),
                                   amount: PriceConverter.convertPrice(
                                       context,
                                       buyForMeController
-                                          .buyForMeProductOrderSummary !=
-                                          null
+                                                  .buyForMeProductOrderSummary !=
+                                              null
                                           ? buyForMeController
-                                          .buyForMeProductOrderSummary!
-                                          .localDeliveryFee
+                                              .buyForMeProductOrderSummary!
+                                              .localDeliveryFee
                                           : 0)),
                               AmountWidget(
-                                hintText: buyForMeController.buyForMeProductOrderSummary?.internationalDeliveryFeeHint,
+                                  hintText: buyForMeController
+                                      .buyForMeProductOrderSummary
+                                      ?.internationalDeliveryFeeHint,
                                   title: getTranslated(
                                       'International Delivery', context),
                                   amount: PriceConverter.convertPrice(
                                       context,
                                       buyForMeController
-                                          .buyForMeProductOrderSummary !=
-                                          null
+                                                  .buyForMeProductOrderSummary !=
+                                              null
                                           ? buyForMeController
-                                          .buyForMeProductOrderSummary!
-                                          .internationalDeliveryFee
+                                              .buyForMeProductOrderSummary!
+                                              .internationalDeliveryFee
                                           : 0)),
                               AmountWidget(
-                                hintText: buyForMeController.buyForMeProductOrderSummary?.total != null && buyForMeController.buyForMeProductOrderSummary?.total! != 0 ? getTranslated("Total Payable", context) : null ,
-                                  title:
-                                  getTranslated('TOTAL TO BE PAID', context),
+                                  hintText: buyForMeController
+                                                  .buyForMeProductOrderSummary
+                                                  ?.total !=
+                                              null &&
+                                          buyForMeController
+                                                  .buyForMeProductOrderSummary
+                                                  ?.total! !=
+                                              0
+                                      ? getTranslated("Total Payable", context)
+                                      : null,
+                                  title: getTranslated(
+                                      'TOTAL TO BE PAID', context),
                                   amount: PriceConverter.convertPrice(
                                       context,
                                       buyForMeController
-                                          .buyForMeProductOrderSummary !=
-                                          null
+                                                  .buyForMeProductOrderSummary !=
+                                              null
                                           ? buyForMeController
-                                          .buyForMeProductOrderSummary!.total
+                                              .buyForMeProductOrderSummary!
+                                              .total
                                           : 0))
                             ],
                           ),
@@ -1802,45 +2039,36 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                 child: Container(
                                   child: !buyForMeController.isLoading
                                       ? CustomButton(
-                                      onTap: _updateUserAccount,
-                                      backgroundColor:
-                                      Theme
-                                          .of(context)
-                                          .disabledColor,
-                                      buttonText:
-                                      getTranslated('cancel', context))
+                                          onTap: _updateUserAccount,
+                                          backgroundColor:
+                                              Theme.of(context).disabledColor,
+                                          buttonText:
+                                              getTranslated('cancel', context))
                                       : Center(
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                        AlwaysStoppedAnimation<Color>(
-                                            Theme
-                                                .of(context)
-                                                .primaryColor),
-                                      )),
+                                          child: CircularProgressIndicator(
+                                          valueColor: AlwaysStoppedAnimation<
+                                                  Color>(
+                                              Theme.of(context).primaryColor),
+                                        )),
                                 ),
                               ),
                               SizedBox(width: 12), // optional spacing
-
 
                               Expanded(
                                 child: Container(
                                   child: !buyForMeController.isLoading
                                       ? CustomButton(
-                                      onTap: _addProduct,
-                                      backgroundColor:
-                                      Theme
-                                          .of(context)
-                                          .primaryColor,
-                                      buttonText:
-                                      getTranslated('Add', context))
+                                          onTap: _addProduct,
+                                          backgroundColor:
+                                              Theme.of(context).primaryColor,
+                                          buttonText:
+                                              getTranslated('Add', context))
                                       : Center(
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                        AlwaysStoppedAnimation<Color>(
-                                            Theme
-                                                .of(context)
-                                                .primaryColor),
-                                      )),
+                                          child: CircularProgressIndicator(
+                                          valueColor: AlwaysStoppedAnimation<
+                                                  Color>(
+                                              Theme.of(context).primaryColor),
+                                        )),
                                 ),
                               ),
                             ],
@@ -1858,7 +2086,6 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                       ),
                     ),
                   ),
-
                 ],
 
                 //

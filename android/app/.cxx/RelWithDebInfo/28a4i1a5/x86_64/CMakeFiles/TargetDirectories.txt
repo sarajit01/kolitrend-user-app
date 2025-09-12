@@ -1,0 +1,2 @@
+/Users/sarajitbarmon/Desktop/projects/Flutter/kolitrend-user-app/android/app/.cxx/RelWithDebInfo/28a4i1a5/x86_64/CMakeFiles/edit_cache.dir
+/Users/sarajitbarmon/Desktop/projects/Flutter/kolitrend-user-app/android/app/.cxx/RelWithDebInfo/28a4i1a5/x86_64/CMakeFiles/rebuild_cache.dir
