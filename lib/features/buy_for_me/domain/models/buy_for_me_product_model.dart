@@ -1,5 +1,7 @@
 import 'dart:ffi';
 
+import 'package:flutter_sixvalley_ecommerce/features/buy_for_me/domain/models/category_model.dart';
+
 class BuyForMeProduct {
 
   int? id;
@@ -24,6 +26,7 @@ class BuyForMeProduct {
   double? itemLocalPrice;
   String? shipLocalCurrency;
   double? shipLocalPrice;
+  BuyForMeCategory? category;
 
   BuyForMeProduct({
     this.id,
@@ -47,7 +50,8 @@ class BuyForMeProduct {
     this.itemPriceLocalCurrency,
     this.itemLocalPrice,
     this.shipLocalCurrency,
-    this.shipLocalPrice
+    this.shipLocalPrice,
+    this.category
   });
 
 

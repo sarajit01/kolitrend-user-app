@@ -21,6 +21,7 @@ import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_textfield_w
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/show_custom_snakbar_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../common/basewidget/amount_widget.dart';
 import '../../../helper/price_converter.dart';
@@ -28,6 +29,20 @@ import '../../address/controllers/address_controller.dart';
 import '../../auth/widgets/code_picker_widget.dart';
 import '../../splash/controllers/splash_controller.dart';
 import '../widgets/select_buy_for_me_category_bottom_sheet_widget.dart';
+
+class ListItem {
+  final String id; // Unique ID for deletion
+  final String name;
+  final String category;
+  final double price;
+
+  ListItem({
+    required this.id,
+    required this.name,
+    required this.category,
+    required this.price,
+  });
+}
 
 class BuyForMeFormScreen extends StatefulWidget {
   const BuyForMeFormScreen({super.key});
@@ -94,13 +109,38 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
 
   final _debouncer = DebounceHelper(milliseconds: 2000); // 500ms delay
 
+  bool showForm = true;
+
+  final List<ListItem> _items = [
+    ListItem(id: '1', name: 'Flutter Pro', category: 'Book', price: 29.99),
+    ListItem(id: '2', name: 'Dart Essentials', category: 'Book', price: 19.50),
+    ListItem(id: '3', name: 'Mobile UX', category: 'Course', price: 99.00),
+    ListItem(id: '4', name: 'State Management Guide', category: 'PDF', price: 9.99),
+    ListItem(id: '5', name: 'Widget Mastery', category: 'Book', price: 35.00),
+    ListItem(id: '1', name: 'Flutter Pro', category: 'Book', price: 29.99),
+    ListItem(id: '2', name: 'Dart Essentials', category: 'Book', price: 19.50),
+    ListItem(id: '3', name: 'Mobile UX', category: 'Course', price: 99.00),
+    ListItem(id: '4', name: 'State Management Guide', category: 'PDF', price: 9.99),
+    ListItem(id: '5', name: 'Widget Mastery', category: 'Book', price: 35.00),
+    ListItem(id: '1', name: 'Flutter Pro', category: 'Book', price: 29.99),
+    ListItem(id: '2', name: 'Dart Essentials', category: 'Book', price: 19.50),
+    ListItem(id: '3', name: 'Mobile UX', category: 'Course', price: 99.00),
+    ListItem(id: '4', name: 'State Management Guide', category: 'PDF', price: 9.99),
+    ListItem(id: '5', name: 'Widget Mastery', category: 'Book', price: 35.00),
+    ListItem(id: '1', name: 'Flutter Pro', category: 'Book', price: 29.99),
+    ListItem(id: '2', name: 'Dart Essentials', category: 'Book', price: 19.50),
+    ListItem(id: '3', name: 'Mobile UX', category: 'Course', price: 99.00),
+    ListItem(id: '4', name: 'State Management Guide', category: 'PDF', price: 9.99),
+    ListItem(id: '5', name: 'Widget Mastery', category: 'Book', price: 35.00),
+  ];
+
   @override
   void dispose() {
     _debouncer.dispose(); // Important for preventing memory leaks
     super.dispose();
   }
 
-  void _onFormFieldUpdate(String value){
+  void _onFormFieldUpdate(String value) {
     _debouncer.run(() {
       print("Order summary to be updated");
       _updateProductOrderSummary();
@@ -191,9 +231,11 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
     });
   }
 
-  bool _checkIfOrderSummaryUpdatable()  {
+  bool _checkIfOrderSummaryUpdatable() {
     // check if category was selected
-    if (Provider.of<BuyForMeController>(Get.context!, listen: false).selectedCategory == null) {
+    if (Provider.of<BuyForMeController>(Get.context!, listen: false)
+            .selectedCategory ==
+        null) {
       return false;
     }
 
@@ -223,12 +265,12 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
     }
 
     // check if buying country was filled up
-    if (_buyingCountryCodeController.text.isEmpty){
+    if (_buyingCountryCodeController.text.isEmpty) {
       return false;
     }
 
     // check if delivery country was filled up
-    if (_deliveryCountryCodeController.text.isEmpty){
+    if (_deliveryCountryCodeController.text.isEmpty) {
       return false;
     }
 
@@ -236,8 +278,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
   }
 
   _updateProductOrderSummary() async {
-
-    if (_checkIfOrderSummaryUpdatable() == false){
+    if (_checkIfOrderSummaryUpdatable() == false) {
       print("All fields required to be filled");
       return;
     }
@@ -256,10 +297,10 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
     BuyForMeProduct product = BuyForMeProduct();
     product.product = _productNameController.text;
     product.url = _linkController.text;
-    product.categoryId =
-        Provider.of<BuyForMeController>(Get.context!, listen: false)
-            .selectedCategory
-            ?.id;
+    if (Provider.of<BuyForMeController>(Get.context!, listen: false).selectedCategory != null){
+      product.categoryId = Provider.of<BuyForMeController>(Get.context!, listen: false).selectedCategory!.id;
+      product.category = Provider.of<BuyForMeController>(Get.context!, listen: false).selectedCategory;
+    }
     product.color = _productColorController.text;
     product.size = _productSizeController.text;
     product.description = _descriptionController.text;
@@ -275,8 +316,156 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
     return product;
   }
 
+  void _deleteItem(String id) {
+    setState(() {
+      _items.removeWhere((item) => item.id == id);
+    });
+    // Optional: Show a snackbar or confirmation
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Item deleted'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   void _addProduct() async {
-    _setProduct();
+    // check if product url is valid
+    if (_linkController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Product url is required', Get.context!), Get.context!,
+          isError: true);
+      return;
+    }
+
+    // Add URL format validation
+    final Uri? uri = Uri.tryParse(_linkController.text);
+    if (uri == null || (!uri.isScheme('HTTP') && !uri.isScheme('HTTPS'))) {
+      showCustomSnackBar(
+          getTranslated('Please enter a valid product url', Get.context!), Get.context!,
+          isError: true);
+      return;
+    }
+
+    // check if product name is valid
+    if (_productNameController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Product name is required', Get.context!), Get.context!,
+          isError: true);
+      return;
+    }
+
+    // check if product category is valid
+    if (Provider.of<BuyForMeController>(Get.context!, listen: false)
+            .selectedCategory ==
+        null) {
+      showCustomSnackBar(
+          getTranslated('Product category is required', Get.context!),
+          Get.context!,
+          isError: true);
+      return;
+    }
+
+    // check if product color is valid
+    if (_productColorController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Product color is required', Get.context!),
+          Get.context!,
+          isError: true);
+      return;
+    }
+
+    // check if product size is valid
+    if (_productSizeController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Product size is required', Get.context!), Get.context!,
+          isError: true);
+      return;
+    }
+
+    // check if product description is valid
+
+    if (_descriptionController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Product description is required', Get.context!),
+          Get.context!,
+          isError: true);
+      return;
+    }
+
+    // check if product quantity is valid
+    if (_quantityController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Product quantity is required', Get.context!),
+          Get.context!,
+          isError: true);
+      return;
+    }
+
+    // check if item local price is valid
+    if (_localItemPriceController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter item local price', Get.context!),
+          Get.context!,
+          isError: true);
+      return;
+    }
+
+    // check if item local currency is valid
+    if (_localItemCurrencyController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please select item local currency', Get.context!),
+          Get.context!,
+          isError: true);
+      return;
+    }
+
+    // check if ship cost is valid
+    if (_localShipCostController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter ship cost', Get.context!), Get.context!,
+          isError: true);
+      return;
+    }
+
+    // check if store name is valid
+    if (_storeNameController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter store name', Get.context!), Get.context!,
+          isError: true);
+      return;
+    }
+
+    // check if buying country is valid
+    if (_buyingCountryCodeController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please select buying country', Get.context!),
+          Get.context!,
+          isError: true);
+      return;
+    }
+
+    // check if delivery country is valid
+    if (_deliveryCountryCodeController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please select delivery country', Get.context!),
+          Get.context!,
+          isError: true);
+      return;
+    }
+
+
+    // Add Product to list
+    BuyForMeProduct product = _setProduct();
+    product.total = Provider.of<BuyForMeController>(Get.context!, listen: false).buyForMeProductOrderSummary!.total!;
+
+    product.tempSessionToken = Uuid().v1().toString();
+    products.add(product);
+
+    setState(() {
+      showForm = false;
+    });
+    showCustomSnackBar("Added successfully", context);
   }
 
   _updateUserAccount() async {
@@ -429,6 +618,66 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                           fontSize: 20, color: Colors.white),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
+
+                  if (showForm == true)
+                    ...[
+                      Spacer(),
+                      OutlinedButton(
+                        onPressed: () {
+                          // Handle submit action
+                          setState(() {
+                            showForm = false;
+                          });
+                        },
+                        child: Text(
+                          getTranslated("View Added Items", context)!,
+                          style: TextStyle(color: Colors.white), // Text color
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.white, width: 2), // White outline
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0), // Optional: for rounded corners
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0), // Optional: padding
+                          // You can also set foregroundColor here if you don't want to set it in TextStyle
+                          // foregroundColor: Colors.white,
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                    ],
+
+
+                  if (showForm == false)
+                    ...[
+                      Spacer(),
+                      OutlinedButton(
+                        onPressed: () {
+                          // Handle submit action
+                          setState(() {
+                            showForm = false;
+                          });
+                        },
+                        child: Text(
+                          getTranslated("Submit", context)!,
+                          style: TextStyle(color: Colors.white), // Text color
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.white, width: 2), // White outline
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0), // Optional: for rounded corners
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0), // Optional: padding
+                          // You can also set foregroundColor here if you don't want to set it in TextStyle
+                          // foregroundColor: Colors.white,
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                    ],
+
+
+
+
+
                 ])),
             Container(
               padding: const EdgeInsets.only(top: 75),
@@ -469,433 +718,599 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                 //     style: textBold.copyWith(color:  Theme.of(context).colorScheme.secondaryContainer, fontSize: Dimensions.fontSizeLarge),
                 //   ),
                 // ]),
-                const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: Dimensions.paddingSizeDefault),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).highlightColor,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(Dimensions.marginSizeDefault),
-                        topRight: Radius.circular(Dimensions.marginSizeDefault),
-                      ),
-                    ),
-                    child: ListView(
-                      physics: const BouncingScrollPhysics(),
-                      children: [
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Link', context),
-                          // labelText: "Your First Name",
-                          inputType: TextInputType.name,
-                          focusNode: _linkFocus,
-                          nextFocus: _productNameFocus,
-                          required: true,
-                          hintText: 'https://',
-                          controller: _linkController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
+                if (showForm == false)
 
-                        InkWell(
-                          child: const Text('Product Information'),
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const ProfileScreen1()));
-                          },
-                        ),
+                  ...[
 
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Product Name', context),
-                          inputType: TextInputType.name,
-                          focusNode: _productNameFocus,
-                          nextFocus: _productCategoryFocus,
-                          required: true,
-                          hintText: "Product Name",
-                          controller: _productNameController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Product Category', context),
-                          inputType: TextInputType.name,
-                          focusNode: _productCategoryFocus,
-                          nextFocus: _productColorFocus,
-                          required: true,
-                          readOnly: true,
-                          hintText: "Select a Category",
-                          controller: _productCategoryController,
-                          // onTap: () => showModalBottomSheet(
-                          //   backgroundColor: Colors.transparent,
-                          //   isScrollControlled: true,
-                          //   context: context,
-                          //   builder: (_) =>
-                          //       const SelectBuyForMeCategoryBottomSheetWidget(),
-                          // ),
-                          onTap: _openCategoryBottomSheet,
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: CustomTextFieldWidget(
-                                labelText: getTranslated('Color', context),
-                                inputType: TextInputType.name,
-                                focusNode: _productColorFocus,
-                                nextFocus: _productSizeFocus,
-                                required: true,
-                                controller: _productColorController,
+                      SizedBox(height: 16),
+                      // Container holding the ListView
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: Offset(0, 3),
                               ),
-                            ),
-                            SizedBox(width: 12), // optional spacing
-                            Expanded(
-                              child: CustomTextFieldWidget(
-                                labelText: getTranslated('Size', context),
-                                inputType: TextInputType.name,
-                                focusNode: _productSizeFocus,
-                                nextFocus: _descriptionFocus,
-                                required: true,
-                                controller: _productSizeController,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Description', context),
-                          inputType: TextInputType.name,
-                          focusNode: _descriptionFocus,
-                          nextFocus: _quantityFocus,
-                          required: true,
-                          hintText: "Enter Product Description",
-                          controller: _descriptionController,
-                        ),
-
-                        if (_images.isNotEmpty)
-                          Container(
-                            height: 250,
-                            child: ListView(
-                                physics: const BouncingScrollPhysics(),
-                                children: [
-                                  SizedBox(height: 12),
-                                  Container(
-                                    height: 250,
-                                    child: GridView.builder(
-                                      itemCount: _images.length,
-                                      gridDelegate:
-                                          SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 3,
-                                        crossAxisSpacing: 8,
-                                        mainAxisSpacing: 8,
-                                      ),
-                                      itemBuilder: (context, index) {
-                                        return Stack(
-                                          children: [
-                                            Positioned.fill(
-                                              child: Image.file(
-                                                File(_images[index].path),
-                                                fit: BoxFit.cover,
+                            ],
+                          ),
+                          child: products.isEmpty
+                              ? Center(
+                              child: Text(
+                                'No items yet!',
+                                style: TextStyle(fontSize: 18, color: Colors.grey),
+                              ))
+                              : ListView.builder(
+                            itemCount: products.length,
+                            itemBuilder: (context, index) {
+                              final item = products[index];
+                              return Card(
+                                elevation:
+                                2.0, // Slight elevation for each card
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 8.0, horizontal: 4.0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      // Left side: Name and Category
+                                      Expanded(
+                                        // Use Expanded to prevent overflow if text is long
+                                        child: Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Text(
+                                              item.product!,
+                                              style: TextStyle(
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.bold,
                                               ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            Positioned(
-                                              top: 2,
-                                              right: 2,
-                                              child: GestureDetector(
-                                                onTap: () =>
-                                                    _removeImage(index),
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.black54,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  child: Icon(Icons.close,
-                                                      color: Colors.white,
-                                                      size: 20),
-                                                ),
+                                            SizedBox(height: 4.0),
+                                            Text(
+                                              item.category!.name!,
+                                              style: TextStyle(
+                                                fontSize: 14.0,
+                                                color: Colors.grey.shade700,
                                               ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ],
-                                        );
-                                      },
-                                    ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                          width:
+                                          16), // Spacing between left and right content
+
+                                      // Right side: Price and Delete Icon
+                                      Row(
+                                        children: <Widget>[
+                                          Text(
+                                            '\$${item.total!.toStringAsFixed(2)}', // Format price
+                                            style: TextStyle(
+                                              fontSize: 15.0,
+                                              fontWeight: FontWeight.w500,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                            ),
+                                          ),
+                                          SizedBox(width: 8.0),
+                                          IconButton(
+                                            icon: Icon(
+                                                Icons.delete_outline_rounded),
+                                            color: Colors.red.shade400,
+                                            onPressed: () {
+                                              _deleteItem(item.tempSessionToken!);
+                                            },
+                                            tooltip: 'Delete Item',
+                                            constraints:
+                                            BoxConstraints(), // Removes default padding if needed
+                                            padding: EdgeInsets
+                                                .zero, // Removes default padding
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(height: 12)
-                                ]),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+
+                    SizedBox(height: Dimensions.paddingSizeSmall),
+
+                    Container(
+                      padding: EdgeInsets.fromLTRB( Dimensions.paddingSizeDefault, 0, Dimensions.paddingSizeDefault, 6),
+                      child: true
+                          ? CustomButton(
+                          onTap: () => {
+                            setState(() {
+                              showForm = true;
+                            })
+                          },
+                          buttonText:
+                          getTranslated('Add New Item', context))
+                          : Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                Theme
+                                    .of(context)
+                                    .primaryColor),
+                          )),
+                    ),
+
+                  ],
+
+
+
+                if (showForm == true)
+
+                  ...[
+                  const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeDefault),
+                      decoration: BoxDecoration(
+                        color: Theme
+                            .of(context)
+                            .highlightColor,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(
+                              Dimensions.marginSizeDefault),
+                          topRight: Radius.circular(
+                              Dimensions.marginSizeDefault),
+                        ),
+                      ),
+                      child: ListView(
+                        physics: const BouncingScrollPhysics(),
+                        children: [
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Link', context),
+                            // labelText: "Your First Name",
+                            inputType: TextInputType.name,
+                            focusNode: _linkFocus,
+                            nextFocus: _productNameFocus,
+                            required: true,
+                            hintText: 'https://',
+                            controller: _linkController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          InkWell(
+                            child: const Text('Product Information'),
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (
+                                      context) => const ProfileScreen1()));
+                            },
                           ),
 
-                        InkWell(
-                          onTap: _pickImages,
-                          child: Column(children: [
-                            _images.isEmpty
-                                ? Container(
-                                    margin: const EdgeInsets.only(
-                                        top: Dimensions.marginSizeExtraLarge),
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).cardColor,
-                                      border: Border.all(
-                                          color: Colors.white, width: 3),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Stack(
-                                        clipBehavior: Clip.none,
-                                        children: [
-                                          ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              child: CustomImageWidget(
-                                                image: "",
-                                                // "${profile.userInfoModel!.imageFullUrl?.path}",
-                                                height:
-                                                    Dimensions.profileImageSize,
-                                                fit: BoxFit.cover,
-                                                width:
-                                                    Dimensions.profileImageSize,
-                                              )),
-                                        ]),
-                                  )
-                                : SizedBox(height: 12),
-                            Text(
-                              _images.isEmpty
-                                  ? getTranslated(
-                                      "Upload Photos", Get.context!)!
-                                  : getTranslated(
-                                      "Add More Photos", Get.context!)!,
-                              style: textBold.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontSize: Dimensions.fontSizeLarge),
-                            ),
-                          ]),
-                        ),
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Product Name', context),
+                            inputType: TextInputType.name,
+                            focusNode: _productNameFocus,
+                            nextFocus: _productCategoryFocus,
+                            required: true,
+                            hintText: "Product Name",
+                            controller: _productNameController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Quantity', context),
-                          inputType: TextInputType.name,
-                          focusNode: _quantityFocus,
-                          nextFocus: _localItemPriceFocus,
-                          required: true,
-                          hintText: "Enter Quantity",
-                          controller: _quantityController,
-                          onChanged: _onFormFieldUpdate,
-                        ),
+                          CustomTextFieldWidget(
+                            labelText: getTranslated(
+                                'Product Category', context),
+                            inputType: TextInputType.name,
+                            focusNode: _productCategoryFocus,
+                            nextFocus: _productColorFocus,
+                            required: true,
+                            readOnly: true,
+                            hintText: "Select a Category",
+                            controller: _productCategoryController,
+                            // onTap: () => showModalBottomSheet(
+                            //   backgroundColor: Colors.transparent,
+                            //   isScrollControlled: true,
+                            //   context: context,
+                            //   builder: (_) =>
+                            //       const SelectBuyForMeCategoryBottomSheetWidget(),
+                            // ),
+                            onTap: _openCategoryBottomSheet,
+                          ),
 
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                        InkWell(
-                          child: const Text('Local Item Price'),
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const ProfileScreen1()));
-                          },
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: CustomTextFieldWidget(
-                                labelText: getTranslated('Item Price', context),
-                                inputType: TextInputType.name,
-                                focusNode: _localItemPriceFocus,
-                                nextFocus: _localShipCostFocus,
-                                required: true,
-                                onChanged: _onFormFieldUpdate,
-                                hintText: "Price in Local Currency",
-                                controller: _localItemPriceController,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CustomTextFieldWidget(
+                                  labelText: getTranslated('Color', context),
+                                  inputType: TextInputType.name,
+                                  focusNode: _productColorFocus,
+                                  nextFocus: _productSizeFocus,
+                                  required: true,
+                                  controller: _productColorController,
+                                ),
                               ),
+                              SizedBox(width: 12), // optional spacing
+                              Expanded(
+                                child: CustomTextFieldWidget(
+                                  labelText: getTranslated('Size', context),
+                                  inputType: TextInputType.name,
+                                  focusNode: _productSizeFocus,
+                                  nextFocus: _descriptionFocus,
+                                  required: true,
+                                  controller: _productSizeController,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Description', context),
+                            inputType: TextInputType.name,
+                            focusNode: _descriptionFocus,
+                            nextFocus: _quantityFocus,
+                            required: true,
+                            hintText: "Enter Product Description",
+                            controller: _descriptionController,
+                          ),
+
+                          if (_images.isNotEmpty)
+                            Container(
+                              height: 250,
+                              child: ListView(
+                                  physics: const BouncingScrollPhysics(),
+                                  children: [
+                                    SizedBox(height: 12),
+                                    Container(
+                                      height: 250,
+                                      child: GridView.builder(
+                                        itemCount: _images.length,
+                                        gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 3,
+                                          crossAxisSpacing: 8,
+                                          mainAxisSpacing: 8,
+                                        ),
+                                        itemBuilder: (context, index) {
+                                          return Stack(
+                                            children: [
+                                              Positioned.fill(
+                                                child: Image.file(
+                                                  File(_images[index].path),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                              Positioned(
+                                                top: 2,
+                                                right: 2,
+                                                child: GestureDetector(
+                                                  onTap: () =>
+                                                      _removeImage(index),
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.black54,
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: Icon(Icons.close,
+                                                        color: Colors.white,
+                                                        size: 20),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    SizedBox(height: 12)
+                                  ]),
                             ),
-                            SizedBox(width: 12), // optional spacing
-                            Expanded(
-                              child: CustomTextFieldWidget(
+
+                          InkWell(
+                            onTap: _pickImages,
+                            child: Column(children: [
+                              _images.isEmpty
+                                  ? Container(
+                                margin: const EdgeInsets.only(
+                                    top: Dimensions.marginSizeExtraLarge),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: Theme
+                                      .of(context)
+                                      .cardColor,
+                                  border: Border.all(
+                                      color: Colors.white, width: 3),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      ClipRRect(
+                                          borderRadius:
+                                          BorderRadius.circular(20),
+                                          child: CustomImageWidget(
+                                            image: "",
+                                            // "${profile.userInfoModel!.imageFullUrl?.path}",
+                                            height:
+                                            Dimensions.profileImageSize,
+                                            fit: BoxFit.cover,
+                                            width:
+                                            Dimensions.profileImageSize,
+                                          )),
+                                    ]),
+                              )
+                                  : SizedBox(height: 12),
+                              Text(
+                                _images.isEmpty
+                                    ? getTranslated(
+                                    "Upload Photos", Get.context!)!
+                                    : getTranslated(
+                                    "Add More Photos", Get.context!)!,
+                                style: textBold.copyWith(
+                                    color: Theme
+                                        .of(context)
+                                        .colorScheme
+                                        .primary,
+                                    fontSize: Dimensions.fontSizeLarge),
+                              ),
+                            ]),
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Quantity', context),
+                            inputType: TextInputType.name,
+                            focusNode: _quantityFocus,
+                            nextFocus: _localItemPriceFocus,
+                            required: true,
+                            hintText: "Enter Quantity",
+                            controller: _quantityController,
+                            onChanged: _onFormFieldUpdate,
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          InkWell(
+                            child: const Text('Local Item Price'),
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (
+                                      context) => const ProfileScreen1()));
+                            },
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CustomTextFieldWidget(
+                                  labelText: getTranslated(
+                                      'Item Price', context),
+                                  inputType: TextInputType.name,
+                                  focusNode: _localItemPriceFocus,
+                                  nextFocus: _localShipCostFocus,
+                                  required: true,
+                                  onChanged: _onFormFieldUpdate,
+                                  hintText: "Price in Local Currency",
+                                  controller: _localItemPriceController,
+                                ),
+                              ),
+                              SizedBox(width: 12), // optional spacing
+                              Expanded(
+                                child: CustomTextFieldWidget(
+                                    labelText: getTranslated(
+                                        'Currency', context),
+                                    inputType: TextInputType.name,
+                                    required: true,
+                                    readOnly: true,
+                                    controller: _localItemCurrencyController,
+                                    onTap: () =>
+                                        _openItemLocalCurrencyBottomSheet()),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CustomTextFieldWidget(
+                                  labelText: getTranslated(
+                                      'Item Price', context),
+                                  inputType: TextInputType.name,
+                                  required: true,
+                                  hintText: "Price in EUR",
+                                  controller: _itemPriceController,
+                                ),
+                              ),
+                              SizedBox(width: 12), // optional spacing
+                              Expanded(
+                                child: CustomTextFieldWidget(
                                   labelText: getTranslated('Currency', context),
                                   inputType: TextInputType.name,
                                   required: true,
                                   readOnly: true,
-                                  controller: _localItemCurrencyController,
-                                  onTap: () =>
-                                      _openItemLocalCurrencyBottomSheet()),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: CustomTextFieldWidget(
-                                labelText: getTranslated('Item Price', context),
-                                inputType: TextInputType.name,
-                                required: true,
-                                hintText: "Price in EUR",
-                                controller: _itemPriceController,
+                                  controller: _itemPriceCurrencyController,
+                                ),
                               ),
-                            ),
-                            SizedBox(width: 12), // optional spacing
-                            Expanded(
-                              child: CustomTextFieldWidget(
-                                labelText: getTranslated('Currency', context),
-                                inputType: TextInputType.name,
-                                required: true,
-                                readOnly: true,
-                                controller: _itemPriceCurrencyController,
+                            ],
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          InkWell(
+                            child: const Text('Local Ship'),
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (
+                                      context) => const ProfileScreen1()));
+                            },
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CustomTextFieldWidget(
+                                  labelText:
+                                  getTranslated('Shipping Cost', context),
+                                  inputType: TextInputType.name,
+                                  focusNode: _localShipCostFocus,
+                                  nextFocus: _storeNameFocus,
+                                  required: true,
+                                  hintText: "Cost in Local Currency",
+                                  controller: _localShipCostController,
+                                  onChanged: _onFormFieldUpdate,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        InkWell(
-                          child: const Text('Local Ship'),
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const ProfileScreen1()));
-                          },
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: CustomTextFieldWidget(
-                                labelText:
-                                    getTranslated('Shipping Cost', context),
-                                inputType: TextInputType.name,
-                                focusNode: _localShipCostFocus,
-                                nextFocus: _storeNameFocus,
-                                required: true,
-                                hintText: "Cost in Local Currency",
-                                controller: _localShipCostController,
-                                onChanged: _onFormFieldUpdate,
+                              SizedBox(width: 12), // optional spacing
+                              Expanded(
+                                child: CustomTextFieldWidget(
+                                    labelText: getTranslated(
+                                        'Currency', context),
+                                    inputType: TextInputType.name,
+                                    required: true,
+                                    readOnly: true,
+                                    hintText: "Select",
+                                    controller: _localShipCurrencyController,
+                                    onTap: () =>
+                                        _openShippingCostLocalCurrencyBottomSheet()),
                               ),
-                            ),
-                            SizedBox(width: 12), // optional spacing
-                            Expanded(
-                              child: CustomTextFieldWidget(
+                            ],
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CustomTextFieldWidget(
+                                  labelText:
+                                  getTranslated('Shipping Cost', context),
+                                  inputType: TextInputType.name,
+                                  required: true,
+                                  hintText: "Cost in EUR",
+                                  controller: _shipCostController,
+                                ),
+                              ),
+                              SizedBox(width: 12), // optional spacing
+                              Expanded(
+                                child: CustomTextFieldWidget(
                                   labelText: getTranslated('Currency', context),
                                   inputType: TextInputType.name,
                                   required: true,
                                   readOnly: true,
                                   hintText: "Select",
-                                  controller: _localShipCurrencyController,
-                                  onTap: () =>
-                                      _openShippingCostLocalCurrencyBottomSheet()),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: CustomTextFieldWidget(
-                                labelText:
-                                    getTranslated('Shipping Cost', context),
-                                inputType: TextInputType.name,
-                                required: true,
-                                hintText: "Cost in EUR",
-                                controller: _shipCostController,
+                                  controller: _shipCurrencyController,
+                                ),
                               ),
-                            ),
-                            SizedBox(width: 12), // optional spacing
-                            Expanded(
-                              child: CustomTextFieldWidget(
-                                labelText: getTranslated('Currency', context),
-                                inputType: TextInputType.name,
-                                required: true,
-                                readOnly: true,
-                                hintText: "Select",
-                                controller: _shipCurrencyController,
-                              ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
 
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                        InkWell(
-                          child: const Text('Other Information'),
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const ProfileScreen1()));
-                          },
-                        ),
+                          InkWell(
+                            child: const Text('Other Information'),
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (
+                                      context) => const ProfileScreen1()));
+                            },
+                          ),
 
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Store Name', context),
-                          inputType: TextInputType.name,
-                          focusNode: _storeNameFocus,
-                          nextFocus: _buyingCountryFocus,
-                          required: true,
-                          hintText: "",
-                          controller: _storeNameController,
-                        ),
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Store Name', context),
+                            inputType: TextInputType.name,
+                            focusNode: _storeNameFocus,
+                            nextFocus: _buyingCountryFocus,
+                            required: true,
+                            hintText: "",
+                            controller: _storeNameController,
+                          ),
 
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                        ...[
-                          Text(getTranslated('Buying Country', context)!,
-                              style: textRegular.copyWith(
-                                color: Theme.of(context).hintColor,
-                                fontSize: Dimensions.fontSizeSmall,
-                              )),
-                          const SizedBox(
-                              height: Dimensions.paddingSizeExtraSmall),
-                          SizedBox(
-                              height: 60,
-                              child: Consumer<AddressController>(
-                                  builder: (context, addressController, _) {
-                                return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Provider.of<SplashController>(context,
-                                                      listen: false)
-                                                  .configModel!
-                                                  .deliveryCountryRestriction ==
-                                              1
-                                          ? Container(
-                                              width: MediaQuery.of(context)
+                          ...[
+                            Text(getTranslated('Buying Country', context)!,
+                                style: textRegular.copyWith(
+                                  color: Theme
+                                      .of(context)
+                                      .hintColor,
+                                  fontSize: Dimensions.fontSizeSmall,
+                                )),
+                            const SizedBox(
+                                height: Dimensions.paddingSizeExtraSmall),
+                            SizedBox(
+                                height: 60,
+                                child: Consumer<AddressController>(
+                                    builder: (context, addressController, _) {
+                                      return Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            Provider
+                                                .of<SplashController>(context,
+                                                listen: false)
+                                                .configModel!
+                                                .deliveryCountryRestriction ==
+                                                1
+                                                ? Container(
+                                              width: MediaQuery
+                                                  .of(context)
                                                   .size
                                                   .width,
                                               decoration: BoxDecoration(
-                                                  color: Theme.of(context)
+                                                  color: Theme
+                                                      .of(context)
                                                       .cardColor,
                                                   borderRadius:
-                                                      BorderRadius.circular(5),
+                                                  BorderRadius.circular(5),
                                                   border: Border.all(
                                                       width: .1,
-                                                      color: Theme.of(context)
+                                                      color: Theme
+                                                          .of(context)
                                                           .hintColor
                                                           .withValues(
-                                                              alpha: 0.1))),
+                                                          alpha: 0.1))),
                                               child: DropdownButtonFormField2<
                                                   String>(
                                                 isExpanded: true,
                                                 isDense: true,
                                                 decoration: InputDecoration(
                                                     contentPadding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                            vertical: 0),
+                                                    const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: 0),
                                                     border: OutlineInputBorder(
                                                         borderRadius:
-                                                            BorderRadius
-                                                                .circular(5))),
+                                                        BorderRadius
+                                                            .circular(5))),
                                                 hint: Row(
                                                   children: [
                                                     Image.asset(Images.country),
@@ -907,25 +1322,29 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                             .text,
                                                         style: textRegular
                                                             .copyWith(
-                                                                fontSize: Dimensions
-                                                                    .fontSizeDefault,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .bodyLarge!
-                                                                    .color)),
+                                                            fontSize: Dimensions
+                                                                .fontSizeDefault,
+                                                            color: Theme
+                                                                .of(
+                                                                context)
+                                                                .textTheme
+                                                                .bodyLarge!
+                                                                .color)),
                                                   ],
                                                 ),
                                                 items: addressController
                                                     .restrictedCountryList
-                                                    .map((item) => DropdownMenuItem<String>(
+                                                    .map((item) =>
+                                                    DropdownMenuItem<String>(
                                                         value: item,
                                                         child: Text(item,
-                                                            style: textRegular.copyWith(
+                                                            style: textRegular
+                                                                .copyWith(
                                                                 fontSize: Dimensions
                                                                     .fontSizeSmall,
-                                                                color: Theme.of(
-                                                                        context)
+                                                                color: Theme
+                                                                    .of(
+                                                                    context)
                                                                     .textTheme
                                                                     .bodyLarge
                                                                     ?.color))))
@@ -939,51 +1358,55 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                   print(value);
                                                 },
                                                 buttonStyleData:
-                                                    const ButtonStyleData(
+                                                const ButtonStyleData(
                                                   padding:
-                                                      EdgeInsets.only(right: 8),
+                                                  EdgeInsets.only(right: 8),
                                                 ),
                                                 iconStyleData: IconStyleData(
                                                     icon: Icon(
                                                         Icons.arrow_drop_down,
-                                                        color: Theme.of(context)
+                                                        color: Theme
+                                                            .of(context)
                                                             .hintColor),
                                                     iconSize: 24),
                                                 dropdownStyleData:
-                                                    DropdownStyleData(
+                                                DropdownStyleData(
                                                   decoration: BoxDecoration(
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
+                                                    BorderRadius.circular(
+                                                        5),
                                                   ),
                                                 ),
                                                 menuItemStyleData:
-                                                    const MenuItemStyleData(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                horizontal:
-                                                                    16)),
+                                                const MenuItemStyleData(
+                                                    padding: EdgeInsets
+                                                        .symmetric(
+                                                        horizontal:
+                                                        16)),
                                               ),
                                             )
-                                          : Container(
-                                              width: MediaQuery.of(context)
+                                                : Container(
+                                              width: MediaQuery
+                                                  .of(context)
                                                   .size
                                                   .width,
                                               padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: Dimensions
-                                                          .paddingSizeSmall),
+                                              const EdgeInsets.symmetric(
+                                                  vertical: Dimensions
+                                                      .paddingSizeSmall),
                                               decoration: BoxDecoration(
                                                   borderRadius: BorderRadius
                                                       .circular(Dimensions
-                                                          .paddingSizeSmall),
-                                                  color: Theme.of(context)
+                                                      .paddingSizeSmall),
+                                                  color: Theme
+                                                      .of(context)
                                                       .cardColor,
                                                   border: Border.all(
-                                                      color: Theme.of(context)
+                                                      color: Theme
+                                                          .of(context)
                                                           .hintColor
                                                           .withValues(
-                                                              alpha: .5))),
+                                                          alpha: .5))),
                                               child: CodePickerWidget(
                                                 fromCountryList: true,
                                                 padding: const EdgeInsets.only(
@@ -996,11 +1419,11 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                   _updateProductOrderSummary();
                                                   print(
                                                       "Selected country code");
-                                                       print(val.code);
+                                                  print(val.code);
                                                 },
                                                 initialSelection:
-                                                    _buyingCountryCodeController
-                                                        .text,
+                                                _buyingCountryCodeController
+                                                    .text,
                                                 showDropDownButton: true,
                                                 showCountryOnly: true,
                                                 showOnlyCountryWhenClosed: true,
@@ -1008,87 +1431,98 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                 hideMainText: false,
                                                 showFlagMain: false,
                                                 dialogBackgroundColor:
-                                                    Theme.of(context).cardColor,
+                                                Theme
+                                                    .of(context)
+                                                    .cardColor,
                                                 barrierColor:
-                                                    Provider.of<ThemeController>(
-                                                                context)
-                                                            .darkTheme
-                                                        ? Colors.black
-                                                            .withValues(
-                                                                alpha: 0.4)
-                                                        : null,
+                                                Provider
+                                                    .of<ThemeController>(
+                                                    context)
+                                                    .darkTheme
+                                                    ? Colors.black
+                                                    .withValues(
+                                                    alpha: 0.4)
+                                                    : null,
                                                 textStyle: textRegular.copyWith(
                                                   fontSize:
-                                                      Dimensions.fontSizeLarge,
-                                                  color: Theme.of(context)
+                                                  Dimensions.fontSizeLarge,
+                                                  color: Theme
+                                                      .of(context)
                                                       .textTheme
                                                       .bodyLarge!
                                                       .color,
                                                 ),
                                                 dialogTextStyle:
-                                                    textRegular.copyWith(
+                                                textRegular.copyWith(
                                                   fontSize: Dimensions
                                                       .fontSizeDefault,
-                                                  color: Theme.of(context)
+                                                  color: Theme
+                                                      .of(context)
                                                       .textTheme
                                                       .bodyLarge!
                                                       .color,
                                                 ),
                                               ),
                                             ),
-                                    ]);
-                              })),
-                        ],
+                                          ]);
+                                    })),
+                          ],
 
-                        ...[
-                          Text(getTranslated('Delivery Country', context)!,
-                              style: textRegular.copyWith(
-                                color: Theme.of(context).hintColor,
-                                fontSize: Dimensions.fontSizeSmall,
-                              )),
-                          const SizedBox(
-                              height: Dimensions.paddingSizeExtraSmall),
-                          SizedBox(
-                              height: 60,
-                              child: Consumer<AddressController>(
-                                  builder: (context, addressController, _) {
-                                return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Provider.of<SplashController>(context,
-                                                      listen: false)
-                                                  .configModel!
-                                                  .deliveryCountryRestriction ==
-                                              1
-                                          ? Container(
-                                              width: MediaQuery.of(context)
+                          ...[
+                            Text(getTranslated('Delivery Country', context)!,
+                                style: textRegular.copyWith(
+                                  color: Theme
+                                      .of(context)
+                                      .hintColor,
+                                  fontSize: Dimensions.fontSizeSmall,
+                                )),
+                            const SizedBox(
+                                height: Dimensions.paddingSizeExtraSmall),
+                            SizedBox(
+                                height: 60,
+                                child: Consumer<AddressController>(
+                                    builder: (context, addressController, _) {
+                                      return Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            Provider
+                                                .of<SplashController>(context,
+                                                listen: false)
+                                                .configModel!
+                                                .deliveryCountryRestriction ==
+                                                1
+                                                ? Container(
+                                              width: MediaQuery
+                                                  .of(context)
                                                   .size
                                                   .width,
                                               decoration: BoxDecoration(
-                                                  color: Theme.of(context)
+                                                  color: Theme
+                                                      .of(context)
                                                       .cardColor,
                                                   borderRadius:
-                                                      BorderRadius.circular(5),
+                                                  BorderRadius.circular(5),
                                                   border: Border.all(
                                                       width: .1,
-                                                      color: Theme.of(context)
+                                                      color: Theme
+                                                          .of(context)
                                                           .hintColor
                                                           .withValues(
-                                                              alpha: 0.1))),
+                                                          alpha: 0.1))),
                                               child: DropdownButtonFormField2<
                                                   String>(
                                                 isExpanded: true,
                                                 isDense: true,
                                                 decoration: InputDecoration(
                                                     contentPadding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                            vertical: 0),
+                                                    const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: 0),
                                                     border: OutlineInputBorder(
                                                         borderRadius:
-                                                            BorderRadius
-                                                                .circular(5))),
+                                                        BorderRadius
+                                                            .circular(5))),
                                                 hint: Row(
                                                   children: [
                                                     Image.asset(Images.country),
@@ -1100,25 +1534,29 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                             .text,
                                                         style: textRegular
                                                             .copyWith(
-                                                                fontSize: Dimensions
-                                                                    .fontSizeDefault,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .bodyLarge!
-                                                                    .color)),
+                                                            fontSize: Dimensions
+                                                                .fontSizeDefault,
+                                                            color: Theme
+                                                                .of(
+                                                                context)
+                                                                .textTheme
+                                                                .bodyLarge!
+                                                                .color)),
                                                   ],
                                                 ),
                                                 items: addressController
                                                     .restrictedCountryList
-                                                    .map((item) => DropdownMenuItem<String>(
+                                                    .map((item) =>
+                                                    DropdownMenuItem<String>(
                                                         value: item,
                                                         child: Text(item,
-                                                            style: textRegular.copyWith(
+                                                            style: textRegular
+                                                                .copyWith(
                                                                 fontSize: Dimensions
                                                                     .fontSizeSmall,
-                                                                color: Theme.of(
-                                                                        context)
+                                                                color: Theme
+                                                                    .of(
+                                                                    context)
                                                                     .textTheme
                                                                     .bodyLarge
                                                                     ?.color))))
@@ -1131,51 +1569,55 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                   print(value);
                                                 },
                                                 buttonStyleData:
-                                                    const ButtonStyleData(
+                                                const ButtonStyleData(
                                                   padding:
-                                                      EdgeInsets.only(right: 8),
+                                                  EdgeInsets.only(right: 8),
                                                 ),
                                                 iconStyleData: IconStyleData(
                                                     icon: Icon(
                                                         Icons.arrow_drop_down,
-                                                        color: Theme.of(context)
+                                                        color: Theme
+                                                            .of(context)
                                                             .hintColor),
                                                     iconSize: 24),
                                                 dropdownStyleData:
-                                                    DropdownStyleData(
+                                                DropdownStyleData(
                                                   decoration: BoxDecoration(
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
+                                                    BorderRadius.circular(
+                                                        5),
                                                   ),
                                                 ),
                                                 menuItemStyleData:
-                                                    const MenuItemStyleData(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                horizontal:
-                                                                    16)),
+                                                const MenuItemStyleData(
+                                                    padding: EdgeInsets
+                                                        .symmetric(
+                                                        horizontal:
+                                                        16)),
                                               ),
                                             )
-                                          : Container(
-                                              width: MediaQuery.of(context)
+                                                : Container(
+                                              width: MediaQuery
+                                                  .of(context)
                                                   .size
                                                   .width,
                                               padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: Dimensions
-                                                          .paddingSizeSmall),
+                                              const EdgeInsets.symmetric(
+                                                  vertical: Dimensions
+                                                      .paddingSizeSmall),
                                               decoration: BoxDecoration(
                                                   borderRadius: BorderRadius
                                                       .circular(Dimensions
-                                                          .paddingSizeSmall),
-                                                  color: Theme.of(context)
+                                                      .paddingSizeSmall),
+                                                  color: Theme
+                                                      .of(context)
                                                       .cardColor,
                                                   border: Border.all(
-                                                      color: Theme.of(context)
+                                                      color: Theme
+                                                          .of(context)
                                                           .hintColor
                                                           .withValues(
-                                                              alpha: .5))),
+                                                          alpha: .5))),
                                               child: CodePickerWidget(
                                                 fromCountryList: true,
                                                 padding: const EdgeInsets.only(
@@ -1193,8 +1635,8 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                   print(val.code);
                                                 },
                                                 initialSelection:
-                                                    _deliveryCountryCodeController
-                                                        .text,
+                                                _deliveryCountryCodeController
+                                                    .text,
                                                 showDropDownButton: true,
                                                 showCountryOnly: true,
                                                 showOnlyCountryWhenClosed: true,
@@ -1202,258 +1644,272 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                                 hideMainText: false,
                                                 showFlagMain: false,
                                                 dialogBackgroundColor:
-                                                    Theme.of(context).cardColor,
+                                                Theme
+                                                    .of(context)
+                                                    .cardColor,
                                                 barrierColor:
-                                                    Provider.of<ThemeController>(
-                                                                context)
-                                                            .darkTheme
-                                                        ? Colors.black
-                                                            .withValues(
-                                                                alpha: 0.4)
-                                                        : null,
+                                                Provider
+                                                    .of<ThemeController>(
+                                                    context)
+                                                    .darkTheme
+                                                    ? Colors.black
+                                                    .withValues(
+                                                    alpha: 0.4)
+                                                    : null,
                                                 textStyle: textRegular.copyWith(
                                                   fontSize:
-                                                      Dimensions.fontSizeLarge,
-                                                  color: Theme.of(context)
+                                                  Dimensions.fontSizeLarge,
+                                                  color: Theme
+                                                      .of(context)
                                                       .textTheme
                                                       .bodyLarge!
                                                       .color,
                                                 ),
                                                 dialogTextStyle:
-                                                    textRegular.copyWith(
+                                                textRegular.copyWith(
                                                   fontSize: Dimensions
                                                       .fontSizeDefault,
-                                                  color: Theme.of(context)
+                                                  color: Theme
+                                                      .of(context)
                                                       .textTheme
                                                       .bodyLarge!
                                                       .color,
                                                 ),
                                               ),
                                             ),
-                                    ]);
-                              })),
+                                          ]);
+                                    })),
+                          ],
+
+                          Text(getTranslated('Order Summary', context) ?? '',
+                              style: textMedium.copyWith(
+                                  fontSize: Dimensions.fontSizeLarge,
+                                  color: Theme
+                                      .of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.color)),
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          Column(
+                            children: [
+                              AmountWidget(
+                                  hintText: buyForMeController.buyForMeProductOrderSummary?.subtotalHint,
+                                  title: getTranslated('Subtotal', context),
+                                  amount: PriceConverter.convertPrice(
+                                      context,
+                                      buyForMeController
+                                          .buyForMeProductOrderSummary !=
+                                          null
+                                          ? buyForMeController
+                                          .buyForMeProductOrderSummary!
+                                          .subtotal
+                                          : 0)),
+                              AmountWidget(
+                                  hintText: buyForMeController.buyForMeProductOrderSummary?.serviceFeeHint,
+                                  title: getTranslated('Service Fee', context),
+                                  amount: PriceConverter.convertPrice(
+                                      context,
+                                      buyForMeController
+                                          .buyForMeProductOrderSummary !=
+                                          null
+                                          ? buyForMeController
+                                          .buyForMeProductOrderSummary!
+                                          .serviceFee
+                                          : 0)),
+                              AmountWidget(
+                                  hintText: buyForMeController.buyForMeProductOrderSummary?.inspectionFeeHint,
+                                  title:
+                                  getTranslated('Quality Control', context),
+                                  amount: PriceConverter.convertPrice(
+                                      context,
+                                      buyForMeController
+                                          .buyForMeProductOrderSummary !=
+                                          null
+                                          ? buyForMeController
+                                          .buyForMeProductOrderSummary!
+                                          .inspectionFee
+                                          : 0)),
+                              AmountWidget(
+                                  hintText: buyForMeController.buyForMeProductOrderSummary?.vatHint,
+                                  title: getTranslated('VAT', context),
+                                  amount: PriceConverter.convertPrice(
+                                      context,
+                                      buyForMeController
+                                          .buyForMeProductOrderSummary !=
+                                          null
+                                          ? buyForMeController
+                                          .buyForMeProductOrderSummary!.vat
+                                          : 0)),
+                              AmountWidget(
+                                  hintText: buyForMeController.buyForMeProductOrderSummary?.customsFeeHint,
+                                  title: getTranslated('Customs Duty', context),
+                                  amount: PriceConverter.convertPrice(
+                                      context,
+                                      buyForMeController
+                                          .buyForMeProductOrderSummary !=
+                                          null
+                                          ? buyForMeController
+                                          .buyForMeProductOrderSummary!
+                                          .customsFee
+                                          : 0)),
+                              AmountWidget(
+                                 hintText: buyForMeController.buyForMeProductOrderSummary?.localDeliveryFeeHint,
+                                  title: getTranslated(
+                                      'Local Delivery', context),
+                                  amount: PriceConverter.convertPrice(
+                                      context,
+                                      buyForMeController
+                                          .buyForMeProductOrderSummary !=
+                                          null
+                                          ? buyForMeController
+                                          .buyForMeProductOrderSummary!
+                                          .localDeliveryFee
+                                          : 0)),
+                              AmountWidget(
+                                hintText: buyForMeController.buyForMeProductOrderSummary?.internationalDeliveryFeeHint,
+                                  title: getTranslated(
+                                      'International Delivery', context),
+                                  amount: PriceConverter.convertPrice(
+                                      context,
+                                      buyForMeController
+                                          .buyForMeProductOrderSummary !=
+                                          null
+                                          ? buyForMeController
+                                          .buyForMeProductOrderSummary!
+                                          .internationalDeliveryFee
+                                          : 0)),
+                              AmountWidget(
+                                hintText: buyForMeController.buyForMeProductOrderSummary?.total != null && buyForMeController.buyForMeProductOrderSummary?.total! != 0 ? getTranslated("Total Payable", context) : null ,
+                                  title:
+                                  getTranslated('TOTAL TO BE PAID', context),
+                                  amount: PriceConverter.convertPrice(
+                                      context,
+                                      buyForMeController
+                                          .buyForMeProductOrderSummary !=
+                                          null
+                                          ? buyForMeController
+                                          .buyForMeProductOrderSummary!.total
+                                          : 0))
+                            ],
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  child: !buyForMeController.isLoading
+                                      ? CustomButton(
+                                      onTap: _updateUserAccount,
+                                      backgroundColor:
+                                      Theme
+                                          .of(context)
+                                          .disabledColor,
+                                      buttonText:
+                                      getTranslated('cancel', context))
+                                      : Center(
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                        AlwaysStoppedAnimation<Color>(
+                                            Theme
+                                                .of(context)
+                                                .primaryColor),
+                                      )),
+                                ),
+                              ),
+                              SizedBox(width: 12), // optional spacing
+
+
+                              Expanded(
+                                child: Container(
+                                  child: !buyForMeController.isLoading
+                                      ? CustomButton(
+                                      onTap: _addProduct,
+                                      backgroundColor:
+                                      Theme
+                                          .of(context)
+                                          .primaryColor,
+                                      buttonText:
+                                      getTranslated('Add', context))
+                                      : Center(
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                        AlwaysStoppedAnimation<Color>(
+                                            Theme
+                                                .of(context)
+                                                .primaryColor),
+                                      )),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          SizedBox(height: 12),
+
+                          // InkWell(
+                          //   child: const Text('HEllo'),
+                          //   onTap: (){
+                          //     Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ProfileScreen1()));
+                          //   },
+                          // ),
                         ],
-
-                        Text(getTranslated('Order Summary', context) ?? '',
-                            style: textMedium.copyWith(
-                                fontSize: Dimensions.fontSizeLarge,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.color)),
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                        Column(
-                          children: [
-                            AmountWidget(
-                                hintText: getTranslated( "Subtotal", context),
-                                title: getTranslated('Subtotal', context),
-                                amount: PriceConverter.convertPrice(
-                                    context,
-                                    buyForMeController
-                                                .buyForMeProductOrderSummary !=
-                                            null
-                                        ? buyForMeController
-                                            .buyForMeProductOrderSummary!
-                                            .subtotal
-                                        : 0)),
-                            AmountWidget(
-                                title: getTranslated('Service Fee', context),
-                                amount: PriceConverter.convertPrice(
-                                    context,
-                                    buyForMeController
-                                                .buyForMeProductOrderSummary !=
-                                            null
-                                        ? buyForMeController
-                                            .buyForMeProductOrderSummary!
-                                            .serviceFee
-                                        : 0)),
-                            AmountWidget(
-                                title:
-                                    getTranslated('Quality Control', context),
-                                amount: PriceConverter.convertPrice(
-                                    context,
-                                    buyForMeController
-                                                .buyForMeProductOrderSummary !=
-                                            null
-                                        ? buyForMeController
-                                            .buyForMeProductOrderSummary!
-                                            .inspectionFee
-                                        : 0)),
-                            AmountWidget(
-                                title: getTranslated('VAT', context),
-                                amount: PriceConverter.convertPrice(
-                                    context,
-                                    buyForMeController
-                                                .buyForMeProductOrderSummary !=
-                                            null
-                                        ? buyForMeController
-                                            .buyForMeProductOrderSummary!.vat
-                                        : 0)),
-                            AmountWidget(
-                                title: getTranslated('Customs Duty', context),
-                                amount: PriceConverter.convertPrice(
-                                    context,
-                                    buyForMeController
-                                                .buyForMeProductOrderSummary !=
-                                            null
-                                        ? buyForMeController
-                                            .buyForMeProductOrderSummary!
-                                            .customsFee
-                                        : 0)),
-                            AmountWidget(
-                                title: getTranslated('Local Delivery', context),
-                                amount: PriceConverter.convertPrice(
-                                    context,
-                                    buyForMeController
-                                                .buyForMeProductOrderSummary !=
-                                            null
-                                        ? buyForMeController
-                                            .buyForMeProductOrderSummary!
-                                            .localDeliveryFee
-                                        : 0)),
-                            AmountWidget(
-                                title: getTranslated(
-                                    'International Delivery', context),
-                                amount: PriceConverter.convertPrice(
-                                    context,
-                                    buyForMeController
-                                                .buyForMeProductOrderSummary !=
-                                            null
-                                        ? buyForMeController
-                                            .buyForMeProductOrderSummary!
-                                            .internationalDeliveryFee
-                                        : 0)),
-                            AmountWidget(
-                                title:
-                                    getTranslated('TOTAL TO BE PAID', context),
-                                amount: PriceConverter.convertPrice(
-                                    context,
-                                    buyForMeController
-                                                .buyForMeProductOrderSummary !=
-                                            null
-                                        ? buyForMeController
-                                            .buyForMeProductOrderSummary!.total
-                                        : 0))
-                          ],
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                child: !buyForMeController.isLoading
-                                    ? CustomButton(
-                                        onTap: _updateUserAccount,
-                                        backgroundColor:
-                                            Theme.of(context).disabledColor,
-                                        buttonText:
-                                            getTranslated('cancel', context))
-                                    : Center(
-                                        child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Theme.of(context).primaryColor),
-                                      )),
-                              ),
-                            ),
-                            SizedBox(width: 12), // optional spacing
-
-                            Expanded(
-                              child: Container(
-                                child: !buyForMeController.isLoading
-                                    ? CustomButton(
-                                        onTap: _addProduct,
-                                        backgroundColor:
-                                            Theme.of(context).primaryColor,
-                                        buttonText:
-                                            getTranslated('Add', context))
-                                    : Center(
-                                        child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Theme.of(context).primaryColor),
-                                      )),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: Dimensions.paddingSizeSmall),
-
-                        Container(
-                          child: true
-                              ? CustomButton(
-                                  onTap: _updateUserAccount,
-                                  buttonText:
-                                      getTranslated('Add New Item', context))
-                              : Center(
-                                  child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Theme.of(context).primaryColor),
-                                )),
-                        ),
-
-                        // InkWell(
-                        //   child: const Text('HEllo'),
-                        //   onTap: (){
-                        //     Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ProfileScreen1()));
-                        //   },
-                        // ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
 
-                Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: Dimensions.marginSizeLarge,
-                      vertical: Dimensions.marginSizeSmall,
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                child: !buyForMeController.isLoading
-                                    ? CustomButton(
-                                        onTap: _updateUserAccount,
-                                        backgroundColor:
-                                            Theme.of(context).disabledColor,
-                                        buttonText: getTranslated(
-                                            'My Requests', context))
-                                    : Center(
-                                        child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Theme.of(context)
-                                                    .secondaryHeaderColor),
-                                      )),
-                              ),
-                            ),
-                            SizedBox(width: 12), // optional spacing
-                            Expanded(
-                              child: Container(
-                                child: !buyForMeController.isLoading
-                                    ? CustomButton(
-                                        onTap: _updateUserAccount,
-                                        buttonText: getTranslated(
-                                            'Buy For Me', context))
-                                    : Center(
-                                        child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Theme.of(context).primaryColor),
-                                      )),
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    )),
+                ],
+
+                //
+                // if (showForm == false)
+                //   Container(
+                //     margin: const EdgeInsets.symmetric(
+                //       horizontal: Dimensions.marginSizeLarge,
+                //       vertical: Dimensions.marginSizeSmall,
+                //     ),
+                //     child: Column(
+                //       children: [
+                //         Row(
+                //           children: [
+                //             Expanded(
+                //               child: Container(
+                //                 child: !buyForMeController.isLoading
+                //                     ? CustomButton(
+                //                         onTap: _updateUserAccount,
+                //                         backgroundColor:
+                //                             Theme.of(context).disabledColor,
+                //                         buttonText: getTranslated(
+                //                             'My Requests', context))
+                //                     : Center(
+                //                         child: CircularProgressIndicator(
+                //                         valueColor:
+                //                             AlwaysStoppedAnimation<Color>(
+                //                                 Theme.of(context)
+                //                                     .secondaryHeaderColor),
+                //                       )),
+                //               ),
+                //             ),
+                //             SizedBox(width: 12), // optional spacing
+                //             Expanded(
+                //               child: Container(
+                //                 child: !buyForMeController.isLoading
+                //                     ? CustomButton(
+                //                         onTap: _updateUserAccount,
+                //                         buttonText: getTranslated(
+                //                             'Submit', context))
+                //                     : Center(
+                //                         child: CircularProgressIndicator(
+                //                         valueColor:
+                //                             AlwaysStoppedAnimation<Color>(
+                //                                 Theme.of(context).primaryColor),
+                //                       )),
+                //               ),
+                //             ),
+                //           ],
+                //         )
+                //       ],
+                //     )),
               ]),
             ),
           ]);

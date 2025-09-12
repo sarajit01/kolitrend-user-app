@@ -20,7 +20,7 @@ class AmountWidget extends StatelessWidget {
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          spacing: 4,
+          spacing: 8,
           children: [
             if (hintText != null)
               TappableTooltip(

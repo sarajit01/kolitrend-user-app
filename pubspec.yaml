@@ -84,6 +84,7 @@ dependencies:
   syncfusion_flutter_core: ^28.2.4
   webview_flutter: ^4.9.0
   skeletonizer: ^1.4.3
+  uuid: ^4.3.3
 
 
 dev_dependencies:
