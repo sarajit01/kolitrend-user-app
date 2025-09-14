@@ -78,6 +78,9 @@ class AppConstants {
   static const String shippingDeliveryTimes = '/shipping-delivery-times';
   static const String shippingRates = '/client-shipping-rate';
 
+  // for upload images
+  static const String imgUploadUri = '/upload-image';
+
 
   // end custom code
 

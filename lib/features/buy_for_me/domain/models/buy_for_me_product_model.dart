@@ -26,6 +26,21 @@ class BuyForMeProduct {
   double? itemLocalPrice;
   String? shipLocalCurrency;
   double? shipLocalPrice;
+  double? exchangeRate;
+  String? itemPricePrimaryCurrency;
+  double? serviceFeeUnitAmount;
+  double? serviceFeeUnitPercent;
+  double? inspectionFeeUnitAmount;
+  double? inspectionFeeUnitPercent;
+  double? vatAmount;
+  double? vatPercent;
+  double? customsFeePercent;
+  double? customsFee;
+  double? localDeliveryFee;
+  double? localDeliveryFeePercent;
+  double? internationalDeliveryFee;
+  double? internationalDeliveryFeePercent;
+
   BuyForMeCategory? category;
 
   BuyForMeProduct({
@@ -51,6 +66,20 @@ class BuyForMeProduct {
     this.itemLocalPrice,
     this.shipLocalCurrency,
     this.shipLocalPrice,
+    this.exchangeRate,
+    this.itemPricePrimaryCurrency,
+    this.serviceFeeUnitAmount,
+    this.serviceFeeUnitPercent,
+    this.inspectionFeeUnitAmount,
+    this.inspectionFeeUnitPercent,
+    this.vatAmount,
+    this.vatPercent,
+    this.customsFeePercent,
+    this.customsFee,
+    this.localDeliveryFee,
+    this.localDeliveryFeePercent,
+    this.internationalDeliveryFee,
+    this.internationalDeliveryFeePercent,
     this.category
   });
 
@@ -76,6 +105,23 @@ class BuyForMeProduct {
     total = double.tryParse(json['total'].toString());
     itemPriceLocalCurrency = json['item_price_local_currency'];
     itemLocalPrice = double.tryParse(json['item_local_price'].toString());
+    shipLocalCurrency = json['ship_local_currency'];
+    shipLocalPrice = double.tryParse(json['ship_local_price'].toString());
+    exchangeRate = double.tryParse(json['exchange_rate'].toString());
+    itemPricePrimaryCurrency = json['item_price_primary_currency'];
+    serviceFeeUnitAmount = double.tryParse(json['service_fee_unit_amount'].toString());
+    serviceFeeUnitPercent = double.tryParse(json['service_fee_unit_percent'].toString());
+    inspectionFeeUnitAmount = double.tryParse(json['inspection_fee_unit_amount'].toString());
+    inspectionFeeUnitPercent = double.tryParse(json['inspection_fee_unit_percent'].toString());
+    vatAmount = double.tryParse(json['vat_amount'].toString());
+    vatPercent = double.tryParse(json['vat_percent'].toString());
+    customsFeePercent = double.tryParse(json['customs_fee_percent'].toString());
+    customsFee = double.tryParse(json['customs_fee'].toString());
+    localDeliveryFee = double.tryParse(json['local_delivery_fee'].toString());
+    localDeliveryFeePercent = double.tryParse(json['local_delivery_fee_percent'].toString());
+    internationalDeliveryFee = double.tryParse(json['international_delivery_fee'].toString());
+    internationalDeliveryFeePercent = double.tryParse(json['international_delivery_fee_percent'].toString());
+    category = BuyForMeCategory.fromJson(json['category']);
   }
 
   Map<String, dynamic> toJson() {
@@ -102,6 +148,21 @@ class BuyForMeProduct {
     data['item_local_price'] = itemLocalPrice;
     data['ship_local_currency'] = shipLocalCurrency;
     data['ship_local_price'] = shipLocalPrice;
+    data['exchange_rate'] = exchangeRate;
+    data['item_price_primary_currency'] = itemPricePrimaryCurrency;
+    data['service_fee_unit_amount'] = serviceFeeUnitAmount;
+    data['service_fee_unit_percent'] = serviceFeeUnitPercent;
+    data['inspection_fee_unit_amount'] = inspectionFeeUnitAmount;
+    data['inspection_fee_unit_percent'] = inspectionFeeUnitPercent;
+    data['vat_amount'] = vatAmount;
+    data['vat_percent'] = vatPercent;
+    data['customs_fee_percent'] = customsFeePercent;
+    data['customs_fee'] = customsFee;
+    data['local_delivery_fee'] = localDeliveryFee;
+    data['local_delivery_fee_percent'] = localDeliveryFeePercent;
+    data['international_delivery_fee'] = internationalDeliveryFee;
+    data['international_delivery_fee_percent'] = internationalDeliveryFeePercent;
+
     return data;
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/show_custom_snakbar_widget.dart';
+import 'package:flutter_sixvalley_ecommerce/features/splash/domain/models/config_model.dart';
 import 'package:flutter_sixvalley_ecommerce/localization/language_constrants.dart';
 import 'package:flutter_sixvalley_ecommerce/features/splash/controllers/splash_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/custom_themes.dart';
@@ -9,9 +10,10 @@ import 'package:provider/provider.dart';
 
 class SelectBuyForMeCurrencyBottomSheetWidget extends StatefulWidget {
 
-  String? selectedCurrency;
+  String? selectedCurrencyCode;
+  CurrencyList? selectedCurrency;
 
-  SelectBuyForMeCurrencyBottomSheetWidget({super.key, this.selectedCurrency});
+  SelectBuyForMeCurrencyBottomSheetWidget({super.key, this.selectedCurrencyCode, this.selectedCurrency});
 
   @override
   State<SelectBuyForMeCurrencyBottomSheetWidget> createState() =>
@@ -21,10 +23,12 @@ class SelectBuyForMeCurrencyBottomSheetWidget extends StatefulWidget {
 class _SelectBuyForMeCurrencyBottomSheetWidgetState
     extends State<SelectBuyForMeCurrencyBottomSheetWidget> {
 
-  String? selectedCurrency;
+  String? selectedCurrencyCode;
+  CurrencyList? selectedCurrency;
 
   @override
   void initState() {
+    selectedCurrencyCode = widget.selectedCurrencyCode;
     selectedCurrency = widget.selectedCurrency;
     super.initState();
   }
@@ -86,7 +90,7 @@ class _SelectBuyForMeCurrencyBottomSheetWidgetState
                             : InkWell(
                                 onTap: () {
                                   setState(() {
-                                    selectedCurrency = currencyProvider.configModel?.currencyList![index].code!;
+                                    selectedCurrency = currencyProvider.configModel?.currencyList![index];
                                   });
                                 },
                                 child: Padding(
@@ -99,7 +103,7 @@ class _SelectBuyForMeCurrencyBottomSheetWidgetState
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(
                                             Dimensions.paddingSizeExtraSmall),
-                                        color: selectedCurrency != null && selectedCurrency!.toLowerCase() == currencyProvider
+                                        color: selectedCurrency != null && selectedCurrency!.code!.toLowerCase() == currencyProvider
                                             .configModel!
                                             .currencyList![index].code!.toLowerCase()
                                             ? Theme.of(context)
@@ -121,7 +125,7 @@ class _SelectBuyForMeCurrencyBottomSheetWidgetState
                                                 Dimensions.paddingSizeEight),
                                             decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
-                                                color: selectedCurrency!= null && selectedCurrency!.toLowerCase() ==   currencyProvider
+                                                color: selectedCurrency!= null && selectedCurrency!.code!.toLowerCase() ==   currencyProvider
                                                     .configModel!
                                                     .currencyList![index].code!.toLowerCase()
                                                     ? Theme.of(context)

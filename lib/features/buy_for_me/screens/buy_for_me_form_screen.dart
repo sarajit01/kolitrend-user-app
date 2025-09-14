@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,10 +10,12 @@ import 'package:flutter_sixvalley_ecommerce/features/buy_for_me/domain/models/bu
 import 'package:flutter_sixvalley_ecommerce/features/buy_for_me/domain/models/category_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/buy_for_me/widgets/select_buy_for_me_currency_bottom_sheet_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/features/profile/screens/profile_screen1.dart';
+import 'package:flutter_sixvalley_ecommerce/features/splash/domain/models/config_model.dart';
 import 'package:flutter_sixvalley_ecommerce/helper/debounce_helper.dart';
 import 'package:flutter_sixvalley_ecommerce/localization/language_constrants.dart';
 import 'package:flutter_sixvalley_ecommerce/main.dart';
 import 'package:flutter_sixvalley_ecommerce/theme/controllers/theme_controller.dart';
+import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/custom_themes.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/dimensions.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/images.dart';
@@ -28,6 +31,8 @@ import '../../../helper/price_converter.dart';
 import '../../address/controllers/address_controller.dart';
 import '../../auth/widgets/code_picker_widget.dart';
 import '../../splash/controllers/splash_controller.dart';
+import '../domain/models/image_upload_model.dart';
+import '../widgets/image_uploader_widget.dart';
 import '../widgets/select_buy_for_me_category_bottom_sheet_widget.dart';
 
 class ListItem {
@@ -115,7 +120,13 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
   String? _deliveryCountryErrorText;
 
   List<File> files = [];
+
+  List<String> _productImageUrls = []; // To store URLs from the uploader
+
+
   File? file;
+  CurrencyList? itemPriceLocalCurrency;
+  CurrencyList? shippingCostLocalCurrency;
 
   List<BuyForMeProduct> products = [];
 
@@ -189,33 +200,37 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
   }
 
   void _openItemLocalCurrencyBottomSheet() async {
-    final value = await showModalBottomSheet<String?>(
+    final value = await showModalBottomSheet<CurrencyList?>(
         context: Get.context!,
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
         builder: (_) => SelectBuyForMeCurrencyBottomSheetWidget(
-            selectedCurrency: _localItemCurrencyController.text));
+            selectedCurrencyCode: _localItemCurrencyController.text));
     if (value != null) {
       print("Result from Dialog");
       setState(() {
-        _localItemCurrencyController.text = value!;
+        itemPriceLocalCurrency = value;
+        _localItemCurrencyController.text = value!.code!;
+        _onLocalItemPriceUpdate();
         _updateProductOrderSummary();
       });
     }
   }
 
   void _openShippingCostLocalCurrencyBottomSheet() async {
-    final value = await showModalBottomSheet<String?>(
+    final value = await showModalBottomSheet<CurrencyList?>(
         context: Get.context!,
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
         builder: (_) => SelectBuyForMeCurrencyBottomSheetWidget(
-            selectedCurrency: _localShipCurrencyController.text));
+            selectedCurrencyCode: _localShipCurrencyController.text));
     if (value != null) {
       print("Result from Dialog");
       setState(() {
-        _localShipCurrencyController.text = value!;
+        shippingCostLocalCurrency = value;
+        _localShipCurrencyController.text = value!.code!;
         _updateProductOrderSummary();
+        _onLocalShippingCostUpdate();
       });
     }
   }
@@ -236,20 +251,85 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
   final ImagePicker _picker = ImagePicker();
   List<XFile> _images = [];
 
+  List<ImageUploadModel> _imageUploads = [];
+  Dio _dio = Dio(); // Create a Dio instance
+
   Future<void> _pickImages() async {
-    final selected = await _picker.pickMultiImage();
-    if (selected != null) {
+    final List<XFile> selectedFiles = await _picker.pickMultiImage();
+    if (selectedFiles.isNotEmpty) {
       setState(() {
-        _images.addAll(selected);
+        for (var file in selectedFiles) {
+          final newImageUpload = ImageUploadModel(file: file);
+          _imageUploads.add(newImageUpload);
+          _uploadImage(newImageUpload); // Start upload immediately
+        }
       });
     }
   }
 
-  void _removeImage(int index) {
+  // Modify _removeImage
+  void _removeImage(ImageUploadModel imageToRemove) { // Parameter type changed
+    // TODO: If imageToRemove.status == ImageUploadStatus.uploading,
+    // you might want to cancel the Dio request. Dio supports CancelToken for this.
     setState(() {
-      _images.removeAt(index);
+      _imageUploads.remove(imageToRemove);
     });
   }
+
+  // In BuyForMeFormScreenState
+
+  Future<void> _uploadImage(ImageUploadModel imageModel) async {
+    setState(() {
+      imageModel.status = ImageUploadStatus.uploading;
+      imageModel.progress = 0.0;
+    });
+
+    String fileName = imageModel.file.path.split('/').last;
+    FormData formData = FormData.fromMap({
+      "image": await MultipartFile.fromFile(imageModel.file.path, filename: fileName),
+      // You can add other form data if your API expects it
+      // "user_id": "123",
+    });
+
+    // IMPORTANT: Replace with your actual Laravel API endpoint
+    String uploadUrl = 'YOUR_LARAVEL_API_ENDPOINT/upload-image';
+
+    try {
+      Response response = await _dio.post(
+        uploadUrl,
+        data: formData,
+        onSendProgress: (int sent, int total) {
+          if (total != 0) {
+            setState(() {
+              imageModel.progress = sent / total;
+            });
+          }
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Assuming your API returns JSON with a 'url' or 'file_path' key
+        final responseData = response.data;
+        setState(() {
+          imageModel.status = ImageUploadStatus.completed;
+          // Adjust based on your API response structure
+          imageModel.uploadedUrl = responseData['url'] ?? responseData['file_path'];
+          imageModel.progress = 1.0;
+        });
+      } else {
+        setState(() {
+          imageModel.status = ImageUploadStatus.failed;
+          imageModel.error = "Upload failed. Status: ${response.statusCode}";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        imageModel.status = ImageUploadStatus.failed;
+        imageModel.error = e.toString();
+      });
+    }
+  }
+
 
   bool _checkIfOrderSummaryUpdatable() {
     // check if category was selected
@@ -538,19 +618,29 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
     _quantityController.text = '1';
     if (Provider.of<SplashController>(Get.context!, listen: false).myCurrency !=
         null) {
-      _localItemCurrencyController.text =
-          Provider.of<SplashController>(Get.context!, listen: false)
-              .myCurrency!
-              .code!;
-      _localShipCurrencyController.text =
-          Provider.of<SplashController>(Get.context!, listen: false)
-              .myCurrency!
-              .code!;
+      itemPriceLocalCurrency =  Provider.of<SplashController>(Get.context!, listen: false)
+          .myCurrency;
+      shippingCostLocalCurrency = itemPriceLocalCurrency;
+      _localItemCurrencyController.text = itemPriceLocalCurrency!.code! ;
+      _localShipCurrencyController.text = shippingCostLocalCurrency!.code!;
+
     }
     _buyingCountryCodeController.text = 'tr'; // Reset to default
     _deliveryCountryCodeController.text = 'fr'; // Reset to default
 
     showCustomSnackBar("Added successfully", context, isError: false, isToaster: true);
+  }
+
+  _onLocalItemPriceUpdate() {
+    if (_localItemPriceController.text.isNotEmpty){
+      _itemPriceController.text = (double.parse(_localItemPriceController.text) / itemPriceLocalCurrency!.exchangeRate!).toStringAsFixed(2);
+    }
+  }
+
+  _onLocalShippingCostUpdate() {
+    if (_localShipCostController.text.isNotEmpty){
+      _shipCostController.text = (double.parse(_localShipCostController.text) / shippingCostLocalCurrency!.exchangeRate!).toStringAsFixed(2);
+    }
   }
 
   _updateUserAccount() async {
@@ -659,13 +749,19 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
           _shipCurrencyController.text = 'EUR';
 
           if (Provider.of<SplashController>(context).myCurrency != null) {
+
             if (_localItemCurrencyController.text.isEmpty) {
+              itemPriceLocalCurrency =  Provider.of<SplashController>(Get.context!, listen: false)
+                  .myCurrency;
               _localItemCurrencyController.text =
-                  Provider.of<SplashController>(context).myCurrency!.code!;
+                 itemPriceLocalCurrency!.code!;
             }
             if (_localShipCurrencyController.text.isEmpty) {
+              shippingCostLocalCurrency = Provider.of<SplashController>(Get.context!, listen: false)
+                  .myCurrency;
+
               _localShipCurrencyController.text =
-                  Provider.of<SplashController>(context).myCurrency!.code!;
+                 shippingCostLocalCurrency!.code!;
             }
           }
 
@@ -1112,103 +1208,117 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                 _buildErrorText(_descriptionErrorText),
                               ]),
 
-                          if (_images.isNotEmpty)
-                            Container(
-                              height: 250,
-                              child: ListView(
-                                  physics: const BouncingScrollPhysics(),
-                                  children: [
-                                    SizedBox(height: 12),
-                                    Container(
-                                      height: 250,
-                                      child: GridView.builder(
-                                        itemCount: _images.length,
-                                        gridDelegate:
-                                            SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 3,
-                                          crossAxisSpacing: 8,
-                                          mainAxisSpacing: 8,
-                                        ),
-                                        itemBuilder: (context, index) {
-                                          return Stack(
-                                            children: [
-                                              Positioned.fill(
-                                                child: Image.file(
-                                                  File(_images[index].path),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                              Positioned(
-                                                top: 2,
-                                                right: 2,
-                                                child: GestureDetector(
-                                                  onTap: () =>
-                                                      _removeImage(index),
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.black54,
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                    child: Icon(Icons.close,
-                                                        color: Colors.white,
-                                                        size: 20),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    SizedBox(height: 12)
-                                  ]),
-                            ),
+                          const SizedBox(height: Dimensions.paddingSizeDefault),
 
-                          InkWell(
-                            onTap: _pickImages,
-                            child: Column(children: [
-                              _images.isEmpty
-                                  ? Container(
-                                      margin: const EdgeInsets.only(
-                                          top: Dimensions.marginSizeExtraLarge),
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context).cardColor,
-                                        border: Border.all(
-                                            color: Colors.white, width: 3),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Stack(
-                                          clipBehavior: Clip.none,
-                                          children: [
-                                            ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                child: CustomImageWidget(
-                                                  image: "",
-                                                  // "${profile.userInfoModel!.imageFullUrl?.path}",
-                                                  height: Dimensions
-                                                      .profileImageSize,
-                                                  fit: BoxFit.cover,
-                                                  width: Dimensions
-                                                      .profileImageSize,
-                                                )),
-                                          ]),
-                                    )
-                                  : SizedBox(height: 12),
-                              Text(
-                                _images.isEmpty
-                                    ? getTranslated(
-                                        "Upload Photos", Get.context!)!
-                                    : getTranslated(
-                                        "Add More Photos", Get.context!)!,
-                                style: textBold.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    fontSize: Dimensions.fontSizeLarge),
-                              ),
-                            ]),
+                          ImageUploaderWidget(
+                            uploadUrl: "https://www.kolitrend.com" + AppConstants.imgUploadUri, // IMPORTANT: Replace this
+                            dioInstance: _dio, // Pass your existing Dio instance
+                            onUploadComplete: (List<String> urls) {
+                              setState(() {
+                                _productImageUrls = urls;
+                              });
+                              // You might want to trigger _updateProductOrderSummary() if images affect the summary
+                              print("Uploaded image URLs: $urls");
+                            },
+                            maxImages: 20, // Example: limit to 5 images
                           ),
+
+                            // Container(
+                            //   height: 250,
+                            //   child: ListView(
+                            //       physics: const BouncingScrollPhysics(),
+                            //       children: [
+                            //         SizedBox(height: 12),
+                            //         Container(
+                            //           height: 250,
+                            //           child: GridView.builder(
+                            //             itemCount: _images.length,
+                            //             gridDelegate:
+                            //                 SliverGridDelegateWithFixedCrossAxisCount(
+                            //               crossAxisCount: 3,
+                            //               crossAxisSpacing: 8,
+                            //               mainAxisSpacing: 8,
+                            //             ),
+                            //             itemBuilder: (context, index) {
+                            //               return Stack(
+                            //                 children: [
+                            //                   Positioned.fill(
+                            //                     child: Image.file(
+                            //                       File(_images[index].path),
+                            //                       fit: BoxFit.cover,
+                            //                     ),
+                            //                   ),
+                            //                   Positioned(
+                            //                     top: 2,
+                            //                     right: 2,
+                            //                     child: GestureDetector(
+                            //                       onTap: () =>
+                            //                           _removeImage(index),
+                            //                       child: Container(
+                            //                         decoration: BoxDecoration(
+                            //                           color: Colors.black54,
+                            //                           shape: BoxShape.circle,
+                            //                         ),
+                            //                         child: Icon(Icons.close,
+                            //                             color: Colors.white,
+                            //                             size: 20),
+                            //                       ),
+                            //                     ),
+                            //                   ),
+                            //                 ],
+                            //               );
+                            //             },
+                            //           ),
+                            //         ),
+                            //         SizedBox(height: 12)
+                            //       ]),
+                            // ),
+
+                          // InkWell(
+                          //   onTap: _pickImages,
+                          //   child: Column(children: [
+                          //     _images.isEmpty
+                          //         ? Container(
+                          //             margin: const EdgeInsets.only(
+                          //                 top: Dimensions.marginSizeExtraLarge),
+                          //             alignment: Alignment.center,
+                          //             decoration: BoxDecoration(
+                          //               color: Theme.of(context).cardColor,
+                          //               border: Border.all(
+                          //                   color: Colors.white, width: 3),
+                          //               shape: BoxShape.circle,
+                          //             ),
+                          //             child: Stack(
+                          //                 clipBehavior: Clip.none,
+                          //                 children: [
+                          //                   ClipRRect(
+                          //                       borderRadius:
+                          //                           BorderRadius.circular(20),
+                          //                       child: CustomImageWidget(
+                          //                         image: "",
+                          //                         // "${profile.userInfoModel!.imageFullUrl?.path}",
+                          //                         height: Dimensions
+                          //                             .profileImageSize,
+                          //                         fit: BoxFit.cover,
+                          //                         width: Dimensions
+                          //                             .profileImageSize,
+                          //                       )),
+                          //                 ]),
+                          //           )
+                          //         : SizedBox(height: 12),
+                          //     Text(
+                          //       _images.isEmpty
+                          //           ? getTranslated(
+                          //               "Upload Photos", Get.context!)!
+                          //           : getTranslated(
+                          //               "Add More Photos", Get.context!)!,
+                          //       style: textBold.copyWith(
+                          //           color:
+                          //               Theme.of(context).colorScheme.primary,
+                          //           fontSize: Dimensions.fontSizeLarge),
+                          //     ),
+                          //   ]),
+                          // ),
 
                           const SizedBox(height: Dimensions.paddingSizeLarge),
 
@@ -1267,6 +1377,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                         required: true,
                                         onChanged: (value) {
                                           _onFormFieldUpdate(value);
+                                          _onLocalItemPriceUpdate();
                                           if (_localItemPriceErrorText != null)
                                             setState(() =>
                                                 _localItemPriceErrorText =
@@ -1312,6 +1423,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                       getTranslated('Item Price', context),
                                   inputType: TextInputType.name,
                                   required: true,
+                                  readOnly: true,
                                   hintText: "Price in EUR",
                                   controller: _itemPriceController,
                                 ),
@@ -1361,6 +1473,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                         controller: _localShipCostController,
                                         onChanged: (value) {
                                           _onFormFieldUpdate(value);
+                                          _onLocalShippingCostUpdate();
                                           if (_localShipCostErrorText != null)
                                             setState(() =>
                                                 _localShipCostErrorText = null);
@@ -1404,6 +1517,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                       getTranslated('Shipping Cost', context),
                                   inputType: TextInputType.name,
                                   required: true,
+                                  readOnly: true,
                                   hintText: "Cost in EUR",
                                   controller: _shipCostController,
                                 ),

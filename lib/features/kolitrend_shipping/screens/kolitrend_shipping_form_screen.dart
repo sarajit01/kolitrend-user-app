@@ -16,6 +16,7 @@ import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/widgets/
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/widgets/select_shipping_service_type_bottom_sheet_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/widgets/select_shipping_company_bottom_sheet_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/features/profile/screens/profile_screen1.dart';
+import 'package:flutter_sixvalley_ecommerce/features/splash/domain/models/config_model.dart';
 import 'package:flutter_sixvalley_ecommerce/localization/language_constrants.dart';
 import 'package:flutter_sixvalley_ecommerce/theme/controllers/theme_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/custom_themes.dart';
@@ -190,18 +191,18 @@ class KolitrendShippingFormScreenState
   }
 
   void _openPackageCurrencyBottomSheet() async {
-    final value = await showModalBottomSheet<String?>(
+    final value = await showModalBottomSheet<CurrencyList?>(
         context: Get.context!,
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
         builder: (_) => SelectBuyForMeCurrencyBottomSheetWidget(
-            selectedCurrency:
+            selectedCurrencyCode:
             _packageCurrencyController.text )
     );
     if (value != null) {
       print("Result from Dialog");
       setState(() {
-        _packageCurrencyController.text = value!;
+        _packageCurrencyController.text = value!.code!;
       });
     }
   }
