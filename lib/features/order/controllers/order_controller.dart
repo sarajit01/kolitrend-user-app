@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter_sixvalley_ecommerce/data/local/cache_response.dart';
 import 'package:flutter_sixvalley_ecommerce/data/model/api_response.dart';
 import 'package:flutter_sixvalley_ecommerce/features/order/domain/models/order_model.dart';
+import 'package:flutter_sixvalley_ecommerce/features/order/domain/models/order_status_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/order/domain/services/order_service_interface.dart';
 import 'package:flutter_sixvalley_ecommerce/helper/api_checker.dart';
 import 'dart:async';
@@ -20,6 +21,31 @@ class OrderController with ChangeNotifier {
 
   OrderModel? orderModel;
   OrderModel? deliveredOrderModel;
+
+  List<OrderStatusModel> orderStatusList = [];
+  OrderStatusModel? selectedStatus;
+
+  Future<void> getOrderStatuses() async {
+    orderStatusList = [];
+    var localData = await database.getCacheResponseById(AppConstants.orderStatusesUri);
+
+    notifyListeners();
+
+    ApiResponseModel apiResponse = await orderServiceInterface.getOrderStatuses();
+    print("API response for orders");
+    print(apiResponse);
+    if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+        apiResponse.response!.data!.forEach((element) {
+          orderStatusList.add(OrderStatusModel.fromJson(element));
+        });
+    } else {
+      ApiChecker.checkApi(apiResponse);
+    }
+    print("Order statuses");
+    print(orderStatusList.length);
+    notifyListeners();
+  }
+
   Future<void> getOrderList(int offset, String status, {String? type}) async {
     var localData = await database.getCacheResponseById(AppConstants.orderUri);
 
@@ -36,6 +62,8 @@ class OrderController with ChangeNotifier {
     }
     ApiResponseModel apiResponse =
         await orderServiceInterface.getOrderList(offset, status, type: type);
+    print("API response for orders");
+    print(apiResponse);
     if (apiResponse.response != null &&
         apiResponse.response!.statusCode == 200) {
       if (offset == 1) {
@@ -78,12 +106,12 @@ class OrderController with ChangeNotifier {
   int _orderTypeIndex = 0;
   int get orderTypeIndex => _orderTypeIndex;
 
-  String selectedType = 'ongoing';
+  String selectedType = 'pending';
   void setIndex(int index, {bool notify = true}) {
     _orderTypeIndex = index;
     if (_orderTypeIndex == 0) {
-      selectedType = 'ongoing';
-      getOrderList(1, 'ongoing');
+      selectedType = 'pending';
+      getOrderList(1, 'pending');
     } else if (_orderTypeIndex == 1) {
       selectedType = 'delivered';
       getOrderList(1, 'delivered');
@@ -94,6 +122,11 @@ class OrderController with ChangeNotifier {
     if (notify) {
       notifyListeners();
     }
+  }
+
+  void setSelectedStatus(OrderStatusModel status) {
+    selectedStatus = status;
+    getOrderList(1, status.value!);
   }
 
   Orders? trackingModel;

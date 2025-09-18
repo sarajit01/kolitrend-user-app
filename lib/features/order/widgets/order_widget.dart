@@ -128,7 +128,12 @@ class OrderWidget extends StatelessWidget {
                             width: 70,
                             height: 70,
                             image: orderModel?.sellerIs == 'admin'
-                                ? Provider.of<SplashController>(context,
+                                ?
+
+                                orderModel?.thumbnail != null ?
+                                    orderModel!.thumbnail! :
+
+                            Provider.of<SplashController>(context,
                                             listen: false)
                                         .configModel!
                                         .companyFavIcon

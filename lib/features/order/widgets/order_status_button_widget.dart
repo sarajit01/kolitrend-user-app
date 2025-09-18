@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sixvalley_ecommerce/features/order/controllers/order_controller.dart';
+import 'package:flutter_sixvalley_ecommerce/features/order/domain/models/order_status_model.dart';
 import 'package:flutter_sixvalley_ecommerce/theme/controllers/theme_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/custom_themes.dart';
 import 'package:provider/provider.dart';
 
-class OrderTypeButton extends StatelessWidget {
-  final String? text;
-  final int index;
+class OrderStatusTypeButton extends StatelessWidget {
+  final OrderStatusModel orderStatus;
 
-  const OrderTypeButton({super.key, required this.text, required this.index});
+  const OrderStatusTypeButton({super.key, required this.orderStatus});
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Consumer<OrderController>(builder: (context, orderController, _) {
         return TextButton(
-          onPressed: () => orderController.setIndex(index),
+          onPressed: () => orderController.setSelectedStatus(orderStatus),
           style: TextButton.styleFrom(padding: const EdgeInsets.all(0)),
           child: Container(
             height: 35,
             padding: EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-                color: orderController.orderTypeIndex == index
+                color: orderController.selectedStatus?.value == orderStatus.value
                     ? Theme.of(context).primaryColor
                     : Theme.of(context).primaryColor.withValues(alpha: 0.07),
                 borderRadius: BorderRadius.circular(50)),
@@ -29,11 +29,11 @@ class OrderTypeButton extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(text!,
+                Text(orderStatus.statusName!,
                     style: titilliumBold.copyWith(
                         color: Provider.of<ThemeController>(context).darkTheme
                             ? Theme.of(context).textTheme.bodyLarge?.color
-                            : orderController.orderTypeIndex != index
+                            : orderController.selectedStatus?.value != orderStatus.value
                                 ? Theme.of(context).textTheme.bodyLarge?.color
                                 : Theme.of(context).cardColor)),
                 const SizedBox(width: 5),

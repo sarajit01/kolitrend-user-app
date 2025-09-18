@@ -43,6 +43,18 @@ class OrderRepository implements OrderRepositoryInterface {
   }
 
   @override
+  Future<ApiResponseModel> getOrderStatuses() async {
+    try {
+      final response = await dioClient!
+          .get('${AppConstants.orderStatusesUri}');
+      return ApiResponseModel.withSuccess(response);
+    } catch (e) {
+      return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
+    }
+  }
+
+
+  @override
   Future add(value) {
     // TODO: implement add
     throw UnimplementedError();

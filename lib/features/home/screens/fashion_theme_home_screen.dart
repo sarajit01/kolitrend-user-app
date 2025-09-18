@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_sixvalley_ecommerce/common/basewidget/show_custom_snakbar_widget.dart';
+import 'package:flutter_sixvalley_ecommerce/features/address/domain/models/address_model.dart';
+import 'package:flutter_svg/flutter_svg.dart'; // Added for SVG support
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/title_row_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/features/auth/controllers/auth_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/banner/controllers/banner_controller.dart';
@@ -49,6 +52,8 @@ import 'package:flutter_sixvalley_ecommerce/utill/custom_themes.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/dimensions.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/images.dart';
 import 'package:provider/provider.dart';
+
+import '../../setting/widgets/select_country_bottom_sheet_widget.dart';
 
 class FashionThemeHomePage extends StatefulWidget {
   const FashionThemeHomePage({super.key});
@@ -138,6 +143,7 @@ class FashionThemeHomePage extends StatefulWidget {
 
 class _FashionThemeHomePageState extends State<FashionThemeHomePage> {
   final ScrollController _scrollController = ScrollController();
+  late String shoppingCountry;
 
   final List<ProductType> productTypeList = [
     ProductType.newArrival,
@@ -154,7 +160,33 @@ class _FashionThemeHomePageState extends State<FashionThemeHomePage> {
             .configModel!
             .businessMode ==
         "single";
+    shoppingCountry = Provider.of<SplashController>(context, listen: false).getShoppingCountry();
   }
+
+  void _openShoppingCountryBottomSheet() async {
+    final value = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext _bc){
+        return FractionallySizedBox(
+          heightFactor: 0.7,
+          child: SelectCountryBottomSheetWidget(
+              title: getTranslated("Select Shopping Country", context),
+              selectedCountryCode: shoppingCountry,
+          ),
+        );
+      }
+    );
+    if (value != null) {
+      setState(() {
+        Provider.of<SplashController>(context, listen: false).setShoppingCountry(value);
+        shoppingCountry = value!;
+        showCustomSnackBar(getTranslated("Shopping country updated successfully", context), context, isError: false, isToaster: true);
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +206,41 @@ class _FashionThemeHomePageState extends State<FashionThemeHomePage> {
                 centerTitle: false,
                 automaticallyImplyLeading: false,
                 backgroundColor: Theme.of(context).highlightColor,
-                title: Image.asset(Images.logoWithNameImage, height: 35)),
+                title: Image.asset(Images.logoWithNameImage, height: 35),
+                actions: <Widget>[
+                  IconButton(
+                    icon: (shoppingCountry == null || shoppingCountry!.isEmpty)
+                        ? Icon(Icons.flag_outlined, color: Theme.of(context).textTheme.bodyLarge?.color)
+                        : ClipOval( // Wrap SvgPicture with ClipOval for circular shape
+                            child: SvgPicture.network(
+                              'https://cdnjs.cloudflare.com/ajax/libs/flag-icons/7.2.0/flags/1x1/${shoppingCountry.toLowerCase()}.svg',
+                              width: 24, // Adjust size as needed
+                              height: 24, // Adjust size as needed
+                              fit: BoxFit.cover, // Ensures the SVG covers the circular area
+                              // Optional: Apply a color filter if the SVGs are monochrome and need to match icon theme
+                              // colorFilter: ColorFilter.mode(Theme.of(context).textTheme.bodyLarge?.color ?? Colors.white, BlendMode.srcIn),
+                              placeholderBuilder: (BuildContext context) => Icon(Icons.flag_outlined, color: Theme.of(context).textTheme.bodyLarge?.color),
+                            ),
+                          ),
+                    onPressed: () {
+                      _openShoppingCountryBottomSheet();
+                    },
+                    tooltip: getTranslated('select_language_country', context), // Added tooltip
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.menu, color: Theme.of(context).textTheme.bodyLarge?.color),
+                    onPressed: () {
+                      // TODO: Implement logic to open menu (e.g., drawer or another screen)
+                      print("Menu icon pressed - open menu");
+                      // Example:
+                      // Scaffold.of(context).openEndDrawer(); // If you have an endDrawer
+                      // Or:
+                      // Navigator.push(context, MaterialPageRoute(builder: (_) => YourMenuScreen()));
+                    },
+                    tooltip: getTranslated('menu', context), // Added tooltip
+                  ),
+                ],
+              ),
             SliverToBoxAdapter(
               child: Provider.of<SplashController>(context, listen: false)
                           .configModel!

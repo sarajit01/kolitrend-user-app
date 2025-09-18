@@ -8,4 +8,6 @@ abstract class SplashRepositoryInterface implements RepositoryInterface {
   void setCurrency(String currencyCode);
   void disableIntro();
   bool? showIntro();
+  void setShoppingCountry(String shoppingCountry);
+  String getShoppingCountry();
 }

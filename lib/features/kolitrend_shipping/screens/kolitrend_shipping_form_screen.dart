@@ -211,10 +211,10 @@ class KolitrendShippingFormScreenState
   @override
   void initState() {
     Provider.of<KolitrendShippingController>(context, listen: false)
-        .getBranches('fr');
+        .getBranches(_countryOfOriginCodeController.text);
 
     Provider.of<KolitrendShippingController>(context, listen: false)
-        .onCountryChanged('tr', 'fr');
+        .onCountryChanged(_countryOfOriginCodeController.text, _destinationCountryCodeController.text);
   }
 
   void _openShippingModesBottomSheet() async {
@@ -370,7 +370,6 @@ class KolitrendShippingFormScreenState
   }
 
 
-
   _updateUserAccount() async {
     showCustomSnackBar(
         getTranslated('Something went wrong in API response!', Get.context!),
@@ -483,10 +482,12 @@ class KolitrendShippingFormScreenState
             _senderPhoneController.text =
                 kolitrendShippingController.branchesList[0].phone ?? "";
             _senderCountryCodeController.text =
-                kolitrendShippingController.branchesList[0].countryCode ?? "fr";
+                kolitrendShippingController.branchesList[0].countryCode ?? _countryOfOriginCodeController.text;
           }
 
-          _recipientCodeController.text = 'tr';
+          if (_recipientCodeController.text.isEmpty){
+            _recipientCodeController.text = 'fr';
+          }
 
           if (kolitrendShippingController.shippingModesList.isNotEmpty) {
             _shippingModeController.text =

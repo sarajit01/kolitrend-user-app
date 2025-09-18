@@ -52,6 +52,16 @@ class SplashRepository implements SplashRepositoryInterface {
   }
 
   @override
+  void setShoppingCountry(String shoppingCountry) {
+    sharedPreferences!.setString(AppConstants.shoppingCountry, shoppingCountry);
+  }
+
+  @override
+  String getShoppingCountry() {
+    return sharedPreferences!.getString(AppConstants.shoppingCountry) ?? 'tr';
+  }
+
+  @override
   void disableIntro() {
     sharedPreferences!.setBool(AppConstants.intro, false);
   }

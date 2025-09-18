@@ -141,6 +141,9 @@ class AppConstants {
   static const String refundRequestPreReqUri = '/api/v1/customer/order/refund';
   static const String refundResultUri = '/api/v1/customer/order/refund-details';
   static const String cancelOrderUri = '/api/v1/order/cancel-order';
+
+  static const String orderStatusesUri = '/api/v1/order-statuses';
+
   static const String getSelectedShippingTypeUri =
       '/api/v1/shipping-method/check-shipping-type';
   static const String dealOfTheDay = '/api/v1/dealsoftheday/deal-of-the-day';
@@ -253,6 +256,7 @@ class AppConstants {
   static const String config = 'config';
   static const String guestMode = 'guest_mode';
   static const String currency = 'currency';
+  static const String shoppingCountry = 'shopping_country';
   static const String langKey = 'lang';
   static const String intro = 'intro';
   static const String userLogData = 'user_log_data';

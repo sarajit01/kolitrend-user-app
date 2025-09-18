@@ -1564,7 +1564,36 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                 _buildErrorText(_storeNameErrorText),
                               ]),
 
+
+
                           const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          // Column(
+                          //     crossAxisAlignment: CrossAxisAlignment.start,
+                          //     children: [
+                          //       CustomTextFieldWidget(
+                          //         labelText:
+                          //         getTranslated('Buying Country', context),
+                          //         inputType: TextInputType.name,
+                          //         focusNode: _buyingCountryFocus,
+                          //         nextFocus: _deliveryCountryFocus,
+                          //         required: true,
+                          //         readOnly: true,
+                          //         hintText: getTranslated(
+                          //             "Select", context),
+                          //         onChanged: (value) {
+                          //           if (_storeNameErrorText != null)
+                          //             setState(
+                          //                     () => _storeNameErrorText = null);
+                          //         },
+                          //       ),
+                          //       _buildErrorText(_storeNameErrorText),
+                          //     ]),
+                          //
+                          //
+                          //
+                          // const SizedBox(height: Dimensions.paddingSizeLarge),
+
 
                           Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

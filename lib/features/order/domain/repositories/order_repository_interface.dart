@@ -6,4 +6,6 @@ abstract class OrderRepositoryInterface<T> extends RepositoryInterface {
   Future<dynamic> getTrackingInfo(String orderID);
 
   Future<dynamic> cancelOrder(int? orderId);
+
+  Future<dynamic> getOrderStatuses();
 }

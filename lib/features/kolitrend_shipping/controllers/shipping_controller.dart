@@ -90,7 +90,7 @@ class KolitrendShippingController with ChangeNotifier {
   Future<void> getBranches(String countryOfOrigin) async {
     _branches = [];
     var localData =
-        await database.getCacheResponseById(AppConstants.shippingBranchesUri);
+        await database.getCacheResponseById(AppConstants.shippingBranchesUri+countryOfOrigin);
     if (localData != null) {
       companyBranchesModel =
           CompanyBranchesModel.fromJson(jsonDecode(localData.response));

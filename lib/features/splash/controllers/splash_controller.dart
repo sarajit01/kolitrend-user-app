@@ -49,6 +49,7 @@ class SplashController extends ChangeNotifier {
   List<BusinessPageModel>? _businessPages;
   List<BusinessPageModel>? get businessPages => _businessPages;
 
+
   Future<bool> initConfig(
     BuildContext context,
     Function(ConfigModel? configModel)? onLocalDataReceived,
@@ -241,6 +242,16 @@ class SplashController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setShoppingCountry(String shoppingCountry){
+    splashServiceInterface!.setShoppingCountry(shoppingCountry);
+    notifyListeners();
+  }
+
+  String getShoppingCountry(){
+    return splashServiceInterface!.getShoppingCountry();
+  }
+
+
   void initSharedPrefData() {
     splashServiceInterface!.initSharedData();
   }
@@ -290,5 +301,9 @@ class SplashController extends ChangeNotifier {
       return false;
     }
     return ModalRoute.of(_buildContext!)?.settings.name == 'MaintenanceScreen';
+  }
+
+  void setCountry(int selectedIndex) {
+
   }
 }

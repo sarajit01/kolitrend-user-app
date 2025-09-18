@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_sixvalley_ecommerce/data/model/image_full_url.dart';
+import 'package:flutter_sixvalley_ecommerce/features/address/domain/models/address_model.dart';
 
 class ConfigModel {
   String? brandSetting;
@@ -80,6 +81,7 @@ class ConfigModel {
   bool? hasLocaldb;
   bool? localMaintenanceMode;
   String? blogUrl;
+  List<CountryModel>? countries;
 
   ConfigModel({
     this.brandSetting,
@@ -160,6 +162,7 @@ class ConfigModel {
     this.hasLocaldb,
     this.localMaintenanceMode,
     this.blogUrl,
+    this.countries,
   });
 
   ConfigModel.fromJson(Map<String, dynamic> json) {
@@ -377,6 +380,15 @@ class ConfigModel {
     }
 
     blogUrl = json['blog_page'];
+    if (json['countries'] != null) {
+      countries = <CountryModel>[];
+      json['countries'].forEach((v) {
+        countries!.add(CountryModel.fromJson(v));
+      });
+    } else {
+      countries = [];
+    }
+
   }
 }
 

@@ -173,8 +173,13 @@ class CombineShipFormScreenState extends State<CombineShipFormScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<KolitrendShippingController>(context, listen: false)
-        .getBranches('fr');
+    if (_countryOfOriginCodeController.text.isNotEmpty) {
+      Provider.of<KolitrendShippingController>(context, listen: false)
+          .getBranches(_countryOfOriginCodeController.text);
+    } else {
+      Provider.of<KolitrendShippingController>(context, listen: false)
+          .getBranches('tr');
+    }
     print("Fetching orders");
     Provider.of<KolitrendShippingController>(context, listen: false)
         .getCombineShipRelatedOrders();
@@ -265,8 +270,8 @@ class CombineShipFormScreenState extends State<CombineShipFormScreen> {
           // _phoneController.text = profile.userInfoModel!.phone??'';
 
           _countryFilterController.text = 'fr';
-          _countryOfOriginCodeController.text = 'fr';
-          _destinationCountryCodeController.text = 'tr';
+          _countryOfOriginCodeController.text = 'tr';
+          _destinationCountryCodeController.text = 'fr';
 
           if (kolitrendShippingController.branchesList.isNotEmpty) {
             _senderBranchController.text =
@@ -328,13 +333,39 @@ class CombineShipFormScreenState extends State<CombineShipFormScreen> {
                     onPressed: () => Navigator.of(context).pop(),
                     color: Colors.white,
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 4),
                   Text(getTranslated('Combine & Ship', context) ?? "",
                       style: textRegular.copyWith(
                           fontSize: 20, color: Colors.white),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
                   const Spacer(),
+                  OutlinedButton(
+                    onPressed: () {
+                      // Handle submit action
+                      setState(() {
+                      });
+                    },
+                    child: Text(
+                      getTranslated("Submit", context)!,
+                      style: TextStyle(color: Colors.white), // Text color
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                          color: Colors.white, width: 2), // White outline
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            12.0), // Optional: for rounded corners
+                      ),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 4.0), // Optional: padding
+                      // You can also set foregroundColor here if you don't want to set it in TextStyle
+                      // foregroundColor: Colors.white,
+                    ),
+                  ),
+                  SizedBox(width: 16),
+
                 ])),
             Container(
               padding: const EdgeInsets.only(top: 75),
@@ -1264,60 +1295,60 @@ class CombineShipFormScreenState extends State<CombineShipFormScreen> {
                   ),
                 ),
 
-                Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: Dimensions.marginSizeLarge,
-                      vertical: Dimensions.marginSizeSmall,
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                child: true
-                                    ? CustomButton(
-                                        onTap: _updateUserAccount,
-                                        backgroundColor:
-                                            Theme.of(context).primaryColor,
-                                        buttonText: getTranslated(
-                                            'Create Combine & Ship Order',
-                                            context))
-                                    : Center(
-                                        child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Theme.of(context)
-                                                    .secondaryHeaderColor),
-                                      )),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                child: true
-                                    ? CustomButton(
-                                        onTap: _updateUserAccount,
-                                        backgroundColor:
-                                            Theme.of(context).disabledColor,
-                                        buttonText: getTranslated(
-                                            'Combine & Ship Requests', context))
-                                    : Center(
-                                        child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Theme.of(context)
-                                                    .secondaryHeaderColor),
-                                      )),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    )),
+                // Container(
+                //     margin: const EdgeInsets.symmetric(
+                //       horizontal: Dimensions.marginSizeLarge,
+                //       vertical: Dimensions.marginSizeSmall,
+                //     ),
+                //     child: Column(
+                //       children: [
+                //         Row(
+                //           children: [
+                //             Expanded(
+                //               child: Container(
+                //                 child: true
+                //                     ? CustomButton(
+                //                         onTap: _updateUserAccount,
+                //                         backgroundColor:
+                //                             Theme.of(context).primaryColor,
+                //                         buttonText: getTranslated(
+                //                             'Create Combine & Ship Order',
+                //                             context))
+                //                     : Center(
+                //                         child: CircularProgressIndicator(
+                //                         valueColor:
+                //                             AlwaysStoppedAnimation<Color>(
+                //                                 Theme.of(context)
+                //                                     .secondaryHeaderColor),
+                //                       )),
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //         Row(
+                //           children: [
+                //             Expanded(
+                //               child: Container(
+                //                 child: true
+                //                     ? CustomButton(
+                //                         onTap: _updateUserAccount,
+                //                         backgroundColor:
+                //                             Theme.of(context).disabledColor,
+                //                         buttonText: getTranslated(
+                //                             'Combine & Ship Requests', context))
+                //                     : Center(
+                //                         child: CircularProgressIndicator(
+                //                         valueColor:
+                //                             AlwaysStoppedAnimation<Color>(
+                //                                 Theme.of(context)
+                //                                     .secondaryHeaderColor),
+                //                       )),
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //       ],
+                //     )),
               ]),
             ),
           ]);

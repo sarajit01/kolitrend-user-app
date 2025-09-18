@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sixvalley_ecommerce/features/order/controllers/order_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/order/widgets/order_shimmer_widget.dart';
-import 'package:flutter_sixvalley_ecommerce/features/order/widgets/order_type_button_widget.dart';
+import 'package:flutter_sixvalley_ecommerce/features/order/widgets/order_status_button_widget.dart';
+import 'package:flutter_sixvalley_ecommerce/features/order/widgets/order_type_button_widget.dart'; // Assuming this is where OrderTypeButton is defined
 import 'package:flutter_sixvalley_ecommerce/features/order/widgets/order_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/localization/language_constrants.dart';
 import 'package:flutter_sixvalley_ecommerce/main.dart';
@@ -28,13 +29,30 @@ class _OrderScreenState extends State<OrderScreen> {
       !Provider.of<AuthController>(Get.context!, listen: false).isLoggedIn();
   @override
   void initState() {
-    if (!isGuestMode) {
-      Provider.of<OrderController>(context, listen: false)
-          .setIndex(0, notify: false);
-      Provider.of<OrderController>(context, listen: false)
-          .getOrderList(1, 'ongoing');
-    }
     super.initState();
+    // Ensure getOrderStatuses also notifies listeners or updates a list that Consumer can react to.
+    Provider.of<OrderController>(context, listen: false)
+        .getOrderStatuses()
+        .then((_) {
+      // After statuses are fetched, set the initial index if needed and load orders.
+      // This logic might need adjustment based on how OrderController handles initial state.
+      if (!isGuestMode &&
+          mounted &&
+          Provider.of<OrderController>(context, listen: false)
+                  .orderStatusList != // Assuming orderStatusList is the name in OrderController
+              null &&
+          Provider.of<OrderController>(context, listen: false)
+              .orderStatusList!
+              .isNotEmpty) {
+        Provider.of<OrderController>(context, listen: false)
+            .setIndex(0, notify: true); // Notify to update UI with selected tab
+        // getOrderList is called within setIndex in the controller
+      } else if (!isGuestMode) {
+        // Fallback if statuses couldn't be loaded, or handle as error
+        // Or, if setIndex(0) implicitly handles 'ongoing' without API-fetched statuses initially:
+         Provider.of<OrderController>(context, listen: false).setIndex(0, notify: true);
+      }
+    });
   }
 
   @override
@@ -48,22 +66,51 @@ class _OrderScreenState extends State<OrderScreen> {
               message: getTranslated('to_view_the_order_history', context))
           : Consumer<OrderController>(
               builder: (context, orderController, child) {
+              // Assuming orderController.orderStatusList is the list of status objects
+              // And each status object has a 'localizationKey' (e.g., 'RUNNING', 'DELIVERED')
+              // And OrderController.setIndex(index) now uses this index to correctly
+              // set its internal 'selectedType' based on this orderStatusList.
+
               return Column(
                 children: [
-                  Padding(
-                      padding:
-                          const EdgeInsets.all(Dimensions.paddingSizeLarge),
-                      child: Row(children: [
-                        OrderTypeButton(
-                            text: getTranslated('RUNNING', context), index: 0),
-                        const SizedBox(width: Dimensions.paddingSizeSmall),
-                        OrderTypeButton(
-                            text: getTranslated('DELIVERED', context),
-                            index: 1),
-                        const SizedBox(width: Dimensions.paddingSizeSmall),
-                        OrderTypeButton(
-                            text: getTranslated('CANCELED', context), index: 2)
-                      ])),
+                  if (orderController.orderStatusList != null &&
+                      orderController.orderStatusList!.isNotEmpty)
+                    Padding(
+                        padding:
+                            const EdgeInsets.all(Dimensions.paddingSizeLarge),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          child: Row(
+                            children: List.generate(
+                              orderController.orderStatusList!.length,
+                              (int index) {
+                                // IMPORTANT: Replace 'localizationKey' with the actual property name
+                                // in your status object that holds the translation key.
+                                // If the name itself is the key (like 'RUNNING'), use status.name or similar.
+                                var status = orderController.orderStatusList![index];
+                                String buttonText = getTranslated(getTranslated(status.statusName, context), context) ?? status.statusName!;
+
+                                return Padding(
+                                  padding: EdgeInsetsDirectional.only(
+                                      end: index == orderController.orderStatusList!.length - 1
+                                          ? 0
+                                          : Dimensions.paddingSizeSmall),
+                                  child: OrderStatusTypeButton( // Ensure OrderTypeButton is the correct widget name
+                                    orderStatus: status, // Use the correct property name
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ))
+                  else
+                    Container( // Placeholder while statuses are loading or if empty
+                      height: 50, // Adjust height as needed
+                      alignment: Alignment.center,
+                      // child: CircularProgressIndicator(), // Optional: show a loader
+                    ),
+
                   Expanded(
                       child: orderController.orderModel != null
                           ? (orderController.orderModel!.orders != null &&

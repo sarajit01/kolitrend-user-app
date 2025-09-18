@@ -41,6 +41,7 @@ class Orders {
   String? cause;
   String? createdAt;
   String? updatedAt;
+  String? thumbnail;
   double? discountAmount;
   String? discountType;
   String? couponCode;
@@ -77,7 +78,7 @@ class Orders {
 
   // custom code
   int? warehouseAddress;
-  Double? receivedPackageWeight;
+  double? receivedPackageWeight;
   String? storeName;
   String? createdAtFormatted;
 
@@ -100,6 +101,7 @@ class Orders {
     this.cause,
     this.createdAt,
     this.updatedAt,
+    this.thumbnail,
     this.discountAmount,
     this.discountType,
     this.couponCode,
@@ -171,6 +173,7 @@ class Orders {
     cause = json['cause'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    thumbnail = json['thumbnail'];
     discountAmount = json['discount_amount'].toDouble();
     discountType = json['discount_type'];
     couponCode = json['coupon_code'];
@@ -228,7 +231,9 @@ class Orders {
 
     // custom code
     warehouseAddress = json['warehouse_address'] ;
-    receivedPackageWeight = json['received_package_weight'];
+    if (json['received_package_weight'] != null) {
+      receivedPackageWeight = double.tryParse(json['received_package_weight']);
+    }
     storeName = json['store_name'];
     createdAtFormatted = json['created_at_formatted'];
 

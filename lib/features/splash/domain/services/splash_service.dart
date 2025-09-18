@@ -40,4 +40,15 @@ class SplashService implements SplashServiceInterface {
   bool? showIntro() {
     return splashRepositoryInterface.showIntro();
   }
+
+  @override
+  void setShoppingCountry(String shoppingCountry) {
+    return splashRepositoryInterface.setShoppingCountry(shoppingCountry);
+  }
+
+  @override
+  String getShoppingCountry(){
+    return splashRepositoryInterface.getShoppingCountry();
+  }
+
 }

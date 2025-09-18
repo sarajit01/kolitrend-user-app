@@ -4,6 +4,8 @@ abstract class SplashServiceInterface {
   void initSharedData();
   String getCurrency();
   void setCurrency(String currencyCode);
+  void setShoppingCountry(String shoppingCountry);
+  String getShoppingCountry();
   void disableIntro();
   bool? showIntro();
 }
