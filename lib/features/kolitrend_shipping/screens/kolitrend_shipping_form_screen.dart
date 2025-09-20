@@ -210,6 +210,14 @@ class KolitrendShippingFormScreenState
 
   @override
   void initState() {
+    if (_countryOfOriginCodeController.text.isEmpty) {
+      _countryOfOriginCodeController.text = 'tr';
+    }
+
+    if (_destinationCountryCodeController.text.isEmpty) {
+      _destinationCountryCodeController.text = 'fr';
+    }
+
     Provider.of<KolitrendShippingController>(context, listen: false)
         .getBranches(_countryOfOriginCodeController.text);
 
@@ -453,14 +461,6 @@ class KolitrendShippingFormScreenState
           // _lastNameController.text = profile.userInfoModel!.lName??'';
           // _emailController.text = profile.userInfoModel!.email??'';
           // _phoneController.text = profile.userInfoModel!.phone??'';
-
-          if (_countryOfOriginCodeController.text.isEmpty) {
-            _countryOfOriginCodeController.text = 'tr';
-          }
-
-          if (_destinationCountryCodeController.text.isEmpty) {
-            _destinationCountryCodeController.text = 'fr';
-          }
 
           if (kolitrendShippingController.branchesList.isNotEmpty) {
             _senderBranchController.text =

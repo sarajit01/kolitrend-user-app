@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_country_textfield_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_image_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/tappable_tooltip.dart';
 import 'package:flutter_sixvalley_ecommerce/features/buy_for_me/controllers/buy_for_me_controller.dart';
@@ -22,6 +23,7 @@ import 'package:flutter_sixvalley_ecommerce/utill/images.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_button_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_textfield_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/show_custom_snakbar_widget.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -122,7 +124,6 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
   List<File> files = [];
 
   List<String> _productImageUrls = []; // To store URLs from the uploader
-
 
   File? file;
   CurrencyList? itemPriceLocalCurrency;
@@ -268,7 +269,8 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
   }
 
   // Modify _removeImage
-  void _removeImage(ImageUploadModel imageToRemove) { // Parameter type changed
+  void _removeImage(ImageUploadModel imageToRemove) {
+    // Parameter type changed
     // TODO: If imageToRemove.status == ImageUploadStatus.uploading,
     // you might want to cancel the Dio request. Dio supports CancelToken for this.
     setState(() {
@@ -286,7 +288,8 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
 
     String fileName = imageModel.file.path.split('/').last;
     FormData formData = FormData.fromMap({
-      "image": await MultipartFile.fromFile(imageModel.file.path, filename: fileName),
+      "image": await MultipartFile.fromFile(imageModel.file.path,
+          filename: fileName),
       // You can add other form data if your API expects it
       // "user_id": "123",
     });
@@ -313,7 +316,8 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
         setState(() {
           imageModel.status = ImageUploadStatus.completed;
           // Adjust based on your API response structure
-          imageModel.uploadedUrl = responseData['url'] ?? responseData['file_path'];
+          imageModel.uploadedUrl =
+              responseData['url'] ?? responseData['file_path'];
           imageModel.progress = 1.0;
         });
       } else {
@@ -329,7 +333,6 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
       });
     }
   }
-
 
   bool _checkIfOrderSummaryUpdatable() {
     // check if category was selected
@@ -618,28 +621,33 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
     _quantityController.text = '1';
     if (Provider.of<SplashController>(Get.context!, listen: false).myCurrency !=
         null) {
-      itemPriceLocalCurrency =  Provider.of<SplashController>(Get.context!, listen: false)
-          .myCurrency;
+      itemPriceLocalCurrency =
+          Provider.of<SplashController>(Get.context!, listen: false).myCurrency;
       shippingCostLocalCurrency = itemPriceLocalCurrency;
-      _localItemCurrencyController.text = itemPriceLocalCurrency!.code! ;
+      _localItemCurrencyController.text = itemPriceLocalCurrency!.code!;
       _localShipCurrencyController.text = shippingCostLocalCurrency!.code!;
-
     }
     _buyingCountryCodeController.text = 'tr'; // Reset to default
     _deliveryCountryCodeController.text = 'fr'; // Reset to default
 
-    showCustomSnackBar("Added successfully", context, isError: false, isToaster: true);
+    showCustomSnackBar("Added successfully", context,
+        isError: false, isToaster: true);
   }
 
   _onLocalItemPriceUpdate() {
-    if (_localItemPriceController.text.isNotEmpty){
-      _itemPriceController.text = (double.parse(_localItemPriceController.text) / itemPriceLocalCurrency!.exchangeRate!).toStringAsFixed(2);
+    if (_localItemPriceController.text.isNotEmpty) {
+      _itemPriceController.text =
+          (double.parse(_localItemPriceController.text) /
+                  itemPriceLocalCurrency!.exchangeRate!)
+              .toStringAsFixed(2);
     }
   }
 
   _onLocalShippingCostUpdate() {
-    if (_localShipCostController.text.isNotEmpty){
-      _shipCostController.text = (double.parse(_localShipCostController.text) / shippingCostLocalCurrency!.exchangeRate!).toStringAsFixed(2);
+    if (_localShipCostController.text.isNotEmpty) {
+      _shipCostController.text = (double.parse(_localShipCostController.text) /
+              shippingCostLocalCurrency!.exchangeRate!)
+          .toStringAsFixed(2);
     }
   }
 
@@ -749,19 +757,19 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
           _shipCurrencyController.text = 'EUR';
 
           if (Provider.of<SplashController>(context).myCurrency != null) {
-
             if (_localItemCurrencyController.text.isEmpty) {
-              itemPriceLocalCurrency =  Provider.of<SplashController>(Get.context!, listen: false)
-                  .myCurrency;
-              _localItemCurrencyController.text =
-                 itemPriceLocalCurrency!.code!;
+              itemPriceLocalCurrency =
+                  Provider.of<SplashController>(Get.context!, listen: false)
+                      .myCurrency;
+              _localItemCurrencyController.text = itemPriceLocalCurrency!.code!;
             }
             if (_localShipCurrencyController.text.isEmpty) {
-              shippingCostLocalCurrency = Provider.of<SplashController>(Get.context!, listen: false)
-                  .myCurrency;
+              shippingCostLocalCurrency =
+                  Provider.of<SplashController>(Get.context!, listen: false)
+                      .myCurrency;
 
               _localShipCurrencyController.text =
-                 shippingCostLocalCurrency!.code!;
+                  shippingCostLocalCurrency!.code!;
             }
           }
 
@@ -1211,8 +1219,11 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                           const SizedBox(height: Dimensions.paddingSizeDefault),
 
                           ImageUploaderWidget(
-                            uploadUrl: "https://www.kolitrend.com" + AppConstants.imgUploadUri, // IMPORTANT: Replace this
-                            dioInstance: _dio, // Pass your existing Dio instance
+                            uploadUrl: "https://www.kolitrend.com" +
+                                AppConstants
+                                    .imgUploadUri, // IMPORTANT: Replace this
+                            dioInstance:
+                                _dio, // Pass your existing Dio instance
                             onUploadComplete: (List<String> urls) {
                               setState(() {
                                 _productImageUrls = urls;
@@ -1223,56 +1234,56 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                             maxImages: 20, // Example: limit to 5 images
                           ),
 
-                            // Container(
-                            //   height: 250,
-                            //   child: ListView(
-                            //       physics: const BouncingScrollPhysics(),
-                            //       children: [
-                            //         SizedBox(height: 12),
-                            //         Container(
-                            //           height: 250,
-                            //           child: GridView.builder(
-                            //             itemCount: _images.length,
-                            //             gridDelegate:
-                            //                 SliverGridDelegateWithFixedCrossAxisCount(
-                            //               crossAxisCount: 3,
-                            //               crossAxisSpacing: 8,
-                            //               mainAxisSpacing: 8,
-                            //             ),
-                            //             itemBuilder: (context, index) {
-                            //               return Stack(
-                            //                 children: [
-                            //                   Positioned.fill(
-                            //                     child: Image.file(
-                            //                       File(_images[index].path),
-                            //                       fit: BoxFit.cover,
-                            //                     ),
-                            //                   ),
-                            //                   Positioned(
-                            //                     top: 2,
-                            //                     right: 2,
-                            //                     child: GestureDetector(
-                            //                       onTap: () =>
-                            //                           _removeImage(index),
-                            //                       child: Container(
-                            //                         decoration: BoxDecoration(
-                            //                           color: Colors.black54,
-                            //                           shape: BoxShape.circle,
-                            //                         ),
-                            //                         child: Icon(Icons.close,
-                            //                             color: Colors.white,
-                            //                             size: 20),
-                            //                       ),
-                            //                     ),
-                            //                   ),
-                            //                 ],
-                            //               );
-                            //             },
-                            //           ),
-                            //         ),
-                            //         SizedBox(height: 12)
-                            //       ]),
-                            // ),
+                          // Container(
+                          //   height: 250,
+                          //   child: ListView(
+                          //       physics: const BouncingScrollPhysics(),
+                          //       children: [
+                          //         SizedBox(height: 12),
+                          //         Container(
+                          //           height: 250,
+                          //           child: GridView.builder(
+                          //             itemCount: _images.length,
+                          //             gridDelegate:
+                          //                 SliverGridDelegateWithFixedCrossAxisCount(
+                          //               crossAxisCount: 3,
+                          //               crossAxisSpacing: 8,
+                          //               mainAxisSpacing: 8,
+                          //             ),
+                          //             itemBuilder: (context, index) {
+                          //               return Stack(
+                          //                 children: [
+                          //                   Positioned.fill(
+                          //                     child: Image.file(
+                          //                       File(_images[index].path),
+                          //                       fit: BoxFit.cover,
+                          //                     ),
+                          //                   ),
+                          //                   Positioned(
+                          //                     top: 2,
+                          //                     right: 2,
+                          //                     child: GestureDetector(
+                          //                       onTap: () =>
+                          //                           _removeImage(index),
+                          //                       child: Container(
+                          //                         decoration: BoxDecoration(
+                          //                           color: Colors.black54,
+                          //                           shape: BoxShape.circle,
+                          //                         ),
+                          //                         child: Icon(Icons.close,
+                          //                             color: Colors.white,
+                          //                             size: 20),
+                          //                       ),
+                          //                     ),
+                          //                   ),
+                          //                 ],
+                          //               );
+                          //             },
+                          //           ),
+                          //         ),
+                          //         SizedBox(height: 12)
+                          //       ]),
+                          // ),
 
                           // InkWell(
                           //   onTap: _pickImages,
@@ -1564,36 +1575,34 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
                                 _buildErrorText(_storeNameErrorText),
                               ]),
 
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
 
+                          CustomCountryFieldWidget(),
 
                           const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                          // Column(
-                          //     crossAxisAlignment: CrossAxisAlignment.start,
-                          //     children: [
-                          //       CustomTextFieldWidget(
-                          //         labelText:
-                          //         getTranslated('Buying Country', context),
-                          //         inputType: TextInputType.name,
-                          //         focusNode: _buyingCountryFocus,
-                          //         nextFocus: _deliveryCountryFocus,
-                          //         required: true,
-                          //         readOnly: true,
-                          //         hintText: getTranslated(
-                          //             "Select", context),
-                          //         onChanged: (value) {
-                          //           if (_storeNameErrorText != null)
-                          //             setState(
-                          //                     () => _storeNameErrorText = null);
-                          //         },
-                          //       ),
-                          //       _buildErrorText(_storeNameErrorText),
-                          //     ]),
-                          //
-                          //
-                          //
-                          // const SizedBox(height: Dimensions.paddingSizeLarge),
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomTextFieldWidget(
+                                  labelText:
+                                      getTranslated('Buying Country', context),
+                                  inputType: TextInputType.name,
+                                  focusNode: _buyingCountryFocus,
+                                  nextFocus: _deliveryCountryFocus,
+                                  required: true,
+                                  readOnly: true,
+                                  hintText: getTranslated("Select", context),
+                                  onChanged: (value) {
+                                    if (_storeNameErrorText != null)
+                                      setState(
+                                          () => _storeNameErrorText = null);
+                                  },
+                                ),
+                                _buildErrorText(_storeNameErrorText),
+                              ]),
 
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
 
                           Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
