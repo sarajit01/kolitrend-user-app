@@ -163,8 +163,8 @@ class _FashionThemeHomePageState extends State<FashionThemeHomePage> {
     shoppingCountry = Provider.of<SplashController>(context, listen: false).getShoppingCountry();
   }
 
-  void _openShoppingCountryBottomSheet() async {
-    final value = await showModalBottomSheet<String>(
+ void _openShoppingCountryBottomSheet() async {
+    final value = await showModalBottomSheet<CountryModel?>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -178,10 +178,11 @@ class _FashionThemeHomePageState extends State<FashionThemeHomePage> {
         );
       }
     );
+
     if (value != null) {
-      setState(() {
-        Provider.of<SplashController>(context, listen: false).setShoppingCountry(value);
-        shoppingCountry = value!;
+      setState(()  {
+        Provider.of<SplashController>(context, listen: false).setShoppingCountry(value.code!);
+        shoppingCountry = value.code!;
         showCustomSnackBar(getTranslated("Shopping country updated successfully", context), context, isError: false, isToaster: true);
       });
     }

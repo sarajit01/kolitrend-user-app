@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_country_textfield_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_image_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/controllers/shipping_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_company_model.dart';
@@ -45,6 +46,12 @@ class KolitrendShippingFormScreen extends StatefulWidget {
 
 class KolitrendShippingFormScreenState
     extends State<KolitrendShippingFormScreen> {
+
+  String? countryOfOriginCode;
+  String? senderCountryCode;
+  String? destinationCountryCode;
+  String? receipentCountryCode;
+
   final FocusNode _linkFocus = FocusNode();
   final FocusNode _senderBranchFocus = FocusNode();
   final FocusNode _senderFirstNameFocus = FocusNode();
@@ -207,23 +214,39 @@ class KolitrendShippingFormScreenState
     }
   }
 
+  _onCountryOfOriginCodeChanged(String? countryCode){
+    countryOfOriginCode = countryCode;
+    Provider.of<KolitrendShippingController>(context, listen: false)
+        .getBranches(countryOfOriginCode!);
+    Provider.of<KolitrendShippingController>(context, listen: false)
+        .onCountryChanged(countryOfOriginCode!, destinationCountryCode!);
+  }
+
+  _onDestinationCountryCodeChanged(String? countryCode){
+    destinationCountryCode = countryCode;
+    Provider.of<KolitrendShippingController>(context, listen: false)
+        .onCountryChanged(countryOfOriginCode!, destinationCountryCode!);
+  }
+
+  _onSenderCountryCodeChanged(String? countryCode){
+    senderCountryCode = countryCode;
+  }
+
+  _onReceipentCodeChanged(String? countryCode){
+    receipentCountryCode = countryCode;
+  }
+
 
   @override
   void initState() {
-    if (_countryOfOriginCodeController.text.isEmpty) {
-      _countryOfOriginCodeController.text = 'tr';
-    }
+    countryOfOriginCode ??= 'tr';
+    destinationCountryCode ??= 'fr';
 
-    if (_destinationCountryCodeController.text.isEmpty) {
-      _destinationCountryCodeController.text = 'fr';
-    }
+    _onCountryOfOriginCodeChanged(countryOfOriginCode);
 
-    Provider.of<KolitrendShippingController>(context, listen: false)
-        .getBranches(_countryOfOriginCodeController.text);
-
-    Provider.of<KolitrendShippingController>(context, listen: false)
-        .onCountryChanged(_countryOfOriginCodeController.text, _destinationCountryCodeController.text);
   }
+
+
 
   void _openShippingModesBottomSheet() async {
     final value = await showModalBottomSheet<ShippingMode>(
@@ -705,205 +728,9 @@ class KolitrendShippingFormScreenState
                         //
                         // ),
 
-                        ...[
-                          Text(getTranslated('Country of Origin', context)!,
-                              style: textRegular.copyWith(
-                                color: Theme.of(context).hintColor,
-                                fontSize: Dimensions.fontSizeSmall,
-                              )),
-                          const SizedBox(
-                              height: Dimensions.paddingSizeExtraSmall),
-                          SizedBox(
-                              height: 60,
-                              child: Consumer<AddressController>(
-                                  builder: (context, addressController, _) {
-                                return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Provider.of<SplashController>(context,
-                                                      listen: false)
-                                                  .configModel!
-                                                  .deliveryCountryRestriction ==
-                                              1
-                                          ? Container(
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              decoration: BoxDecoration(
-                                                  color: Theme.of(context)
-                                                      .cardColor,
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  border: Border.all(
-                                                      width: .1,
-                                                      color: Theme.of(context)
-                                                          .hintColor
-                                                          .withValues(
-                                                              alpha: 0.1))),
-                                              child: DropdownButtonFormField2<
-                                                  String>(
-                                                isExpanded: true,
-                                                isDense: true,
-                                                decoration: InputDecoration(
-                                                    contentPadding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                            vertical: 0),
-                                                    border: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(5))),
-                                                hint: Row(
-                                                  children: [
-                                                    Image.asset(Images.country),
-                                                    const SizedBox(
-                                                        width: Dimensions
-                                                            .paddingSizeSmall),
-                                                    Text(
-                                                        _countryOfOriginCodeController
-                                                            .text,
-                                                        style: textRegular
-                                                            .copyWith(
-                                                                fontSize: Dimensions
-                                                                    .fontSizeDefault,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .bodyLarge!
-                                                                    .color)),
-                                                  ],
-                                                ),
-                                                items: addressController
-                                                    .restrictedCountryList
-                                                    .map((item) => DropdownMenuItem<String>(
-                                                        value: item,
-                                                        child: Text(item,
-                                                            style: textRegular.copyWith(
-                                                                fontSize: Dimensions
-                                                                    .fontSizeSmall,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .bodyLarge
-                                                                    ?.color))))
-                                                    .toList(),
-                                                onChanged: (value) {
-                                                  _countryOfOriginCodeController
-                                                      .text = value!;
-                                                  print(
-                                                      "Selected Country of Origin");
-                                                  print(value);
-                                                  kolitrendShippingController
-                                                      .getBranches(value);
-                                                },
-                                                buttonStyleData:
-                                                    const ButtonStyleData(
-                                                  padding:
-                                                      EdgeInsets.only(right: 8),
-                                                ),
-                                                iconStyleData: IconStyleData(
-                                                    icon: Icon(
-                                                        Icons.arrow_drop_down,
-                                                        color: Theme.of(context)
-                                                            .hintColor),
-                                                    iconSize: 24),
-                                                dropdownStyleData:
-                                                    DropdownStyleData(
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
-                                                  ),
-                                                ),
-                                                menuItemStyleData:
-                                                    const MenuItemStyleData(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                horizontal:
-                                                                    16)),
-                                              ),
-                                            )
-                                          : Container(
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: Dimensions
-                                                          .paddingSizeSmall),
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius
-                                                      .circular(Dimensions
-                                                          .paddingSizeSmall),
-                                                  color: Theme.of(context)
-                                                      .cardColor,
-                                                  border: Border.all(
-                                                      color: Theme.of(context)
-                                                          .hintColor
-                                                          .withValues(
-                                                              alpha: .5))),
-                                              child: CodePickerWidget(
-                                                fromCountryList: true,
-                                                padding: const EdgeInsets.only(
-                                                    left: Dimensions
-                                                        .paddingSizeSmall),
-                                                flagWidth: 25,
-                                                onChanged: (val) {
-                                                  _countryOfOriginCodeController
-                                                      .text = val.code!;
-                                                  print(
-                                                      "Selected country code");
-                                                  print(val.code);
-                                                  kolitrendShippingController
-                                                      .getBranches(val.code!);
-                                                  kolitrendShippingController
-                                                      .getShippingModes(
-                                                          val.code!,
-                                                          _destinationCountryCodeController
-                                                              .text);
-                                                },
-                                                initialSelection:
-                                                    _countryOfOriginCodeController
-                                                        .text,
-                                                showDropDownButton: true,
-                                                showCountryOnly: false,
-                                                showOnlyCountryWhenClosed: true,
-                                                showFlagDialog: true,
-                                                hideMainText: false,
-                                                showFlagMain: false,
-                                                dialogBackgroundColor:
-                                                    Theme.of(context).cardColor,
-                                                barrierColor:
-                                                    Provider.of<ThemeController>(
-                                                                context)
-                                                            .darkTheme
-                                                        ? Colors.black
-                                                            .withValues(
-                                                                alpha: 0.4)
-                                                        : null,
-                                                textStyle: textRegular.copyWith(
-                                                  fontSize:
-                                                      Dimensions.fontSizeLarge,
-                                                  color: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyLarge!
-                                                      .color,
-                                                ),
-                                                dialogTextStyle:
-                                                    textRegular.copyWith(
-                                                  fontSize: Dimensions
-                                                      .fontSizeDefault,
-                                                  color: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyLarge!
-                                                      .color,
-                                                ),
-                                              ),
-                                            ),
-                                    ]);
-                              })),
-                        ],
+                        CustomCountryFieldWidget(label: getTranslated('Country of Origin', context), selectedCountryCode: countryOfOriginCode, onCountryChanged: _onCountryOfOriginCodeChanged),
+
+                        SizedBox(height: Dimensions.paddingSizeLarge),
 
                         // Text('${kolitrendShippingController.branchesList[0].branchName}'),
                         CustomTextFieldWidget(
@@ -1010,190 +837,10 @@ class KolitrendShippingFormScreenState
                         ),
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                        ...[
-                          Text(getTranslated('Country', context)!,
-                              style: textRegular.copyWith(
-                                color: Theme.of(context).hintColor,
-                                fontSize: Dimensions.fontSizeSmall,
-                              )),
-                          const SizedBox(
-                              height: Dimensions.paddingSizeExtraSmall),
-                          SizedBox(
-                              height: 60,
-                              child: Consumer<AddressController>(
-                                  builder: (context, addressController, _) {
-                                return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Provider.of<SplashController>(context,
-                                                      listen: false)
-                                                  .configModel!
-                                                  .deliveryCountryRestriction ==
-                                              1
-                                          ? Container(
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              decoration: BoxDecoration(
-                                                  color: Theme.of(context)
-                                                      .cardColor,
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  border: Border.all(
-                                                      width: .1,
-                                                      color: Theme.of(context)
-                                                          .hintColor
-                                                          .withValues(
-                                                              alpha: 0.1))),
-                                              child: DropdownButtonFormField2<
-                                                  String>(
-                                                isExpanded: true,
-                                                isDense: true,
-                                                decoration: InputDecoration(
-                                                    contentPadding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                            vertical: 0),
-                                                    border: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(5))),
-                                                hint: Row(
-                                                  children: [
-                                                    Image.asset(Images.country),
-                                                    const SizedBox(
-                                                        width: Dimensions
-                                                            .paddingSizeSmall),
-                                                    Text(
-                                                        _senderCountryCodeController
-                                                            .text,
-                                                        style: textRegular
-                                                            .copyWith(
-                                                                fontSize: Dimensions
-                                                                    .fontSizeDefault,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .bodyLarge!
-                                                                    .color)),
-                                                  ],
-                                                ),
-                                                items: addressController
-                                                    .restrictedCountryList
-                                                    .map((item) => DropdownMenuItem<String>(
-                                                        value: item,
-                                                        child: Text(item,
-                                                            style: textRegular.copyWith(
-                                                                fontSize: Dimensions
-                                                                    .fontSizeSmall,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .bodyLarge
-                                                                    ?.color))))
-                                                    .toList(),
-                                                onChanged: (value) {
-                                                  _senderCountryCodeController
-                                                      .text = value!;
-                                                },
-                                                buttonStyleData:
-                                                    const ButtonStyleData(
-                                                  padding:
-                                                      EdgeInsets.only(right: 8),
-                                                ),
-                                                iconStyleData: IconStyleData(
-                                                    icon: Icon(
-                                                        Icons.arrow_drop_down,
-                                                        color: Theme.of(context)
-                                                            .hintColor),
-                                                    iconSize: 24),
-                                                dropdownStyleData:
-                                                    DropdownStyleData(
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
-                                                  ),
-                                                ),
-                                                menuItemStyleData:
-                                                    const MenuItemStyleData(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                horizontal:
-                                                                    16)),
-                                              ),
-                                            )
-                                          : Container(
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: Dimensions
-                                                          .paddingSizeSmall),
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius
-                                                      .circular(Dimensions
-                                                          .paddingSizeSmall),
-                                                  color: Theme.of(context)
-                                                      .cardColor,
-                                                  border: Border.all(
-                                                      color: Theme.of(context)
-                                                          .hintColor
-                                                          .withValues(
-                                                              alpha: .5))),
-                                              child: CodePickerWidget(
-                                                fromCountryList: true,
-                                                padding: const EdgeInsets.only(
-                                                    left: Dimensions
-                                                        .paddingSizeSmall),
-                                                flagWidth: 25,
-                                                onChanged: (val) {
-                                                  _senderCountryCodeController
-                                                      .text = val.name!;
-                                                },
-                                                initialSelection:
-                                                    _senderCountryCodeController
-                                                        .text,
-                                                showDropDownButton: true,
-                                                showCountryOnly: false,
-                                                showOnlyCountryWhenClosed: true,
-                                                showFlagDialog: true,
-                                                hideMainText: false,
-                                                showFlagMain: false,
-                                                dialogBackgroundColor:
-                                                    Theme.of(context).cardColor,
-                                                barrierColor:
-                                                    Provider.of<ThemeController>(
-                                                                context)
-                                                            .darkTheme
-                                                        ? Colors.black
-                                                            .withValues(
-                                                                alpha: 0.4)
-                                                        : null,
-                                                textStyle: textRegular.copyWith(
-                                                  fontSize:
-                                                      Dimensions.fontSizeLarge,
-                                                  color: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyLarge!
-                                                      .color,
-                                                ),
-                                                dialogTextStyle:
-                                                    textRegular.copyWith(
-                                                  fontSize: Dimensions
-                                                      .fontSizeDefault,
-                                                  color: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyLarge!
-                                                      .color,
-                                                ),
-                                              ),
-                                            ),
-                                    ]);
-                              })),
-                        ],
+
+                        CustomCountryFieldWidget(label: getTranslated('Country', context), selectedCountryCode: senderCountryCode, onCountryChanged: _onSenderCountryCodeChanged),
+
+                        const SizedBox(height: Dimensions.paddingSizeDefault),
 
                         CustomTextFieldWidget(
                           labelText: getTranslated('Phone', context),
@@ -1229,197 +876,7 @@ class KolitrendShippingFormScreenState
 
                         const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                        ...[
-                          Text(getTranslated('Destination Country', context)!,
-                              style: textRegular.copyWith(
-                                color: Theme.of(context).hintColor,
-                                fontSize: Dimensions.fontSizeSmall,
-                              )),
-                          const SizedBox(
-                              height: Dimensions.paddingSizeExtraSmall),
-                          SizedBox(
-                              height: 60,
-                              child: Consumer<AddressController>(
-                                  builder: (context, addressController, _) {
-                                return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Provider.of<SplashController>(context,
-                                                      listen: false)
-                                                  .configModel!
-                                                  .deliveryCountryRestriction ==
-                                              1
-                                          ? Container(
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              decoration: BoxDecoration(
-                                                  color: Theme.of(context)
-                                                      .cardColor,
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  border: Border.all(
-                                                      width: .1,
-                                                      color: Theme.of(context)
-                                                          .hintColor
-                                                          .withValues(
-                                                              alpha: 0.1))),
-                                              child: DropdownButtonFormField2<
-                                                  String>(
-                                                isExpanded: true,
-                                                isDense: true,
-                                                focusNode:
-                                                    _destinationCountryFocus,
-                                                decoration: InputDecoration(
-                                                    contentPadding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                            vertical: 0),
-                                                    border: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(5))),
-                                                hint: Row(
-                                                  children: [
-                                                    Image.asset(Images.country),
-                                                    const SizedBox(
-                                                        width: Dimensions
-                                                            .paddingSizeSmall),
-                                                    Text(
-                                                        _destinationCountryCodeController
-                                                            .text,
-                                                        style: textRegular
-                                                            .copyWith(
-                                                                fontSize: Dimensions
-                                                                    .fontSizeDefault,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .bodyLarge!
-                                                                    .color)),
-                                                  ],
-                                                ),
-                                                items: addressController
-                                                    .restrictedCountryList
-                                                    .map((item) => DropdownMenuItem<String>(
-                                                        value: item,
-                                                        child: Text(item,
-                                                            style: textRegular.copyWith(
-                                                                fontSize: Dimensions
-                                                                    .fontSizeSmall,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .bodyLarge
-                                                                    ?.color))))
-                                                    .toList(),
-                                                onChanged: (value) {
-                                                  _destinationCountryCodeController
-                                                      .text = value!;
-                                                },
-                                                buttonStyleData:
-                                                    const ButtonStyleData(
-                                                  padding:
-                                                      EdgeInsets.only(right: 8),
-                                                ),
-                                                iconStyleData: IconStyleData(
-                                                    icon: Icon(
-                                                        Icons.arrow_drop_down,
-                                                        color: Theme.of(context)
-                                                            .hintColor),
-                                                    iconSize: 24),
-                                                dropdownStyleData:
-                                                    DropdownStyleData(
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
-                                                  ),
-                                                ),
-                                                menuItemStyleData:
-                                                    const MenuItemStyleData(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                horizontal:
-                                                                    16)),
-                                              ),
-                                            )
-                                          : Container(
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: Dimensions
-                                                          .paddingSizeSmall),
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius
-                                                      .circular(Dimensions
-                                                          .paddingSizeSmall),
-                                                  color: Theme.of(context)
-                                                      .cardColor,
-                                                  border: Border.all(
-                                                      color: Theme.of(context)
-                                                          .hintColor
-                                                          .withValues(
-                                                              alpha: .5))),
-                                              child: CodePickerWidget(
-                                                fromCountryList: true,
-                                                padding: const EdgeInsets.only(
-                                                    left: Dimensions
-                                                        .paddingSizeSmall),
-                                                flagWidth: 25,
-                                                onChanged: (val) {
-                                                  _destinationCountryCodeController
-                                                      .text = val.code!;
-                                                  kolitrendShippingController
-                                                      .getShippingModes(
-                                                          _countryOfOriginCodeController
-                                                              .text,
-                                                          val.code!);
-                                                },
-                                                initialSelection:
-                                                    _destinationCountryCodeController
-                                                        .text,
-                                                showDropDownButton: true,
-                                                showCountryOnly: false,
-                                                showOnlyCountryWhenClosed: true,
-                                                showFlagDialog: true,
-                                                hideMainText: false,
-                                                showFlagMain: false,
-                                                dialogBackgroundColor:
-                                                    Theme.of(context).cardColor,
-                                                barrierColor:
-                                                    Provider.of<ThemeController>(
-                                                                context)
-                                                            .darkTheme
-                                                        ? Colors.black
-                                                            .withValues(
-                                                                alpha: 0.4)
-                                                        : null,
-                                                textStyle: textRegular.copyWith(
-                                                  fontSize:
-                                                      Dimensions.fontSizeLarge,
-                                                  color: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyLarge!
-                                                      .color,
-                                                ),
-                                                dialogTextStyle:
-                                                    textRegular.copyWith(
-                                                  fontSize: Dimensions
-                                                      .fontSizeDefault,
-                                                  color: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyLarge!
-                                                      .color,
-                                                ),
-                                              ),
-                                            ),
-                                    ]);
-                              })),
-                        ],
+                        CustomCountryFieldWidget(label: getTranslated('Destination Country', context), selectedCountryCode: destinationCountryCode, onCountryChanged: _onDestinationCountryCodeChanged),
 
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 
@@ -1489,190 +946,7 @@ class KolitrendShippingFormScreenState
                         ),
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                        ...[
-                          Text(getTranslated('Country', context)!,
-                              style: textRegular.copyWith(
-                                color: Theme.of(context).hintColor,
-                                fontSize: Dimensions.fontSizeSmall,
-                              )),
-                          const SizedBox(
-                              height: Dimensions.paddingSizeExtraSmall),
-                          SizedBox(
-                              height: 60,
-                              child: Consumer<AddressController>(
-                                  builder: (context, addressController, _) {
-                                return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Provider.of<SplashController>(context,
-                                                      listen: false)
-                                                  .configModel!
-                                                  .deliveryCountryRestriction ==
-                                              1
-                                          ? Container(
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              decoration: BoxDecoration(
-                                                  color: Theme.of(context)
-                                                      .cardColor,
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  border: Border.all(
-                                                      width: .1,
-                                                      color: Theme.of(context)
-                                                          .hintColor
-                                                          .withValues(
-                                                              alpha: 0.1))),
-                                              child: DropdownButtonFormField2<
-                                                  String>(
-                                                isExpanded: true,
-                                                isDense: true,
-                                                decoration: InputDecoration(
-                                                    contentPadding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                            vertical: 0),
-                                                    border: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(5))),
-                                                hint: Row(
-                                                  children: [
-                                                    Image.asset(Images.country),
-                                                    const SizedBox(
-                                                        width: Dimensions
-                                                            .paddingSizeSmall),
-                                                    Text(
-                                                        _recipientCodeController
-                                                            .text,
-                                                        style: textRegular
-                                                            .copyWith(
-                                                                fontSize: Dimensions
-                                                                    .fontSizeDefault,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .bodyLarge!
-                                                                    .color)),
-                                                  ],
-                                                ),
-                                                items: addressController
-                                                    .restrictedCountryList
-                                                    .map((item) => DropdownMenuItem<String>(
-                                                        value: item,
-                                                        child: Text(item,
-                                                            style: textRegular.copyWith(
-                                                                fontSize: Dimensions
-                                                                    .fontSizeSmall,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .bodyLarge
-                                                                    ?.color))))
-                                                    .toList(),
-                                                onChanged: (value) {
-                                                  _recipientCodeController
-                                                      .text = value!;
-                                                },
-                                                buttonStyleData:
-                                                    const ButtonStyleData(
-                                                  padding:
-                                                      EdgeInsets.only(right: 8),
-                                                ),
-                                                iconStyleData: IconStyleData(
-                                                    icon: Icon(
-                                                        Icons.arrow_drop_down,
-                                                        color: Theme.of(context)
-                                                            .hintColor),
-                                                    iconSize: 24),
-                                                dropdownStyleData:
-                                                    DropdownStyleData(
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
-                                                  ),
-                                                ),
-                                                menuItemStyleData:
-                                                    const MenuItemStyleData(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                horizontal:
-                                                                    16)),
-                                              ),
-                                            )
-                                          : Container(
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: Dimensions
-                                                          .paddingSizeSmall),
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius
-                                                      .circular(Dimensions
-                                                          .paddingSizeSmall),
-                                                  color: Theme.of(context)
-                                                      .cardColor,
-                                                  border: Border.all(
-                                                      color: Theme.of(context)
-                                                          .hintColor
-                                                          .withValues(
-                                                              alpha: .5))),
-                                              child: CodePickerWidget(
-                                                fromCountryList: true,
-                                                padding: const EdgeInsets.only(
-                                                    left: Dimensions
-                                                        .paddingSizeSmall),
-                                                flagWidth: 25,
-                                                onChanged: (val) {
-                                                  _recipientCodeController
-                                                      .text = val.name!;
-                                                },
-                                                initialSelection:
-                                                    _recipientCodeController
-                                                        .text,
-                                                showDropDownButton: true,
-                                                showCountryOnly: false,
-                                                showOnlyCountryWhenClosed: true,
-                                                showFlagDialog: true,
-                                                hideMainText: false,
-                                                showFlagMain: false,
-                                                dialogBackgroundColor:
-                                                    Theme.of(context).cardColor,
-                                                barrierColor:
-                                                    Provider.of<ThemeController>(
-                                                                context)
-                                                            .darkTheme
-                                                        ? Colors.black
-                                                            .withValues(
-                                                                alpha: 0.4)
-                                                        : null,
-                                                textStyle: textRegular.copyWith(
-                                                  fontSize:
-                                                      Dimensions.fontSizeLarge,
-                                                  color: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyLarge!
-                                                      .color,
-                                                ),
-                                                dialogTextStyle:
-                                                    textRegular.copyWith(
-                                                  fontSize: Dimensions
-                                                      .fontSizeDefault,
-                                                  color: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyLarge!
-                                                      .color,
-                                                ),
-                                              ),
-                                            ),
-                                    ]);
-                              })),
-                        ],
+                        CustomCountryFieldWidget(label: getTranslated('Country', context), selectedCountryCode: receipentCountryCode, onCountryChanged: _onReceipentCodeChanged),
 
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 

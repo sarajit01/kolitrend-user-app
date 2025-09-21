@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/show_custom_snakbar_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/data/local/cache_response.dart';
 import 'package:flutter_sixvalley_ecommerce/data/model/api_response.dart';
+import 'package:flutter_sixvalley_ecommerce/features/address/domain/models/address_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/maintenance/maintenance_screen.dart';
 import 'package:flutter_sixvalley_ecommerce/features/splash/domain/models/business_pages_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/splash/domain/models/config_model.dart';
@@ -304,6 +305,30 @@ class SplashController extends ChangeNotifier {
   }
 
   void setCountry(int selectedIndex) {
+
+  }
+
+  CountryModel? getCountryByCode(String selectedCountryCode) {
+    if (_configModel == null || _configModel!.countries == null || _configModel!.countries!.isEmpty) {
+      // Return null or throw an error if config or countries list is not available
+      print("Warning: ConfigModel or countries list is null/empty in getCountryByCode.");
+      return null;
+    }
+
+    try {
+      // Use firstWhere to find the country.
+      // It throws a StateError if no element is found, so we wrap it in a try-catch
+      // or use firstWhereOrNull (from collection package, or implement similar logic).
+
+      // Option 1: Using firstWhere with a try-catch (standard Dart)
+      return _configModel!.countries!.firstWhere(
+            (country) => country.code?.toLowerCase() == selectedCountryCode.toLowerCase(),
+      );
+    } catch (e) {
+      // If no country is found with the given code, firstWhere throws an error.
+      print("Info: Country with code '$selectedCountryCode' not found. Error: $e");
+      return null;
+    }
 
   }
 }

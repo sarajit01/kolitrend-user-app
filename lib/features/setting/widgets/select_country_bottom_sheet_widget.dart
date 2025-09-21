@@ -13,7 +13,14 @@ import '../../../main.dart'; // Assuming Get.context comes from here
 class SelectCountryBottomSheetWidget extends StatefulWidget {
   final String? title;
   final String? selectedCountryCode;
-  const SelectCountryBottomSheetWidget({super.key, this.title, this.selectedCountryCode});
+  final CountryModel? selectedCountry;
+
+  const SelectCountryBottomSheetWidget({
+    super.key,
+    this.title,
+    this.selectedCountryCode,
+    this.selectedCountry
+  });
 
   @override
   State<SelectCountryBottomSheetWidget> createState() =>
@@ -24,6 +31,7 @@ class _SelectCountryBottomSheetWidgetState
     extends State<SelectCountryBottomSheetWidget> {
   String title = "";
   String? selectedCountryCode;
+  CountryModel? selectedCountry;
 
   @override
   void initState() {
@@ -32,6 +40,7 @@ class _SelectCountryBottomSheetWidgetState
     // if a country is already selected. For now, defaulting to the first.
     title = widget.title ?? getTranslated("select_country", Get.context!)!;
     selectedCountryCode = widget.selectedCountryCode ;
+    selectedCountry = widget.selectedCountry;
   }
 
   @override
@@ -112,6 +121,7 @@ class _SelectCountryBottomSheetWidgetState
                         onTap: () {
                           setState(() {
                             selectedCountryCode = country.code;
+                            selectedCountry = country;
                           });
                         },
                         child: Padding(
@@ -192,7 +202,7 @@ class _SelectCountryBottomSheetWidgetState
                 buttonText: '${getTranslated('select', context)}',
                 onTap: () {
                   // Ensure countries list is not empty and an item is selectable
-                  Navigator.pop(context , selectedCountryCode);
+                  Navigator.pop(context , selectedCountry);
                 },
               ),
             )
