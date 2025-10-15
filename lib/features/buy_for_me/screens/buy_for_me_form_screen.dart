@@ -135,7 +135,7 @@ class BuyForMeFormScreenState extends State<BuyForMeFormScreen> {
   final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
       GlobalKey<ScaffoldMessengerState>();
 
-  final _debouncer = DebounceHelper(milliseconds: 2000); // 500ms delay
+  final _debouncer = DebounceHelper(milliseconds: 2000); // 2s delay
 
   bool showForm = true;
 

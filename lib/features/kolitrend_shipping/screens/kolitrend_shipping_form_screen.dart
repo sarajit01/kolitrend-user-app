@@ -8,6 +8,7 @@ import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/controll
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_company_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_deli_time_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_mode_model.dart';
+import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_package.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_pkg_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_service_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/widgets/select_branch_bottom_sheet_widget.dart';
@@ -27,9 +28,11 @@ import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_button_widg
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_textfield_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../common/basewidget/amount_widget.dart';
 import '../../../common/basewidget/show_custom_snakbar_widget.dart';
+import '../../../helper/debounce_helper.dart';
 import '../../../helper/price_converter.dart';
 import '../../../main.dart';
 import '../../address/controllers/address_controller.dart';
@@ -46,7 +49,6 @@ class KolitrendShippingFormScreen extends StatefulWidget {
 
 class KolitrendShippingFormScreenState
     extends State<KolitrendShippingFormScreen> {
-
   String? countryOfOriginCode;
   String? senderCountryCode;
   String? destinationCountryCode;
@@ -161,6 +163,11 @@ class KolitrendShippingFormScreenState
 
   String _senderFirstName = '';
 
+  bool showForm = true;
+
+  final _debouncer = DebounceHelper(milliseconds: 2000); // 2s delay
+
+
   File? file;
   final picker = ImagePicker();
   final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
@@ -168,6 +175,7 @@ class KolitrendShippingFormScreenState
 
   final ImagePicker _picker = ImagePicker();
   List<XFile> _images = [];
+  List<ShippingPackageModel> packages = [];
 
   Future<void> _pickImages() async {
     final selected = await _picker.pickMultiImage();
@@ -203,9 +211,7 @@ class KolitrendShippingFormScreenState
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
         builder: (_) => SelectBuyForMeCurrencyBottomSheetWidget(
-            selectedCurrencyCode:
-            _packageCurrencyController.text )
-    );
+            selectedCurrencyCode: _packageCurrencyController.text));
     if (value != null) {
       print("Result from Dialog");
       setState(() {
@@ -214,7 +220,7 @@ class KolitrendShippingFormScreenState
     }
   }
 
-  _onCountryOfOriginCodeChanged(String? countryCode){
+  _onCountryOfOriginCodeChanged(String? countryCode) {
     countryOfOriginCode = countryCode;
     Provider.of<KolitrendShippingController>(context, listen: false)
         .getBranches(countryOfOriginCode!);
@@ -222,20 +228,19 @@ class KolitrendShippingFormScreenState
         .onCountryChanged(countryOfOriginCode!, destinationCountryCode!);
   }
 
-  _onDestinationCountryCodeChanged(String? countryCode){
+  _onDestinationCountryCodeChanged(String? countryCode) {
     destinationCountryCode = countryCode;
     Provider.of<KolitrendShippingController>(context, listen: false)
         .onCountryChanged(countryOfOriginCode!, destinationCountryCode!);
   }
 
-  _onSenderCountryCodeChanged(String? countryCode){
+  _onSenderCountryCodeChanged(String? countryCode) {
     senderCountryCode = countryCode;
   }
 
-  _onReceipentCodeChanged(String? countryCode){
+  _onReceipentCodeChanged(String? countryCode) {
     receipentCountryCode = countryCode;
   }
-
 
   @override
   void initState() {
@@ -243,10 +248,7 @@ class KolitrendShippingFormScreenState
     destinationCountryCode ??= 'fr';
 
     _onCountryOfOriginCodeChanged(countryOfOriginCode);
-
   }
-
-
 
   void _openShippingModesBottomSheet() async {
     final value = await showModalBottomSheet<ShippingMode>(
@@ -400,6 +402,138 @@ class KolitrendShippingFormScreenState
     }
   }
 
+  void _deleteItem(String id) {
+    setState(() {
+      packages.removeWhere((item) => item.id == id);
+    });
+    // Optional: Show a snackbar or confirmation
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Item deleted'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  _onPackageWidthChange(String value) {
+    _debouncer.run(() {
+      if (value.isNotEmpty) {
+        _packageWidthController.text =
+            double.tryParse(value)?.toStringAsFixed(2) ?? value;
+        _calculateVolWeight();
+      }
+    });
+
+  }
+
+  _onPackageHeightChange(String value) {
+    _debouncer.run((){
+      if (value.isNotEmpty) {
+        _packageHeightController.text =
+            double.tryParse(value)?.toStringAsFixed(2) ?? value;
+        _calculateVolWeight();
+      }
+    });
+
+  }
+
+  _onPackageLengthChange(String value) {
+    _debouncer.run(() {
+      if (value.isNotEmpty) {
+        _packageLengthController.text =
+            double.tryParse(value)?.toStringAsFixed(2) ?? value;
+        _calculateVolWeight();
+      }
+    });
+
+  }
+
+  _calculateVolWeight() {
+    if (_packageWidthController.text.isNotEmpty &&
+        _packageLengthController.text.isNotEmpty &&
+        _packageHeightController.text.isNotEmpty) {
+      double? _pkgWidth = double.tryParse(_packageWidthController.text);
+      double? _pkgHeight = double.tryParse(_packageHeightController.text);
+      double? _pkgLength = double.tryParse(_packageLengthController.text);
+
+      if (_pkgWidth != null && _pkgHeight != null && _pkgLength != null) {
+        double dividableValueBasedOnMode = 0;
+        if (_shippingModeController.text.isNotEmpty &&
+            _shippingModeController.text.toLowerCase().contains('road')) {
+          dividableValueBasedOnMode = 3000;
+        } else if (_shippingModeController.text.isNotEmpty &&
+            _shippingModeController.text.toLowerCase().contains('air')) {
+          dividableValueBasedOnMode = 5000;
+        }
+
+        _packageWeightVolController.text =
+            ((_pkgWidth * _pkgHeight * _pkgLength) / dividableValueBasedOnMode)
+                .toStringAsFixed(2);
+      }
+    }
+  }
+
+  _addPackage() {
+    if (_packageQuantityController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter package quantity', context), context);
+      return;
+    }
+
+    if (_packageDescController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter package description', context), context);
+      return;
+    }
+
+    if (_packageWeightController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter package weight', context), context);
+      return;
+    }
+
+    if (_packageLengthController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter package length', context), context);
+      return;
+    }
+
+    if (_packageWidthController.text.isEmpty){
+      showCustomSnackBar( getTranslated('Please enter package width', context), context);
+      return;
+    }
+
+    if (_packageHeightController.text.isEmpty){
+      showCustomSnackBar( getTranslated('Please enter package height', context), context);
+      return;
+    }
+
+    if (_packageWeightVolController.text.isEmpty){
+      showCustomSnackBar( getTranslated('Please fill the fields so that package volumetric weight can be calculated',
+          context), context);
+      return;
+    }
+
+    setState(() {
+      packages.add(ShippingPackageModel(
+        id: Uuid().v1() ,
+        quantity: int.tryParse(_packageQuantityController.text),
+        description: _packageDescController.text,
+        weight: double.tryParse(_packageWeightController.text),
+        length: double.tryParse(_packageLengthController.text),
+        width: double.tryParse(_packageWidthController.text),
+        height: double.tryParse(_packageHeightController.text),
+        vol_weight: double.tryParse(_packageWeightVolController.text),
+        shipment_invoice_amount: double.tryParse(_packageShipmentInvoiceAmountController.text),
+        currency: _packageCurrencyController.text
+      )
+      );
+    });
+
+    showCustomSnackBar(getTranslated("Package Added Successfully", context), context);
+    return;
+
+  }
 
   _updateUserAccount() async {
     showCustomSnackBar(
@@ -505,10 +639,11 @@ class KolitrendShippingFormScreenState
             _senderPhoneController.text =
                 kolitrendShippingController.branchesList[0].phone ?? "";
             _senderCountryCodeController.text =
-                kolitrendShippingController.branchesList[0].countryCode ?? _countryOfOriginCodeController.text;
+                kolitrendShippingController.branchesList[0].countryCode ??
+                    _countryOfOriginCodeController.text;
           }
 
-          if (_recipientCodeController.text.isEmpty){
+          if (_recipientCodeController.text.isEmpty) {
             _recipientCodeController.text = 'fr';
           }
 
@@ -538,16 +673,12 @@ class KolitrendShippingFormScreenState
                 .shippingDeliveryTimesList[0]!.deliveryTime!;
           }
 
-
-          if (Provider.of<SplashController>(context).myCurrency != null){
+          if (Provider.of<SplashController>(context).myCurrency != null) {
             if (_packageCurrencyController.text.isEmpty) {
-              _packageCurrencyController.text = Provider
-                  .of<SplashController>(context)
-                  .myCurrency!
-                  .code!;
+              _packageCurrencyController.text =
+                  Provider.of<SplashController>(context).myCurrency!.code!;
             }
           }
-
 
           return Stack(clipBehavior: Clip.none, children: [
             Container(
@@ -728,7 +859,10 @@ class KolitrendShippingFormScreenState
                         //
                         // ),
 
-                        CustomCountryFieldWidget(label: getTranslated('Country of Origin', context), selectedCountryCode: countryOfOriginCode, onCountryChanged: _onCountryOfOriginCodeChanged),
+                        CustomCountryFieldWidget(
+                            label: getTranslated('Country of Origin', context),
+                            selectedCountryCode: countryOfOriginCode,
+                            onCountryChanged: _onCountryOfOriginCodeChanged),
 
                         SizedBox(height: Dimensions.paddingSizeLarge),
 
@@ -837,8 +971,10 @@ class KolitrendShippingFormScreenState
                         ),
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 
-
-                        CustomCountryFieldWidget(label: getTranslated('Country', context), selectedCountryCode: senderCountryCode, onCountryChanged: _onSenderCountryCodeChanged),
+                        CustomCountryFieldWidget(
+                            label: getTranslated('Country', context),
+                            selectedCountryCode: senderCountryCode,
+                            onCountryChanged: _onSenderCountryCodeChanged),
 
                         const SizedBox(height: Dimensions.paddingSizeDefault),
 
@@ -876,7 +1012,11 @@ class KolitrendShippingFormScreenState
 
                         const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                        CustomCountryFieldWidget(label: getTranslated('Destination Country', context), selectedCountryCode: destinationCountryCode, onCountryChanged: _onDestinationCountryCodeChanged),
+                        CustomCountryFieldWidget(
+                            label:
+                                getTranslated('Destination Country', context),
+                            selectedCountryCode: destinationCountryCode,
+                            onCountryChanged: _onDestinationCountryCodeChanged),
 
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 
@@ -946,7 +1086,10 @@ class KolitrendShippingFormScreenState
                         ),
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                        CustomCountryFieldWidget(label: getTranslated('Country', context), selectedCountryCode: receipentCountryCode, onCountryChanged: _onReceipentCodeChanged),
+                        CustomCountryFieldWidget(
+                            label: getTranslated('Country', context),
+                            selectedCountryCode: receipentCountryCode,
+                            onCountryChanged: _onReceipentCodeChanged),
 
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 
@@ -1046,7 +1189,6 @@ class KolitrendShippingFormScreenState
                         ),
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 
-
                         if (_images.isNotEmpty)
                           Container(
                             height: 250,
@@ -1059,7 +1201,7 @@ class KolitrendShippingFormScreenState
                                     child: GridView.builder(
                                       itemCount: _images.length,
                                       gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                          SliverGridDelegateWithFixedCrossAxisCount(
                                         crossAxisCount: 3,
                                         crossAxisSpacing: 8,
                                         mainAxisSpacing: 8,
@@ -1102,39 +1244,41 @@ class KolitrendShippingFormScreenState
                         InkWell(
                           onTap: _pickImages,
                           child: Column(children: [
-                            _images.isEmpty ?
-                            Container(
-                              margin: const EdgeInsets.only(
-                                  top: Dimensions.marginSizeExtraLarge),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).cardColor,
-                                border:
-                                Border.all(color: Colors.white, width: 3),
-                                shape: BoxShape.circle,
-                              ),
-                              child:
-                              Stack(clipBehavior: Clip.none, children: [
-                                ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: CustomImageWidget(
-                                      image: "",
-                                      // "${profile.userInfoModel!.imageFullUrl?.path}",
-                                      height: Dimensions.profileImageSize,
-                                      fit: BoxFit.cover,
-                                      width: Dimensions.profileImageSize,
-                                    )),
-                              ]),
-                            ) :
-
-                            SizedBox(height: 12),
-
+                            _images.isEmpty
+                                ? Container(
+                                    margin: const EdgeInsets.only(
+                                        top: Dimensions.marginSizeExtraLarge),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).cardColor,
+                                      border: Border.all(
+                                          color: Colors.white, width: 3),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              child: CustomImageWidget(
+                                                image: "",
+                                                // "${profile.userInfoModel!.imageFullUrl?.path}",
+                                                height:
+                                                    Dimensions.profileImageSize,
+                                                fit: BoxFit.cover,
+                                                width:
+                                                    Dimensions.profileImageSize,
+                                              )),
+                                        ]),
+                                  )
+                                : SizedBox(height: 12),
                             Text(
                               _images.isEmpty
                                   ? getTranslated(
-                                  "Upload Photos", Get.context!)!
+                                      "Upload Photos", Get.context!)!
                                   : getTranslated(
-                                  "Add More Photos", Get.context!)!,
+                                      "Add More Photos", Get.context!)!,
                               style: textBold.copyWith(
                                   color: Theme.of(context).colorScheme.primary,
                                   fontSize: Dimensions.fontSizeLarge),
@@ -1142,22 +1286,168 @@ class KolitrendShippingFormScreenState
                           ]),
                         ),
 
-
                         const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                        if (showForm == false || showForm == true) ...[
+                          SizedBox(height: 16),
+
+                          InkWell(
+                            child: const Text('Packages Added'),
+                          ),
+
+                          // Container holding the ListView
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.3),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: packages.isEmpty
+                                  ? Center(
+                                      child: Text(
+                                      'No items yet!',
+                                      style: TextStyle(
+                                          fontSize: 18, color: Colors.grey),
+                                    ))
+                                  : ListView.builder(
+                                      itemCount: packages.length,
+                                      itemBuilder: (context, index) {
+                                        final item = packages[index];
+                                        return Card(
+                                          elevation:
+                                              2.0, // Slight elevation for each card
+                                          margin: const EdgeInsets.symmetric(
+                                              vertical: 8.0, horizontal: 4.0),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(12.0),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: <Widget>[
+                                                // Left side: Name and Category
+                                                Expanded(
+                                                  // Use Expanded to prevent overflow if text is long
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: <Widget>[
+                                                      Text(
+                                                        item.quantity
+                                                            .toString()!,
+                                                        style: TextStyle(
+                                                          fontSize: 16.0,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                      SizedBox(height: 4.0),
+                                                      Text(
+                                                        item.vol_weight
+                                                            .toString()!,
+                                                        style: TextStyle(
+                                                          fontSize: 14.0,
+                                                          color: Colors
+                                                              .grey.shade700,
+                                                        ),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                    width:
+                                                        16), // Spacing between left and right content
+
+                                                // Right side: Price and Delete Icon
+                                                Row(
+                                                  children: <Widget>[
+                                                    Text(
+                                                      '\$${item.price!.toStringAsFixed(2)}', // Format price
+                                                      style: TextStyle(
+                                                        fontSize: 15.0,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color: Theme.of(context)
+                                                            .primaryColor,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 8.0),
+                                                    IconButton(
+                                                      icon: Icon(Icons
+                                                          .delete_outline_rounded),
+                                                      color:
+                                                          Colors.red.shade400,
+                                                      onPressed: () {
+                                                        _deleteItem(item.id!);
+                                                      },
+                                                      tooltip: 'Delete Item',
+                                                      constraints:
+                                                          BoxConstraints(), // Removes default padding if needed
+                                                      padding: EdgeInsets
+                                                          .zero, // Removes default padding
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                            ),
+                          ),
+
+                          SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          Container(
+                            padding: EdgeInsets.fromLTRB(
+                                Dimensions.paddingSizeDefault,
+                                0,
+                                Dimensions.paddingSizeDefault,
+                                6),
+                            child: true
+                                ? CustomButton(
+                                    onTap: () => {
+                                          setState(() {
+                                            showForm = true;
+                                          })
+                                        },
+                                    buttonText: getTranslated(
+                                        'Add New Package', context))
+                                : Center(
+                                    child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Theme.of(context).primaryColor),
+                                  )),
+                          ),
+                        ],
 
                         InkWell(
                           child: const Text('Package Information'),
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const ProfileScreen1()));
-                          },
                         ),
 
                         const SizedBox(height: Dimensions.paddingSizeSmall),
 
                         CustomTextFieldWidget(
                           labelText: getTranslated('Quantity', context),
-                          inputType: TextInputType.name,
+                          inputType: TextInputType.number,
                           focusNode: _packageQuantityFocus,
                           nextFocus: _packageDescFocus,
                           required: true,
@@ -1180,7 +1470,7 @@ class KolitrendShippingFormScreenState
 
                         CustomTextFieldWidget(
                           labelText: getTranslated('Weight (kg)', context),
-                          inputType: TextInputType.name,
+                          inputType: TextInputType.number,
                           focusNode: _packageWeightFocus,
                           nextFocus: _packageLengthFocus,
                           required: true,
@@ -1191,10 +1481,11 @@ class KolitrendShippingFormScreenState
 
                         CustomTextFieldWidget(
                           labelText: getTranslated('Length (cm)', context),
-                          inputType: TextInputType.name,
+                          inputType: TextInputType.number,
                           focusNode: _packageLengthFocus,
                           nextFocus: _packageWidthFocus,
                           required: true,
+                          onChanged: _onPackageLengthChange,
                           controller: _packageLengthController,
                         ),
 
@@ -1202,10 +1493,11 @@ class KolitrendShippingFormScreenState
 
                         CustomTextFieldWidget(
                           labelText: getTranslated('Width (cm)', context),
-                          inputType: TextInputType.name,
+                          inputType: TextInputType.number,
                           focusNode: _packageWidthFocus,
                           nextFocus: _packageHeightFocus,
                           required: true,
+                          onChanged: _onPackageWidthChange,
                           controller: _packageWidthController,
                         ),
 
@@ -1213,10 +1505,11 @@ class KolitrendShippingFormScreenState
 
                         CustomTextFieldWidget(
                           labelText: getTranslated('Height (cm)', context),
-                          inputType: TextInputType.name,
+                          inputType: TextInputType.number,
                           focusNode: _packageHeightFocus,
                           nextFocus: _packageWeightVolFocus,
                           required: true,
+                          onChanged: _onPackageHeightChange,
                           controller: _packageHeightController,
                         ),
 
@@ -1224,10 +1517,10 @@ class KolitrendShippingFormScreenState
 
                         CustomTextFieldWidget(
                           labelText: getTranslated('Weight Vol (kg)', context),
-                          inputType: TextInputType.name,
                           focusNode: _packageWeightVolFocus,
                           nextFocus: _packageShipmentInvoiceAmountFocus,
                           required: true,
+                          readOnly: true,
                           controller: _packageWeightVolController,
                         ),
 
@@ -1236,7 +1529,7 @@ class KolitrendShippingFormScreenState
                         CustomTextFieldWidget(
                           labelText:
                               getTranslated('Shipment Invoice Amount', context),
-                          inputType: TextInputType.name,
+                          inputType: TextInputType.number,
                           focusNode: _packageShipmentInvoiceAmountFocus,
                           nextFocus: _packageCurrencyFocus,
                           required: true,
@@ -1252,15 +1545,14 @@ class KolitrendShippingFormScreenState
                             required: true,
                             readOnly: true,
                             onTap: _openPackageCurrencyBottomSheet,
-                            controller: _packageCurrencyController
-                        ),
+                            controller: _packageCurrencyController),
 
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 
                         Container(
                           child: true
                               ? CustomButton(
-                                  onTap: _updateUserAccount,
+                                  onTap: _addPackage,
                                   buttonText:
                                       getTranslated('Add Package', context))
                               : Center(
