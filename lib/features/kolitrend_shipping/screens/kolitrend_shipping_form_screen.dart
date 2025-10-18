@@ -164,6 +164,9 @@ class KolitrendShippingFormScreenState
   String _senderFirstName = '';
 
   bool showForm = true;
+  bool showPackages = false;
+  bool showAddPackageForm = false;
+  String currentStep = "sender_info";
 
   final _debouncer = DebounceHelper(milliseconds: 2000); // 2s delay
 
@@ -176,6 +179,69 @@ class KolitrendShippingFormScreenState
   final ImagePicker _picker = ImagePicker();
   List<XFile> _images = [];
   List<ShippingPackageModel> packages = [];
+
+  void nextStep() {
+    if (currentStep == "sender_info") {
+      setState(() {
+        currentStep = "recipient_info";
+      });
+    } else if (currentStep == "recipient_info") {
+      setState(() {
+        currentStep = "shipping_info";
+      });
+    } else if (currentStep == "shipping_info") {
+      setState(() {
+        currentStep = "gallery";
+      });
+    } else if (currentStep == "gallery") {
+      setState(() {
+        currentStep = "add_package";
+      });
+    }
+    else if (currentStep == "add_package") {
+      setState(() {
+        currentStep = "packages";
+      });
+    }
+    else if (currentStep == "packages") {
+      setState(() {
+        currentStep = "overview";
+      });
+    }
+  }
+
+  void previousStep() {
+
+    if (currentStep == "overview") {
+      setState(() {
+        currentStep = "packages";
+      });
+    } else if (currentStep == "packages") {
+      setState(() {
+        currentStep = "add_package";
+      });
+    }
+    else if (currentStep == "add_package") {
+      setState(() {
+        currentStep = "gallery";
+      });
+    }
+    else if (currentStep == "gallery") {
+      setState(() {
+        currentStep = "shipping_info";
+      });
+    } else if (currentStep == "shipping_info") {
+      setState(() {
+        currentStep = "recipient_info";
+      });
+    }  else if (currentStep == "recipient_info") {
+      setState(() {
+        currentStep = "sender_info";
+      });
+    }
+
+  }
+
 
   Future<void> _pickImages() async {
     final selected = await _picker.pickMultiImage();
@@ -525,12 +591,13 @@ class KolitrendShippingFormScreenState
         height: double.tryParse(_packageHeightController.text),
         vol_weight: double.tryParse(_packageWeightVolController.text),
         shipment_invoice_amount: double.tryParse(_packageShipmentInvoiceAmountController.text),
-        currency: _packageCurrencyController.text
+        currency: _packageCurrencyController.text ,
+        price: 0.00
       )
       );
     });
 
-    showCustomSnackBar(getTranslated("Package Added Successfully", context), context);
+    showCustomSnackBar(getTranslated("Package Added Successfully", context), context, isError: false, isToaster: false);
     return;
 
   }
@@ -723,7 +790,7 @@ class KolitrendShippingFormScreenState
                           fontSize: 20, color: Colors.white),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
-                  const Spacer(),
+
                 ])),
             Container(
               padding: const EdgeInsets.only(top: 75),
@@ -764,9 +831,878 @@ class KolitrendShippingFormScreenState
                 //     style: textBold.copyWith(color:  Theme.of(context).colorScheme.secondaryContainer, fontSize: Dimensions.fontSizeLarge),
                 //   ),
                 // ]),
+
                 const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                Expanded(
+                // if (currentStep == "sender_info") ... [
+                //
+                //   Expanded(
+                //     child: Container(
+                //       padding: const EdgeInsets.symmetric(
+                //           horizontal: Dimensions.paddingSizeDefault),
+                //       decoration: BoxDecoration(
+                //         color: Theme.of(context).highlightColor,
+                //         borderRadius: const BorderRadius.only(
+                //           topLeft: Radius.circular(Dimensions.marginSizeDefault),
+                //           topRight: Radius.circular(Dimensions.marginSizeDefault),
+                //         ),
+                //       ),
+                //       child: ListView(
+                //         physics: const BouncingScrollPhysics(),
+                //         children: [
+                //           InkWell(
+                //             child: const Text('Sender Information'),
+                //             onTap: () {
+                //               Navigator.of(context).push(MaterialPageRoute(
+                //                   builder: (context) => const ProfileScreen1()));
+                //             },
+                //           ),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeSmall),
+                //
+                //           // SizedBox(
+                //           //   height: 60,
+                //           //   child: Consumer<AddressController>(
+                //           //      builder: (context, addressController, _) {
+                //           //        return Column(
+                //           //          crossAxisAlignment: CrossAxisAlignment.start,
+                //           //          children: [
+                //           //            Container(
+                //           //              width: MediaQuery.of(context).size.width,
+                //           //              decoration: BoxDecoration(
+                //           //                color: Theme.of(context).cardColor,
+                //           //                borderRadius: BorderRadius.circular(5),
+                //           //                border: Border.all(
+                //           //                  width: .1,
+                //           //                  color: Theme.of(context).hintColor.withValues(alpha: 0.01)
+                //           //                )
+                //           //              ),
+                //           //              child: DropdownButtonFormField2<String>(
+                //           //                isExpanded: true,
+                //           //                isDense: true,
+                //           //
+                //           //                decoration: InputDecoration(
+                //           //                  contentPadding:
+                //           //                    const EdgeInsets.symmetric(vertical: 0),
+                //           //                  border: OutlineInputBorder(
+                //           //                    borderRadius: BorderRadius.circular(5)
+                //           //                  )
+                //           //                ),
+                //           //                hint: Row(
+                //           //                 children: [
+                //           //                   Image.asset(Images.country),
+                //           //                   const SizedBox(width: Dimensions.paddingSizeSmall) ,
+                //           //                   Text(_countryOfOriginCodeController.text, style: textRegular.copyWith(
+                //           //                     fontSize: Dimensions.fontSizeDefault ,
+                //           //                     color: Theme.of(context).textTheme.bodyLarge!.color
+                //           //                   )
+                //           //                   )
+                //           //                 ]
+                //           //                ),
+                //           //                items: addressController.countryList
+                //           //                .map((item) => DropdownMenuItem<String>(
+                //           //                  value: item.code,
+                //           //                  child: Text(item.name!, style: textRegular.copyWith(
+                //           //                    fontSize: Dimensions.fontSizeDefault,
+                //           //                    color: Theme.of(context)
+                //           //                      .textTheme.bodyLarge!.color
+                //           //                  )),
+                //           //                )).toList(),
+                //           //
+                //           //                buttonStyleData: const ButtonStyleData(
+                //           //                  padding: EdgeInsets.only(right: 8)
+                //           //                ),
+                //           //                dropdownStyleData: DropdownStyleData(
+                //           //                  decoration: BoxDecoration(
+                //           //                    borderRadius: BorderRadius.circular(5)
+                //           //                  )
+                //           //                ),
+                //           //                menuItemStyleData: const MenuItemStyleData(
+                //           //                  padding: EdgeInsets.symmetric(horizontal: 16)
+                //           //                ),
+                //           //              ),
+                //           //            )
+                //           //          ],
+                //           //        );
+                //           //      }
+                //           //   ),
+                //           //
+                //           // ),
+                //
+                //           CustomCountryFieldWidget(
+                //               label: getTranslated('Country of Origin', context),
+                //               selectedCountryCode: countryOfOriginCode,
+                //               onCountryChanged: _onCountryOfOriginCodeChanged),
+                //
+                //           SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           // Text('${kolitrendShippingController.branchesList[0].branchName}'),
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Select Branch', context),
+                //             // labelText: "Your First Name",
+                //             // hintText: kolitrendShippingController.branchesList[0]?.branchName,
+                //             inputType: TextInputType.name,
+                //             focusNode: _senderBranchFocus,
+                //             nextFocus: _senderFirstNameFocus,
+                //             required: true,
+                //             readOnly: true,
+                //             controller: _senderBranchController,
+                //             // onTap: () => showModalBottomSheet(
+                //             //   backgroundColor: Colors.transparent,
+                //             //   isScrollControlled: true,
+                //             //   context: context,
+                //             //   builder: (_) =>
+                //             //       const SelectBranchBottomSheetWidget(),
+                //             // ),
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('First Name', context),
+                //             // labelText: "Your First Name",
+                //             inputType: TextInputType.name,
+                //             focusNode: _senderFirstNameFocus,
+                //             nextFocus: _senderLastNameFocus,
+                //             required: true,
+                //             readOnly: true,
+                //             hintText: 'John',
+                //             controller: _senderFirstNameController,
+                //             onChanged: (text) {
+                //               setState(() {
+                //                 // Update whatever state is driven by this text
+                //                 _senderFirstName = text;
+                //               });
+                //             },
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Last Name', context),
+                //             // labelText: "Your First Name",
+                //             inputType: TextInputType.name,
+                //             focusNode: _senderLastNameFocus,
+                //             nextFocus: _senderCompanyFocus,
+                //             required: true,
+                //             readOnly: true,
+                //             hintText: 'Doe',
+                //             controller: _senderLastNameController,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Company', context),
+                //             // labelText: "Your First Name",
+                //             inputType: TextInputType.name,
+                //             focusNode: _senderCompanyFocus,
+                //             nextFocus: _senderAddressFocus,
+                //             required: true,
+                //             readOnly: true,
+                //             hintText: 'ABC LLC',
+                //             controller: _senderCompanyController,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Address', context),
+                //             // labelText: "Your First Name",
+                //             inputType: TextInputType.name,
+                //             focusNode: _senderAddressFocus,
+                //             nextFocus: _senderZipFocus,
+                //             required: true,
+                //             readOnly: true,
+                //             hintText: 'AD Street',
+                //             controller: _senderAddressController,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Zip Code', context),
+                //             // labelText: "Your First Name",
+                //             inputType: TextInputType.name,
+                //             focusNode: _senderZipFocus,
+                //             nextFocus: _senderCityFocus,
+                //             required: true,
+                //             readOnly: true,
+                //             hintText: '4534667',
+                //             controller: _senderZipController,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('City', context),
+                //             // labelText: "Your First Name",
+                //             inputType: TextInputType.name,
+                //             focusNode: _senderCityFocus,
+                //             nextFocus: _senderPhoneFocus,
+                //             required: true,
+                //             readOnly: true,
+                //             hintText: 'Narayanganj',
+                //             controller: _senderCityController,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomCountryFieldWidget(
+                //               label: getTranslated('Country', context),
+                //               selectedCountryCode: senderCountryCode,
+                //               onCountryChanged: _onSenderCountryCodeChanged),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeDefault),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Phone', context),
+                //             // labelText: "Your First Name",
+                //             inputType: TextInputType.name,
+                //             focusNode: _senderPhoneFocus,
+                //             nextFocus: _senderEmailFocus,
+                //             required: true,
+                //             hintText: '9054435454',
+                //             controller: _senderPhoneController,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Email', context),
+                //             // labelText: "Your First Name",
+                //             inputType: TextInputType.name,
+                //             focusNode: _senderEmailFocus,
+                //             nextFocus: _destinationCountryFocus,
+                //             required: true,
+                //             hintText: 'john@example.com',
+                //             controller: _senderEmailController,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           InkWell(
+                //             child: const Text('Recipient Information'),
+                //             onTap: () {
+                //               Navigator.of(context).push(MaterialPageRoute(
+                //                   builder: (context) => const ProfileScreen1()));
+                //             },
+                //           ),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeSmall),
+                //
+                //           CustomCountryFieldWidget(
+                //               label:
+                //               getTranslated('Destination Country', context),
+                //               selectedCountryCode: destinationCountryCode,
+                //               onCountryChanged: _onDestinationCountryCodeChanged),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('First Name', context),
+                //             inputType: TextInputType.name,
+                //             focusNode: _recipientFirstNameFocus,
+                //             nextFocus: _recipientLastNameFocus,
+                //             required: true,
+                //             hintText: 'John',
+                //             controller: _recipientFirstNameController,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Last Name', context),
+                //             inputType: TextInputType.name,
+                //             focusNode: _recipientLastNameFocus,
+                //             nextFocus: _recipientCompanyFocus,
+                //             required: true,
+                //             hintText: 'Doe',
+                //             controller: _recipientLastNameController,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Company', context),
+                //             inputType: TextInputType.name,
+                //             focusNode: _recipientCompanyFocus,
+                //             nextFocus: _recipientAddressFocus,
+                //             required: true,
+                //             hintText: 'ABC LTD',
+                //             controller: _recipientCompanyController,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Address', context),
+                //             inputType: TextInputType.name,
+                //             focusNode: _recipientAddressFocus,
+                //             nextFocus: _recipientZipFocus,
+                //             required: true,
+                //             hintText: 'RD Street',
+                //             controller: _recipientAddressController,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Zip Code', context),
+                //             inputType: TextInputType.name,
+                //             focusNode: _recipientZipFocus,
+                //             nextFocus: _recipientCityFocus,
+                //             required: true,
+                //             hintText: '556544',
+                //             controller: _recipientZipController,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('City', context),
+                //             inputType: TextInputType.name,
+                //             focusNode: _recipientCityFocus,
+                //             nextFocus: _recipientCountryFocus,
+                //             required: true,
+                //             hintText: 'Narayanganj',
+                //             controller: _recipientCityController,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomCountryFieldWidget(
+                //               label: getTranslated('Country', context),
+                //               selectedCountryCode: receipentCountryCode,
+                //               onCountryChanged: _onReceipentCodeChanged),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Phone', context),
+                //             inputType: TextInputType.name,
+                //             focusNode: _recipientPhoneFocus,
+                //             nextFocus: _recipientEmailFocus,
+                //             required: true,
+                //             controller: _recipientPhoneController,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Email', context),
+                //             inputType: TextInputType.name,
+                //             focusNode: _recipientEmailFocus,
+                //             nextFocus: _shippingModeFocus,
+                //             required: true,
+                //             hintText: 'john@example.com',
+                //             controller: _recipientEmailController,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           InkWell(
+                //             child: const Text('Shipping Information'),
+                //             onTap: () {
+                //               Navigator.of(context).push(MaterialPageRoute(
+                //                   builder: (context) => const ProfileScreen1()));
+                //             },
+                //           ),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeSmall),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Shipping Mode', context),
+                //             inputType: TextInputType.name,
+                //             focusNode: _shippingModeFocus,
+                //             nextFocus: _shippingCompanyFocus,
+                //             required: true,
+                //             readOnly: true,
+                //             hintText: getTranslated('Select', context),
+                //             controller: _shippingModeController,
+                //             onTap: _openShippingModesBottomSheet,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Shipping Company', context),
+                //             inputType: TextInputType.name,
+                //             focusNode: _shippingCompanyFocus,
+                //             nextFocus: _shippingPackageTypeFocus,
+                //             required: true,
+                //             readOnly: true,
+                //             controller: _shippingCompanyController,
+                //             hintText: getTranslated('Select', context),
+                //             onTap: _openShippingCompaniesBottomSheet,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText:
+                //             getTranslated('Type of Packaging', context),
+                //             inputType: TextInputType.name,
+                //             focusNode: _shippingPackageTypeFocus,
+                //             nextFocus: _shippingServiceFocus,
+                //             required: true,
+                //             readOnly: true,
+                //             controller: _shippingPackageTypeController,
+                //             hintText: getTranslated("Select", context),
+                //             onTap: _openShippingPackageTypesBottomSheet,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Shipping Service', context),
+                //             inputType: TextInputType.name,
+                //             focusNode: _shippingServiceFocus,
+                //             nextFocus: _shippingDeliveryTimeFocus,
+                //             required: true,
+                //             readOnly: true,
+                //             controller: _shippingServiceController,
+                //             hintText: getTranslated("Select", context),
+                //             onTap: _openShippingServicesBottomSheet,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Delivery Time', context),
+                //             inputType: TextInputType.name,
+                //             focusNode: _shippingDeliveryTimeFocus,
+                //             required: true,
+                //             readOnly: true,
+                //             controller: _shippingDeliveryTimeController,
+                //             hintText: getTranslated("Select", context),
+                //             onTap: _openShippingDeliveryTimesBottomSheet,
+                //           ),
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           if (_images.isNotEmpty)
+                //             Container(
+                //               height: 250,
+                //               child: ListView(
+                //                   physics: const BouncingScrollPhysics(),
+                //                   children: [
+                //                     SizedBox(height: 12),
+                //                     Container(
+                //                       height: 250,
+                //                       child: GridView.builder(
+                //                         itemCount: _images.length,
+                //                         gridDelegate:
+                //                         SliverGridDelegateWithFixedCrossAxisCount(
+                //                           crossAxisCount: 3,
+                //                           crossAxisSpacing: 8,
+                //                           mainAxisSpacing: 8,
+                //                         ),
+                //                         itemBuilder: (context, index) {
+                //                           return Stack(
+                //                             children: [
+                //                               Positioned.fill(
+                //                                 child: Image.file(
+                //                                   File(_images[index].path),
+                //                                   fit: BoxFit.cover,
+                //                                 ),
+                //                               ),
+                //                               Positioned(
+                //                                 top: 2,
+                //                                 right: 2,
+                //                                 child: GestureDetector(
+                //                                   onTap: () =>
+                //                                       _removeImage(index),
+                //                                   child: Container(
+                //                                     decoration: BoxDecoration(
+                //                                       color: Colors.black54,
+                //                                       shape: BoxShape.circle,
+                //                                     ),
+                //                                     child: Icon(Icons.close,
+                //                                         color: Colors.white,
+                //                                         size: 20),
+                //                                   ),
+                //                                 ),
+                //                               ),
+                //                             ],
+                //                           );
+                //                         },
+                //                       ),
+                //                     ),
+                //                     SizedBox(height: 12)
+                //                   ]),
+                //             ),
+                //
+                //           InkWell(
+                //             onTap: _pickImages,
+                //             child: Column(children: [
+                //               _images.isEmpty
+                //                   ? Container(
+                //                 margin: const EdgeInsets.only(
+                //                     top: Dimensions.marginSizeExtraLarge),
+                //                 alignment: Alignment.center,
+                //                 decoration: BoxDecoration(
+                //                   color: Theme.of(context).cardColor,
+                //                   border: Border.all(
+                //                       color: Colors.white, width: 3),
+                //                   shape: BoxShape.circle,
+                //                 ),
+                //                 child: Stack(
+                //                     clipBehavior: Clip.none,
+                //                     children: [
+                //                       ClipRRect(
+                //                           borderRadius:
+                //                           BorderRadius.circular(20),
+                //                           child: CustomImageWidget(
+                //                             image: "",
+                //                             // "${profile.userInfoModel!.imageFullUrl?.path}",
+                //                             height:
+                //                             Dimensions.profileImageSize,
+                //                             fit: BoxFit.cover,
+                //                             width:
+                //                             Dimensions.profileImageSize,
+                //                           )),
+                //                     ]),
+                //               )
+                //                   : SizedBox(height: 12),
+                //               Text(
+                //                 _images.isEmpty
+                //                     ? getTranslated(
+                //                     "Upload Photos", Get.context!)!
+                //                     : getTranslated(
+                //                     "Add More Photos", Get.context!)!,
+                //                 style: textBold.copyWith(
+                //                     color: Theme.of(context).colorScheme.primary,
+                //                     fontSize: Dimensions.fontSizeLarge),
+                //               ),
+                //             ]),
+                //           ),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           if (showForm == false || showForm == true) ...[
+                //             SizedBox(height: 16),
+                //
+                //             InkWell(
+                //               child: const Text('Packages Added'),
+                //             ),
+                //
+                //             // Container holding the ListView
+                //             Expanded(
+                //               child: Container(
+                //                 height: 400,
+                //                 padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                //                 decoration: BoxDecoration(
+                //                   color: Colors.white,
+                //                   boxShadow: [
+                //                     BoxShadow(
+                //                       color: Colors.grey.withOpacity(0.3),
+                //                       spreadRadius: 2,
+                //                       blurRadius: 5,
+                //                       offset: Offset(0, 3),
+                //                     ),
+                //                   ],
+                //                 ),
+                //                 child: packages.isEmpty
+                //                     ? Center(
+                //                     child: Text(
+                //                       'No items yet!',
+                //                       style: TextStyle(
+                //                           fontSize: 18, color: Colors.grey),
+                //                     ))
+                //                     : ListView.builder(
+                //                   itemCount: packages.length,
+                //                   itemBuilder: (context, index) {
+                //                     final item = packages[index];
+                //                     return Card(
+                //                       elevation:
+                //                       2.0, // Slight elevation for each card
+                //                       margin: const EdgeInsets.symmetric(
+                //                           vertical: 8.0, horizontal: 4.0),
+                //                       shape: RoundedRectangleBorder(
+                //                         borderRadius:
+                //                         BorderRadius.circular(10.0),
+                //                       ),
+                //                       child: Padding(
+                //                         padding: const EdgeInsets.all(12.0),
+                //                         child: Row(
+                //                           mainAxisAlignment:
+                //                           MainAxisAlignment
+                //                               .spaceBetween,
+                //                           children: <Widget>[
+                //                             // Left side: Name and Category
+                //                             Expanded(
+                //                               // Use Expanded to prevent overflow if text is long
+                //                               child: Column(
+                //                                 crossAxisAlignment:
+                //                                 CrossAxisAlignment
+                //                                     .start,
+                //                                 children: <Widget>[
+                //                                   Text(
+                //                                     "${getTranslated("Quantity", context)}: " + item.quantity
+                //                                         .toString()!,
+                //                                     style: TextStyle(
+                //                                       fontSize: 16.0,
+                //                                       fontWeight:
+                //                                       FontWeight.bold,
+                //                                     ),
+                //                                     overflow: TextOverflow
+                //                                         .ellipsis,
+                //                                   ),
+                //                                   SizedBox(height: 4.0),
+                //                                   Text(
+                //                                     "${getTranslated("Volumetric Weight", context)}: ${item.weight!.toStringAsFixed(2)} kg", // Format price
+                //                                     style: TextStyle(
+                //                                       fontSize: 14.0,
+                //                                       color: Colors.grey.shade700,
+                //                                     ),
+                //                                   ),
+                //
+                //                                   SizedBox(height: 4.0),
+                //                                   Text(
+                //                                     "${getTranslated("Weight", context)}: ${item.weight!.toStringAsFixed(2)} kg", // Format price
+                //                                     style: TextStyle(
+                //                                       fontSize: 14.0,
+                //                                       color: Colors.grey.shade700,
+                //                                     ),
+                //                                   ),
+                //                                   SizedBox(height: 4.0),
+                //                                   Text(
+                //                                     "${item.width} X ${item.length} X ${item.height} cm"
+                //                                     ,
+                //                                     style: TextStyle(
+                //                                       fontSize: 14.0,
+                //                                       color: Colors
+                //                                           .grey.shade700,
+                //                                     ),
+                //                                     overflow: TextOverflow
+                //                                         .ellipsis,
+                //                                   )
+                //
+                //                                 ],
+                //                               ),
+                //                             ),
+                //                             SizedBox(
+                //                                 width:
+                //                                 16), // Spacing between left and right content
+                //
+                //                             // Right side: Price and Delete Icon
+                //                             Row(
+                //                               mainAxisAlignment: MainAxisAlignment
+                //                                   .end,
+                //                               children: <Widget>[
+                //                                 Column(
+                //                                   children: [
+                //
+                //
+                //                                   ],
+                //                                 ),
+                //                                 SizedBox(width: 8.0),
+                //                                 IconButton(
+                //                                   icon: Icon(Icons
+                //                                       .delete_outline_rounded),
+                //                                   color:
+                //                                   Colors.red.shade400,
+                //                                   onPressed: () {
+                //                                     _deleteItem(item.id!);
+                //                                   },
+                //                                   tooltip: 'Delete Item',
+                //                                   constraints:
+                //                                   BoxConstraints(), // Removes default padding if needed
+                //                                   padding: EdgeInsets
+                //                                       .zero, // Removes default padding
+                //                                 ),
+                //                               ],
+                //                             ),
+                //                           ],
+                //                         ),
+                //                       ),
+                //                     );
+                //                   },
+                //                 ),
+                //               ),
+                //             ),
+                //
+                //             SizedBox(height: Dimensions.paddingSizeSmall),
+                //
+                //             Container(
+                //               padding: EdgeInsets.fromLTRB(
+                //                   Dimensions.paddingSizeDefault,
+                //                   0,
+                //                   Dimensions.paddingSizeDefault,
+                //                   6),
+                //               child: true
+                //                   ? CustomButton(
+                //                   onTap: () => {
+                //                     setState(() {
+                //                       showForm = true;
+                //                     })
+                //                   },
+                //                   buttonText: getTranslated(
+                //                       'Add New Package', context))
+                //                   : Center(
+                //                   child: CircularProgressIndicator(
+                //                     valueColor: AlwaysStoppedAnimation<Color>(
+                //                         Theme.of(context).primaryColor),
+                //                   )),
+                //             ),
+                //           ],
+                //
+                //           InkWell(
+                //             child: const Text('Package Information'),
+                //           ),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeSmall),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Quantity', context),
+                //             inputType: TextInputType.number,
+                //             focusNode: _packageQuantityFocus,
+                //             nextFocus: _packageDescFocus,
+                //             required: true,
+                //             controller: _packageQuantityController,
+                //           ),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText:
+                //             getTranslated('Package Description', context),
+                //             inputType: TextInputType.name,
+                //             focusNode: _packageDescFocus,
+                //             nextFocus: _packageWeightFocus,
+                //             required: true,
+                //             controller: _packageDescController,
+                //           ),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Weight (kg)', context),
+                //             inputType: TextInputType.number,
+                //             focusNode: _packageWeightFocus,
+                //             nextFocus: _packageLengthFocus,
+                //             required: true,
+                //             controller: _packageWeightController,
+                //           ),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Length (cm)', context),
+                //             inputType: TextInputType.number,
+                //             focusNode: _packageLengthFocus,
+                //             nextFocus: _packageWidthFocus,
+                //             required: true,
+                //             onChanged: _onPackageLengthChange,
+                //             controller: _packageLengthController,
+                //           ),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Width (cm)', context),
+                //             inputType: TextInputType.number,
+                //             focusNode: _packageWidthFocus,
+                //             nextFocus: _packageHeightFocus,
+                //             required: true,
+                //             onChanged: _onPackageWidthChange,
+                //             controller: _packageWidthController,
+                //           ),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Height (cm)', context),
+                //             inputType: TextInputType.number,
+                //             focusNode: _packageHeightFocus,
+                //             nextFocus: _packageWeightVolFocus,
+                //             required: true,
+                //             onChanged: _onPackageHeightChange,
+                //             controller: _packageHeightController,
+                //           ),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText: getTranslated('Weight Vol (kg)', context),
+                //             focusNode: _packageWeightVolFocus,
+                //             nextFocus: _packageShipmentInvoiceAmountFocus,
+                //             required: true,
+                //             readOnly: true,
+                //             controller: _packageWeightVolController,
+                //           ),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //             labelText:
+                //             getTranslated('Shipment Invoice Amount', context),
+                //             inputType: TextInputType.number,
+                //             focusNode: _packageShipmentInvoiceAmountFocus,
+                //             nextFocus: _packageCurrencyFocus,
+                //             required: true,
+                //             controller: _packageShipmentInvoiceAmountController,
+                //           ),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           CustomTextFieldWidget(
+                //               labelText: getTranslated('Currency', context),
+                //               inputType: TextInputType.name,
+                //               focusNode: _packageCurrencyFocus,
+                //               required: true,
+                //               readOnly: true,
+                //               onTap: _openPackageCurrencyBottomSheet,
+                //               controller: _packageCurrencyController),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           Container(
+                //             child: true
+                //                 ? CustomButton(
+                //                 onTap: _addPackage,
+                //                 buttonText:
+                //                 getTranslated('Add Package', context))
+                //                 : Center(
+                //                 child: CircularProgressIndicator(
+                //                   valueColor: AlwaysStoppedAnimation<Color>(
+                //                       Theme.of(context).primaryColor),
+                //                 )),
+                //           ),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //
+                //           Text(getTranslated('order_summary', context) ?? '',
+                //               style: textMedium.copyWith(
+                //                   fontSize: Dimensions.fontSizeLarge,
+                //                   color: Theme.of(context)
+                //                       .textTheme
+                //                       .bodyLarge
+                //                       ?.color)),
+                //           const SizedBox(height: Dimensions.paddingSizeSmall),
+                //
+                //           Column(
+                //             children: [
+                //               AmountWidget(
+                //                   title:
+                //                   '${getTranslated('Weight', context)} ${'(${getTranslated('kg', context)})'}',
+                //                   amount: "0.0"),
+                //               AmountWidget(
+                //                   title:
+                //                   '${getTranslated('Volumetric Weight', context)} ${'(${getTranslated('kg', context)})'}',
+                //                   amount: "0.0"),
+                //               AmountWidget(
+                //                   title:
+                //                   '${getTranslated('Total Weight Calculation', context)} ${'(${getTranslated('kg', context)})'}',
+                //                   amount: "0.0"),
+                //               AmountWidget(
+                //                   title: '${getTranslated('sub_total', context)}',
+                //                   amount:
+                //                   PriceConverter.convertPrice(context, 0)),
+                //               AmountWidget(
+                //                   title: getTranslated('Total', context),
+                //                   amount: PriceConverter.convertPrice(context, 0))
+                //             ],
+                //           ),
+                //
+                //           const SizedBox(height: Dimensions.paddingSizeLarge),
+                //           // InkWell(
+                //           //   child: const Text('HEllo'),
+                //           //   onTap: (){
+                //           //     Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ProfileScreen1()));
+                //           //   },
+                //           // ),
+                //         ],
+                //       ),
+                //     ),
+                //   ),
+                //
+                // ] ,
+
+
+                // For sender info step
+                if (currentStep == "sender_info") ... [
+
+                  Expanded(
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: Dimensions.paddingSizeDefault),
@@ -790,74 +1726,6 @@ class KolitrendShippingFormScreenState
 
                         const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                        // SizedBox(
-                        //   height: 60,
-                        //   child: Consumer<AddressController>(
-                        //      builder: (context, addressController, _) {
-                        //        return Column(
-                        //          crossAxisAlignment: CrossAxisAlignment.start,
-                        //          children: [
-                        //            Container(
-                        //              width: MediaQuery.of(context).size.width,
-                        //              decoration: BoxDecoration(
-                        //                color: Theme.of(context).cardColor,
-                        //                borderRadius: BorderRadius.circular(5),
-                        //                border: Border.all(
-                        //                  width: .1,
-                        //                  color: Theme.of(context).hintColor.withValues(alpha: 0.01)
-                        //                )
-                        //              ),
-                        //              child: DropdownButtonFormField2<String>(
-                        //                isExpanded: true,
-                        //                isDense: true,
-                        //
-                        //                decoration: InputDecoration(
-                        //                  contentPadding:
-                        //                    const EdgeInsets.symmetric(vertical: 0),
-                        //                  border: OutlineInputBorder(
-                        //                    borderRadius: BorderRadius.circular(5)
-                        //                  )
-                        //                ),
-                        //                hint: Row(
-                        //                 children: [
-                        //                   Image.asset(Images.country),
-                        //                   const SizedBox(width: Dimensions.paddingSizeSmall) ,
-                        //                   Text(_countryOfOriginCodeController.text, style: textRegular.copyWith(
-                        //                     fontSize: Dimensions.fontSizeDefault ,
-                        //                     color: Theme.of(context).textTheme.bodyLarge!.color
-                        //                   )
-                        //                   )
-                        //                 ]
-                        //                ),
-                        //                items: addressController.countryList
-                        //                .map((item) => DropdownMenuItem<String>(
-                        //                  value: item.code,
-                        //                  child: Text(item.name!, style: textRegular.copyWith(
-                        //                    fontSize: Dimensions.fontSizeDefault,
-                        //                    color: Theme.of(context)
-                        //                      .textTheme.bodyLarge!.color
-                        //                  )),
-                        //                )).toList(),
-                        //
-                        //                buttonStyleData: const ButtonStyleData(
-                        //                  padding: EdgeInsets.only(right: 8)
-                        //                ),
-                        //                dropdownStyleData: DropdownStyleData(
-                        //                  decoration: BoxDecoration(
-                        //                    borderRadius: BorderRadius.circular(5)
-                        //                  )
-                        //                ),
-                        //                menuItemStyleData: const MenuItemStyleData(
-                        //                  padding: EdgeInsets.symmetric(horizontal: 16)
-                        //                ),
-                        //              ),
-                        //            )
-                        //          ],
-                        //        );
-                        //      }
-                        //   ),
-                        //
-                        // ),
 
                         CustomCountryFieldWidget(
                             label: getTranslated('Country of Origin', context),
@@ -1002,612 +1870,1224 @@ class KolitrendShippingFormScreenState
                         ),
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                        InkWell(
-                          child: const Text('Recipient Information'),
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const ProfileScreen1()));
-                          },
-                        ),
 
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                        CustomCountryFieldWidget(
-                            label:
-                                getTranslated('Destination Country', context),
-                            selectedCountryCode: destinationCountryCode,
-                            onCountryChanged: _onDestinationCountryCodeChanged),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('First Name', context),
-                          inputType: TextInputType.name,
-                          focusNode: _recipientFirstNameFocus,
-                          nextFocus: _recipientLastNameFocus,
-                          required: true,
-                          hintText: 'John',
-                          controller: _recipientFirstNameController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Last Name', context),
-                          inputType: TextInputType.name,
-                          focusNode: _recipientLastNameFocus,
-                          nextFocus: _recipientCompanyFocus,
-                          required: true,
-                          hintText: 'Doe',
-                          controller: _recipientLastNameController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Company', context),
-                          inputType: TextInputType.name,
-                          focusNode: _recipientCompanyFocus,
-                          nextFocus: _recipientAddressFocus,
-                          required: true,
-                          hintText: 'ABC LTD',
-                          controller: _recipientCompanyController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Address', context),
-                          inputType: TextInputType.name,
-                          focusNode: _recipientAddressFocus,
-                          nextFocus: _recipientZipFocus,
-                          required: true,
-                          hintText: 'RD Street',
-                          controller: _recipientAddressController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Zip Code', context),
-                          inputType: TextInputType.name,
-                          focusNode: _recipientZipFocus,
-                          nextFocus: _recipientCityFocus,
-                          required: true,
-                          hintText: '556544',
-                          controller: _recipientZipController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('City', context),
-                          inputType: TextInputType.name,
-                          focusNode: _recipientCityFocus,
-                          nextFocus: _recipientCountryFocus,
-                          required: true,
-                          hintText: 'Narayanganj',
-                          controller: _recipientCityController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomCountryFieldWidget(
-                            label: getTranslated('Country', context),
-                            selectedCountryCode: receipentCountryCode,
-                            onCountryChanged: _onReceipentCodeChanged),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Phone', context),
-                          inputType: TextInputType.name,
-                          focusNode: _recipientPhoneFocus,
-                          nextFocus: _recipientEmailFocus,
-                          required: true,
-                          controller: _recipientPhoneController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Email', context),
-                          inputType: TextInputType.name,
-                          focusNode: _recipientEmailFocus,
-                          nextFocus: _shippingModeFocus,
-                          required: true,
-                          hintText: 'john@example.com',
-                          controller: _recipientEmailController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        InkWell(
-                          child: const Text('Shipping Information'),
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const ProfileScreen1()));
-                          },
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Shipping Mode', context),
-                          inputType: TextInputType.name,
-                          focusNode: _shippingModeFocus,
-                          nextFocus: _shippingCompanyFocus,
-                          required: true,
-                          readOnly: true,
-                          hintText: getTranslated('Select', context),
-                          controller: _shippingModeController,
-                          onTap: _openShippingModesBottomSheet,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Shipping Company', context),
-                          inputType: TextInputType.name,
-                          focusNode: _shippingCompanyFocus,
-                          nextFocus: _shippingPackageTypeFocus,
-                          required: true,
-                          readOnly: true,
-                          controller: _shippingCompanyController,
-                          hintText: getTranslated('Select', context),
-                          onTap: _openShippingCompaniesBottomSheet,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText:
-                              getTranslated('Type of Packaging', context),
-                          inputType: TextInputType.name,
-                          focusNode: _shippingPackageTypeFocus,
-                          nextFocus: _shippingServiceFocus,
-                          required: true,
-                          readOnly: true,
-                          controller: _shippingPackageTypeController,
-                          hintText: getTranslated("Select", context),
-                          onTap: _openShippingPackageTypesBottomSheet,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Shipping Service', context),
-                          inputType: TextInputType.name,
-                          focusNode: _shippingServiceFocus,
-                          nextFocus: _shippingDeliveryTimeFocus,
-                          required: true,
-                          readOnly: true,
-                          controller: _shippingServiceController,
-                          hintText: getTranslated("Select", context),
-                          onTap: _openShippingServicesBottomSheet,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Delivery Time', context),
-                          inputType: TextInputType.name,
-                          focusNode: _shippingDeliveryTimeFocus,
-                          required: true,
-                          readOnly: true,
-                          controller: _shippingDeliveryTimeController,
-                          hintText: getTranslated("Select", context),
-                          onTap: _openShippingDeliveryTimesBottomSheet,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        if (_images.isNotEmpty)
-                          Container(
-                            height: 250,
-                            child: ListView(
-                                physics: const BouncingScrollPhysics(),
-                                children: [
-                                  SizedBox(height: 12),
-                                  Container(
-                                    height: 250,
-                                    child: GridView.builder(
-                                      itemCount: _images.length,
-                                      gridDelegate:
-                                          SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 3,
-                                        crossAxisSpacing: 8,
-                                        mainAxisSpacing: 8,
-                                      ),
-                                      itemBuilder: (context, index) {
-                                        return Stack(
-                                          children: [
-                                            Positioned.fill(
-                                              child: Image.file(
-                                                File(_images[index].path),
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                            Positioned(
-                                              top: 2,
-                                              right: 2,
-                                              child: GestureDetector(
-                                                onTap: () =>
-                                                    _removeImage(index),
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.black54,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  child: Icon(Icons.close,
-                                                      color: Colors.white,
-                                                      size: 20),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(height: 12)
-                                ]),
-                          ),
-
-                        InkWell(
-                          onTap: _pickImages,
-                          child: Column(children: [
-                            _images.isEmpty
-                                ? Container(
-                                    margin: const EdgeInsets.only(
-                                        top: Dimensions.marginSizeExtraLarge),
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).cardColor,
-                                      border: Border.all(
-                                          color: Colors.white, width: 3),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Stack(
-                                        clipBehavior: Clip.none,
-                                        children: [
-                                          ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              child: CustomImageWidget(
-                                                image: "",
-                                                // "${profile.userInfoModel!.imageFullUrl?.path}",
-                                                height:
-                                                    Dimensions.profileImageSize,
-                                                fit: BoxFit.cover,
-                                                width:
-                                                    Dimensions.profileImageSize,
-                                              )),
-                                        ]),
-                                  )
-                                : SizedBox(height: 12),
-                            Text(
-                              _images.isEmpty
-                                  ? getTranslated(
-                                      "Upload Photos", Get.context!)!
-                                  : getTranslated(
-                                      "Add More Photos", Get.context!)!,
-                              style: textBold.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontSize: Dimensions.fontSizeLarge),
-                            ),
-                          ]),
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        if (showForm == false || showForm == true) ...[
-                          SizedBox(height: 16),
-
-                          InkWell(
-                            child: const Text('Packages Added'),
-                          ),
-
-                          // Container holding the ListView
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.3),
-                                    spreadRadius: 2,
-                                    blurRadius: 5,
-                                    offset: Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              child: packages.isEmpty
-                                  ? Center(
-                                      child: Text(
-                                      'No items yet!',
-                                      style: TextStyle(
-                                          fontSize: 18, color: Colors.grey),
-                                    ))
-                                  : ListView.builder(
-                                      itemCount: packages.length,
-                                      itemBuilder: (context, index) {
-                                        final item = packages[index];
-                                        return Card(
-                                          elevation:
-                                              2.0, // Slight elevation for each card
-                                          margin: const EdgeInsets.symmetric(
-                                              vertical: 8.0, horizontal: 4.0),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(12.0),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: <Widget>[
-                                                // Left side: Name and Category
-                                                Expanded(
-                                                  // Use Expanded to prevent overflow if text is long
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: <Widget>[
-                                                      Text(
-                                                        item.quantity
-                                                            .toString()!,
-                                                        style: TextStyle(
-                                                          fontSize: 16.0,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                      SizedBox(height: 4.0),
-                                                      Text(
-                                                        item.vol_weight
-                                                            .toString()!,
-                                                        style: TextStyle(
-                                                          fontSize: 14.0,
-                                                          color: Colors
-                                                              .grey.shade700,
-                                                        ),
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                    width:
-                                                        16), // Spacing between left and right content
-
-                                                // Right side: Price and Delete Icon
-                                                Row(
-                                                  children: <Widget>[
-                                                    Text(
-                                                      '\$${item.price!.toStringAsFixed(2)}', // Format price
-                                                      style: TextStyle(
-                                                        fontSize: 15.0,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color: Theme.of(context)
-                                                            .primaryColor,
-                                                      ),
-                                                    ),
-                                                    SizedBox(width: 8.0),
-                                                    IconButton(
-                                                      icon: Icon(Icons
-                                                          .delete_outline_rounded),
-                                                      color:
-                                                          Colors.red.shade400,
-                                                      onPressed: () {
-                                                        _deleteItem(item.id!);
-                                                      },
-                                                      tooltip: 'Delete Item',
-                                                      constraints:
-                                                          BoxConstraints(), // Removes default padding if needed
-                                                      padding: EdgeInsets
-                                                          .zero, // Removes default padding
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                            ),
-                          ),
-
-                          SizedBox(height: Dimensions.paddingSizeSmall),
-
-                          Container(
-                            padding: EdgeInsets.fromLTRB(
-                                Dimensions.paddingSizeDefault,
-                                0,
-                                Dimensions.paddingSizeDefault,
-                                6),
-                            child: true
-                                ? CustomButton(
-                                    onTap: () => {
-                                          setState(() {
-                                            showForm = true;
-                                          })
-                                        },
-                                    buttonText: getTranslated(
-                                        'Add New Package', context))
-                                : Center(
-                                    child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Theme.of(context).primaryColor),
-                                  )),
-                          ),
-                        ],
-
-                        InkWell(
-                          child: const Text('Package Information'),
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Quantity', context),
-                          inputType: TextInputType.number,
-                          focusNode: _packageQuantityFocus,
-                          nextFocus: _packageDescFocus,
-                          required: true,
-                          controller: _packageQuantityController,
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText:
-                              getTranslated('Package Description', context),
-                          inputType: TextInputType.name,
-                          focusNode: _packageDescFocus,
-                          nextFocus: _packageWeightFocus,
-                          required: true,
-                          controller: _packageDescController,
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Weight (kg)', context),
-                          inputType: TextInputType.number,
-                          focusNode: _packageWeightFocus,
-                          nextFocus: _packageLengthFocus,
-                          required: true,
-                          controller: _packageWeightController,
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Length (cm)', context),
-                          inputType: TextInputType.number,
-                          focusNode: _packageLengthFocus,
-                          nextFocus: _packageWidthFocus,
-                          required: true,
-                          onChanged: _onPackageLengthChange,
-                          controller: _packageLengthController,
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Width (cm)', context),
-                          inputType: TextInputType.number,
-                          focusNode: _packageWidthFocus,
-                          nextFocus: _packageHeightFocus,
-                          required: true,
-                          onChanged: _onPackageWidthChange,
-                          controller: _packageWidthController,
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Height (cm)', context),
-                          inputType: TextInputType.number,
-                          focusNode: _packageHeightFocus,
-                          nextFocus: _packageWeightVolFocus,
-                          required: true,
-                          onChanged: _onPackageHeightChange,
-                          controller: _packageHeightController,
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Weight Vol (kg)', context),
-                          focusNode: _packageWeightVolFocus,
-                          nextFocus: _packageShipmentInvoiceAmountFocus,
-                          required: true,
-                          readOnly: true,
-                          controller: _packageWeightVolController,
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText:
-                              getTranslated('Shipment Invoice Amount', context),
-                          inputType: TextInputType.number,
-                          focusNode: _packageShipmentInvoiceAmountFocus,
-                          nextFocus: _packageCurrencyFocus,
-                          required: true,
-                          controller: _packageShipmentInvoiceAmountController,
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                            labelText: getTranslated('Currency', context),
-                            inputType: TextInputType.name,
-                            focusNode: _packageCurrencyFocus,
-                            required: true,
-                            readOnly: true,
-                            onTap: _openPackageCurrencyBottomSheet,
-                            controller: _packageCurrencyController),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        Container(
-                          child: true
-                              ? CustomButton(
-                                  onTap: _addPackage,
-                                  buttonText:
-                                      getTranslated('Add Package', context))
-                              : Center(
-                                  child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Theme.of(context).primaryColor),
-                                )),
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        Text(getTranslated('order_summary', context) ?? '',
-                            style: textMedium.copyWith(
-                                fontSize: Dimensions.fontSizeLarge,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.color)),
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                        Column(
-                          children: [
-                            AmountWidget(
-                                title:
-                                    '${getTranslated('Weight', context)} ${'(${getTranslated('kg', context)})'}',
-                                amount: "0.0"),
-                            AmountWidget(
-                                title:
-                                    '${getTranslated('Volumetric Weight', context)} ${'(${getTranslated('kg', context)})'}',
-                                amount: "0.0"),
-                            AmountWidget(
-                                title:
-                                    '${getTranslated('Total Weight Calculation', context)} ${'(${getTranslated('kg', context)})'}',
-                                amount: "0.0"),
-                            AmountWidget(
-                                title: '${getTranslated('sub_total', context)}',
-                                amount:
-                                    PriceConverter.convertPrice(context, 0)),
-                            AmountWidget(
-                                title: getTranslated('Total', context),
-                                amount: PriceConverter.convertPrice(context, 0))
-                          ],
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-                        // InkWell(
-                        //   child: const Text('HEllo'),
-                        //   onTap: (){
-                        //     Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ProfileScreen1()));
-                        //   },
-                        // ),
                       ],
                     ),
                   ),
                 ),
+
+                ] ,
+
+                // For recipient info step
+                if (currentStep == "recipient_info") ... [
+
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeDefault),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).highlightColor,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(Dimensions.marginSizeDefault),
+                          topRight: Radius.circular(Dimensions.marginSizeDefault),
+                        ),
+                      ),
+                      child: ListView(
+                        physics: const BouncingScrollPhysics(),
+                        children: [
+
+                          InkWell(
+                            child: const Text('Recipient Information'),
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => const ProfileScreen1()));
+                            },
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          CustomCountryFieldWidget(
+                              label:
+                              getTranslated('Destination Country', context),
+                              selectedCountryCode: destinationCountryCode,
+                              onCountryChanged: _onDestinationCountryCodeChanged),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('First Name', context),
+                            inputType: TextInputType.name,
+                            focusNode: _recipientFirstNameFocus,
+                            nextFocus: _recipientLastNameFocus,
+                            required: true,
+                            hintText: 'John',
+                            controller: _recipientFirstNameController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Last Name', context),
+                            inputType: TextInputType.name,
+                            focusNode: _recipientLastNameFocus,
+                            nextFocus: _recipientCompanyFocus,
+                            required: true,
+                            hintText: 'Doe',
+                            controller: _recipientLastNameController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Company', context),
+                            inputType: TextInputType.name,
+                            focusNode: _recipientCompanyFocus,
+                            nextFocus: _recipientAddressFocus,
+                            required: true,
+                            hintText: 'ABC LTD',
+                            controller: _recipientCompanyController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Address', context),
+                            inputType: TextInputType.name,
+                            focusNode: _recipientAddressFocus,
+                            nextFocus: _recipientZipFocus,
+                            required: true,
+                            hintText: 'RD Street',
+                            controller: _recipientAddressController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Zip Code', context),
+                            inputType: TextInputType.name,
+                            focusNode: _recipientZipFocus,
+                            nextFocus: _recipientCityFocus,
+                            required: true,
+                            hintText: '556544',
+                            controller: _recipientZipController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('City', context),
+                            inputType: TextInputType.name,
+                            focusNode: _recipientCityFocus,
+                            nextFocus: _recipientCountryFocus,
+                            required: true,
+                            hintText: 'Narayanganj',
+                            controller: _recipientCityController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomCountryFieldWidget(
+                              label: getTranslated('Country', context),
+                              selectedCountryCode: receipentCountryCode,
+                              onCountryChanged: _onReceipentCodeChanged),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Phone', context),
+                            inputType: TextInputType.name,
+                            focusNode: _recipientPhoneFocus,
+                            nextFocus: _recipientEmailFocus,
+                            required: true,
+                            controller: _recipientPhoneController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Email', context),
+                            inputType: TextInputType.name,
+                            focusNode: _recipientEmailFocus,
+                            nextFocus: _shippingModeFocus,
+                            required: true,
+                            hintText: 'john@example.com',
+                            controller: _recipientEmailController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                        ],
+                      ),
+                    ),
+                  ),
+
+                ] ,
+
+                // For shipping info step
+                if (currentStep == "shipping_info") ... [
+
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeDefault),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).highlightColor,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(Dimensions.marginSizeDefault),
+                          topRight: Radius.circular(Dimensions.marginSizeDefault),
+                        ),
+                      ),
+                      child: ListView(
+                        physics: const BouncingScrollPhysics(),
+                        children: [
+
+
+                          InkWell(
+                            child: const Text('Shipping Information'),
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => const ProfileScreen1()));
+                            },
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Shipping Mode', context),
+                            inputType: TextInputType.name,
+                            focusNode: _shippingModeFocus,
+                            nextFocus: _shippingCompanyFocus,
+                            required: true,
+                            readOnly: true,
+                            hintText: getTranslated('Select', context),
+                            controller: _shippingModeController,
+                            onTap: _openShippingModesBottomSheet,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Shipping Company', context),
+                            inputType: TextInputType.name,
+                            focusNode: _shippingCompanyFocus,
+                            nextFocus: _shippingPackageTypeFocus,
+                            required: true,
+                            readOnly: true,
+                            controller: _shippingCompanyController,
+                            hintText: getTranslated('Select', context),
+                            onTap: _openShippingCompaniesBottomSheet,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText:
+                            getTranslated('Type of Packaging', context),
+                            inputType: TextInputType.name,
+                            focusNode: _shippingPackageTypeFocus,
+                            nextFocus: _shippingServiceFocus,
+                            required: true,
+                            readOnly: true,
+                            controller: _shippingPackageTypeController,
+                            hintText: getTranslated("Select", context),
+                            onTap: _openShippingPackageTypesBottomSheet,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Shipping Service', context),
+                            inputType: TextInputType.name,
+                            focusNode: _shippingServiceFocus,
+                            nextFocus: _shippingDeliveryTimeFocus,
+                            required: true,
+                            readOnly: true,
+                            controller: _shippingServiceController,
+                            hintText: getTranslated("Select", context),
+                            onTap: _openShippingServicesBottomSheet,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Delivery Time', context),
+                            inputType: TextInputType.name,
+                            focusNode: _shippingDeliveryTimeFocus,
+                            required: true,
+                            readOnly: true,
+                            controller: _shippingDeliveryTimeController,
+                            hintText: getTranslated("Select", context),
+                            onTap: _openShippingDeliveryTimesBottomSheet,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                        ],
+                      ),
+                    ),
+                  ),
+
+                ] ,
+
+                // For gallery step
+                if (currentStep == "gallery") ... [
+
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeDefault),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).highlightColor,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(Dimensions.marginSizeDefault),
+                          topRight: Radius.circular(Dimensions.marginSizeDefault),
+                        ),
+                      ),
+                      child: ListView(
+                        physics: const BouncingScrollPhysics(),
+                        children: [
+
+
+                          if (_images.isNotEmpty)
+                            Container(
+                              height: 250,
+                              child: ListView(
+                                  physics: const BouncingScrollPhysics(),
+                                  children: [
+                                    SizedBox(height: 12),
+                                    Container(
+                                      height: 250,
+                                      child: GridView.builder(
+                                        itemCount: _images.length,
+                                        gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 3,
+                                          crossAxisSpacing: 8,
+                                          mainAxisSpacing: 8,
+                                        ),
+                                        itemBuilder: (context, index) {
+                                          return Stack(
+                                            children: [
+                                              Positioned.fill(
+                                                child: Image.file(
+                                                  File(_images[index].path),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                              Positioned(
+                                                top: 2,
+                                                right: 2,
+                                                child: GestureDetector(
+                                                  onTap: () =>
+                                                      _removeImage(index),
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.black54,
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: Icon(Icons.close,
+                                                        color: Colors.white,
+                                                        size: 20),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    SizedBox(height: 12)
+                                  ]),
+                            ),
+
+                          InkWell(
+                            onTap: _pickImages,
+                            child: Column(children: [
+                              _images.isEmpty
+                                  ? Container(
+                                margin: const EdgeInsets.only(
+                                    top: Dimensions.marginSizeExtraLarge),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).cardColor,
+                                  border: Border.all(
+                                      color: Colors.white, width: 3),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      ClipRRect(
+                                          borderRadius:
+                                          BorderRadius.circular(20),
+                                          child: CustomImageWidget(
+                                            image: "",
+                                            // "${profile.userInfoModel!.imageFullUrl?.path}",
+                                            height:
+                                            Dimensions.profileImageSize,
+                                            fit: BoxFit.cover,
+                                            width:
+                                            Dimensions.profileImageSize,
+                                          )),
+                                    ]),
+                              )
+                                  : SizedBox(height: 12),
+                              Text(
+                                _images.isEmpty
+                                    ? getTranslated(
+                                    "Upload Photos", Get.context!)!
+                                    : getTranslated(
+                                    "Add More Photos", Get.context!)!,
+                                style: textBold.copyWith(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    fontSize: Dimensions.fontSizeLarge),
+                              ),
+                            ]),
+                          ),
+
+                        ],
+                      ),
+                    ),
+                  ),
+
+                ] ,
+
+
+                // For add package step
+                if (currentStep == "add_package") ... [
+
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeDefault),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).highlightColor,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(Dimensions.marginSizeDefault),
+                          topRight: Radius.circular(Dimensions.marginSizeDefault),
+                        ),
+                      ),
+                      child: ListView(
+                        physics: const BouncingScrollPhysics(),
+                        children: [
+
+                          InkWell(
+                            child: const Text('Package Information'),
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          CustomTextFieldWidget(
+                            labelText:
+                            getTranslated('Package Description', context),
+                            inputType: TextInputType.name,
+                            focusNode: _packageDescFocus,
+                            nextFocus: _packageWeightFocus,
+                            required: true,
+                            controller: _packageDescController,
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+
+                          Row(
+                            children: [
+                              Expanded(child:
+                              CustomTextFieldWidget(
+                                labelText: getTranslated('Quantity', context),
+                                inputType: TextInputType.number,
+                                focusNode: _packageQuantityFocus,
+                                nextFocus: _packageDescFocus,
+                                required: true,
+                                controller: _packageQuantityController,
+                              ),
+                              ) ,
+
+                              SizedBox(width: 12),
+
+                              Expanded(child:
+                              CustomTextFieldWidget(
+                                labelText: getTranslated('Weight (kg)', context),
+                                inputType: TextInputType.number,
+                                focusNode: _packageWeightFocus,
+                                nextFocus: _packageLengthFocus,
+                                required: true,
+                                controller: _packageWeightController,
+                              ),
+                              )
+
+                            ],
+                          ),
+
+
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+
+                          Row(
+                            children: [
+                              Expanded(child:
+                              CustomTextFieldWidget(
+                                labelText: getTranslated('Length (cm)', context),
+                                inputType: TextInputType.number,
+                                focusNode: _packageLengthFocus,
+                                nextFocus: _packageWidthFocus,
+                                required: true,
+                                onChanged: _onPackageLengthChange,
+                                controller: _packageLengthController,
+                              ),
+                              ) ,
+
+                              SizedBox(width: 12),
+
+                              Expanded(child:
+
+                              CustomTextFieldWidget(
+                                labelText: getTranslated('Width (cm)', context),
+                                inputType: TextInputType.number,
+                                focusNode: _packageWidthFocus,
+                                nextFocus: _packageHeightFocus,
+                                required: true,
+                                onChanged: _onPackageWidthChange,
+                                controller: _packageWidthController,
+                              ),
+                              ) ,
+
+                            ],
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child:
+                              CustomTextFieldWidget(
+                                labelText: getTranslated('Height (cm)', context),
+                                inputType: TextInputType.number,
+                                focusNode: _packageHeightFocus,
+                                nextFocus: _packageWeightVolFocus,
+                                required: true,
+                                onChanged: _onPackageHeightChange,
+                                controller: _packageHeightController,
+                              ),
+                              ) ,
+
+                            ],
+
+
+                          ),
+
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Volumetric Weight (kg)', context),
+                            focusNode: _packageWeightVolFocus,
+                            nextFocus: _packageShipmentInvoiceAmountFocus,
+                            required: true,
+                            readOnly: true,
+                            controller: _packageWeightVolController,
+                          ),
+
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          Row(
+                            children: [
+                              Expanded(
+
+                                flex: 2,
+
+                                child:
+
+                              CustomTextFieldWidget(
+                                labelText:
+                                getTranslated('Shipment Invoice Amount', context),
+                                inputType: TextInputType.number,
+                                focusNode: _packageShipmentInvoiceAmountFocus,
+                                nextFocus: _packageCurrencyFocus,
+                                required: true,
+                                controller: _packageShipmentInvoiceAmountController,
+                              ),
+                              ) ,
+
+                            ],
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          Expanded(
+                            flex: 1,
+                            child:
+                            CustomTextFieldWidget(
+                                labelText: getTranslated('Currency', context),
+                                inputType: TextInputType.name,
+                                focusNode: _packageCurrencyFocus,
+                                required: true,
+                                readOnly: true,
+                                onTap: _openPackageCurrencyBottomSheet,
+                                controller: _packageCurrencyController),
+                          ),
+
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          // Container(
+                          //   child: true
+                          //       ? CustomButton(
+                          //       onTap: _addPackage,
+                          //       buttonText:
+                          //       getTranslated('Add Package', context))
+                          //       : Center(
+                          //       child: CircularProgressIndicator(
+                          //         valueColor: AlwaysStoppedAnimation<Color>(
+                          //             Theme.of(context).primaryColor),
+                          //       )),
+                          // ),
+
+                        ],
+                      ),
+                    ),
+                  ),
+
+                ] ,
+
+
+                // For packages step
+                if (currentStep == "packages") ... [
+
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeDefault),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).highlightColor,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(Dimensions.marginSizeDefault),
+                          topRight: Radius.circular(Dimensions.marginSizeDefault),
+                        ),
+                      ),
+                      child: ListView(
+                        physics: const BouncingScrollPhysics(),
+                        children: [
+
+
+                          if (showForm == false || showForm == true) ...[
+
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(child:
+                                InkWell(
+                                  child: Text("${getTranslated("Packages Added", Get.context!)!} (${packages.length})"),
+                                ),
+
+                                ),
+
+
+                                Expanded(child:
+
+                                CustomButton(
+                                    onTap: () => {
+                                      setState(() {
+                                        currentStep = "add_package";
+                                      })
+                                    },
+                                    buttonText: getTranslated(
+                                        'Add Another', context))
+                                ),
+
+                              ],
+                            ),
+
+
+                            SizedBox(height: 16),
+
+
+                            // Container holding the ListView
+                            Expanded(
+                              child: Container(
+                                height: 400,
+                                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.3),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: packages.isEmpty
+                                    ? Center(
+                                    child: Text(
+                                      'No items yet!',
+                                      style: TextStyle(
+                                          fontSize: 18, color: Colors.grey),
+                                    ))
+                                    : ListView.builder(
+                                  itemCount: packages.length,
+                                  itemBuilder: (context, index) {
+                                    final item = packages[index];
+                                    return Card(
+                                      elevation:
+                                      2.0, // Slight elevation for each card
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 8.0, horizontal: 4.0),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                        BorderRadius.circular(10.0),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(12.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment
+                                              .spaceBetween,
+                                          children: <Widget>[
+                                            // Left side: Name and Category
+                                            Expanded(
+                                              // Use Expanded to prevent overflow if text is long
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                CrossAxisAlignment
+                                                    .start,
+                                                children: <Widget>[
+                                                  Text(
+                                                    "${getTranslated("Quantity", context)}: " + item.quantity
+                                                        .toString()!,
+                                                    style: TextStyle(
+                                                      fontSize: 16.0,
+                                                      fontWeight:
+                                                      FontWeight.bold,
+                                                    ),
+                                                    overflow: TextOverflow
+                                                        .ellipsis,
+                                                  ),
+                                                  SizedBox(height: 4.0),
+                                                  Text(
+                                                    "${getTranslated("Volumetric Weight", context)}: ${item.weight!.toStringAsFixed(2)} kg", // Format price
+                                                    style: TextStyle(
+                                                      fontSize: 14.0,
+                                                      color: Colors.grey.shade700,
+                                                    ),
+                                                  ),
+
+                                                  SizedBox(height: 4.0),
+                                                  Text(
+                                                    "${getTranslated("Weight", context)}: ${item.weight!.toStringAsFixed(2)} kg", // Format price
+                                                    style: TextStyle(
+                                                      fontSize: 14.0,
+                                                      color: Colors.grey.shade700,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 4.0),
+                                                  Text(
+                                                    "${item.width} X ${item.length} X ${item.height} cm"
+                                                    ,
+                                                    style: TextStyle(
+                                                      fontSize: 14.0,
+                                                      color: Colors
+                                                          .grey.shade700,
+                                                    ),
+                                                    overflow: TextOverflow
+                                                        .ellipsis,
+                                                  )
+
+                                                ],
+                                              ),
+                                            ),
+                                            SizedBox(
+                                                width:
+                                                16), // Spacing between left and right content
+
+                                            // Right side: Price and Delete Icon
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment
+                                                  .end,
+                                              children: <Widget>[
+                                                Column(
+                                                  children: [
+
+
+                                                  ],
+                                                ),
+                                                SizedBox(width: 8.0),
+                                                IconButton(
+                                                  icon: Icon(Icons
+                                                      .delete_outline_rounded),
+                                                  color:
+                                                  Colors.red.shade400,
+                                                  onPressed: () {
+                                                    _deleteItem(item.id!);
+                                                  },
+                                                  tooltip: 'Delete Item',
+                                                  constraints:
+                                                  BoxConstraints(), // Removes default padding if needed
+                                                  padding: EdgeInsets
+                                                      .zero, // Removes default padding
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          ],
+
+                        ],
+                      ),
+                    ),
+                  ),
+
+                ] ,
+
+
+                // For sender info step
+                if (currentStep == "overview") ... [
+
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeDefault),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).highlightColor,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(Dimensions.marginSizeDefault),
+                          topRight: Radius.circular(Dimensions.marginSizeDefault),
+                        ),
+                      ),
+                      child: ListView(
+                        physics: const BouncingScrollPhysics(),
+                        children: [
+
+                          Text(getTranslated('order_summary', context) ?? '',
+                              style: textMedium.copyWith(
+                                  fontSize: Dimensions.fontSizeLarge,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.color)),
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          Column(
+                            children: [
+                              AmountWidget(
+                                  title:
+                                  '${getTranslated('Weight', context)} ${'(${getTranslated('kg', context)})'}',
+                                  amount: "0.0"),
+                              AmountWidget(
+                                  title:
+                                  '${getTranslated('Volumetric Weight', context)} ${'(${getTranslated('kg', context)})'}',
+                                  amount: "0.0"),
+                              AmountWidget(
+                                  title:
+                                  '${getTranslated('Total Weight Calculation', context)} ${'(${getTranslated('kg', context)})'}',
+                                  amount: "0.0"),
+                              AmountWidget(
+                                  title: '${getTranslated('sub_total', context)}',
+                                  amount:
+                                  PriceConverter.convertPrice(context, 0)),
+                              AmountWidget(
+                                  title: getTranslated('Total', context),
+                                  amount: PriceConverter.convertPrice(context, 0))
+                            ],
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+                          // InkWell(
+                          //   child: const Text('HEllo'),
+                          //   onTap: (){
+                          //     Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ProfileScreen1()));
+                          //   },
+                          // ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                ] ,
+
+
+                if (showPackages == true) ... [
+
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeDefault),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).highlightColor,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(Dimensions.marginSizeDefault),
+                          topRight: Radius.circular(Dimensions.marginSizeDefault),
+                        ),
+                      ),
+                      child: ListView(
+                        physics: const BouncingScrollPhysics(),
+                        children: [
+                          
+                              CustomButton(
+                                  onTap: () => {
+                                    setState(() {
+                                       if (showAddPackageForm == false) {
+                                         showAddPackageForm = true ;
+                                         showPackages = false ;
+                                       } else {
+                                         showPackages = true;
+                                         showAddPackageForm = false;
+                                       }
+                                    })
+                                  },
+                                  buttonText: getTranslated(
+                                     showAddPackageForm == false ? 'Add New Package' : 'Add Another Package' ,
+                                      context)
+                              ),
+
+                          // Row(
+                          //   children: [
+                          //     InkWell(
+                          //       child:  Text('${getTranslated("Packages Added", context)}'),
+                          //     ),
+                          //
+                          //     CustomButton(
+                          //         onTap: () => {
+                          //           setState(() {
+                          //             showForm = true;
+                          //           })
+                          //         },
+                          //         buttonText: getTranslated(
+                          //             'Add New Package', context))
+                          //
+                          //
+                          //   ],
+                          // ),
+
+
+                          // Container holding the ListView
+
+                          if (showPackages == true) ... [
+
+                            Expanded(
+                              child: Container(
+                                height: 400,
+                                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.3),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: packages.isEmpty
+                                    ? Center(
+                                    child: Padding(padding: EdgeInsets.all(12),
+                                         child:   Text(
+                                           'No items yet!',
+                                           style: TextStyle(
+                                               fontSize: 18, color: Colors.grey),
+                                         )
+                                      )
+                                   )
+                                    : ListView.builder(
+                                  itemCount: packages.length,
+                                  itemBuilder: (context, index) {
+                                    final item = packages[index];
+                                    return Card(
+                                      elevation:
+                                      2.0, // Slight elevation for each card
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 8.0, horizontal: 4.0),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                        BorderRadius.circular(10.0),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(12.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment
+                                              .spaceBetween,
+                                          children: <Widget>[
+                                            // Left side: Name and Category
+                                            Expanded(
+                                              // Use Expanded to prevent overflow if text is long
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                CrossAxisAlignment
+                                                    .start,
+                                                children: <Widget>[
+                                                  Text(
+                                                    "${getTranslated("Quantity", context)}: " + item.quantity
+                                                        .toString()!,
+                                                    style: TextStyle(
+                                                      fontSize: 16.0,
+                                                      fontWeight:
+                                                      FontWeight.bold,
+                                                    ),
+                                                    overflow: TextOverflow
+                                                        .ellipsis,
+                                                  ),
+                                                  SizedBox(height: 4.0),
+                                                  Text(
+                                                    "${getTranslated("Volumetric Weight", context)}: ${item.vol_weight!.toStringAsFixed(2)} kg", // Format price
+                                                    style: TextStyle(
+                                                      fontSize: 14.0,
+                                                      color: Colors.grey.shade700,
+                                                    ),
+                                                  ),
+
+                                                  SizedBox(height: 4.0),
+                                                  Text(
+                                                    "${getTranslated("Weight", context)}: ${item.weight!.toStringAsFixed(2)} kg", // Format price
+                                                    style: TextStyle(
+                                                      fontSize: 14.0,
+                                                      color: Colors.grey.shade700,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 4.0),
+                                                  Text(
+                                                    "${item.width} X ${item.length} X ${item.height} cm"
+                                                    ,
+                                                    style: TextStyle(
+                                                      fontSize: 14.0,
+                                                      color: Colors
+                                                          .grey.shade700,
+                                                    ),
+                                                    overflow: TextOverflow
+                                                        .ellipsis,
+                                                  )
+
+                                                ],
+                                              ),
+                                            ),
+                                            SizedBox(
+                                                width:
+                                                16), // Spacing between left and right content
+
+                                            // Right side: Price and Delete Icon
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment
+                                                  .end,
+                                              children: <Widget>[
+                                                Column(
+                                                  children: [
+
+
+                                                  ],
+                                                ),
+                                                SizedBox(width: 8.0),
+                                                IconButton(
+                                                  icon: Icon(Icons
+                                                      .delete_outline_rounded),
+                                                  color:
+                                                  Colors.red.shade400,
+                                                  onPressed: () {
+                                                    _deleteItem(item.id!);
+                                                  },
+                                                  tooltip: 'Delete Item',
+                                                  constraints:
+                                                  BoxConstraints(), // Removes default padding if needed
+                                                  padding: EdgeInsets
+                                                      .zero, // Removes default padding
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          ] ,
+
+
+                          if (showAddPackageForm == true && showForm == false) ...[
+
+                          InkWell(
+                            child: const Text('Package Information'),
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Quantity', context),
+                            inputType: TextInputType.number,
+                            focusNode: _packageQuantityFocus,
+                            nextFocus: _packageDescFocus,
+                            required: true,
+                            controller: _packageQuantityController,
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText:
+                            getTranslated('Package Description', context),
+                            inputType: TextInputType.name,
+                            focusNode: _packageDescFocus,
+                            nextFocus: _packageWeightFocus,
+                            required: true,
+                            controller: _packageDescController,
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Weight (kg)', context),
+                            inputType: TextInputType.number,
+                            focusNode: _packageWeightFocus,
+                            nextFocus: _packageLengthFocus,
+                            required: true,
+                            controller: _packageWeightController,
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Length (cm)', context),
+                            inputType: TextInputType.number,
+                            focusNode: _packageLengthFocus,
+                            nextFocus: _packageWidthFocus,
+                            required: true,
+                            onChanged: _onPackageLengthChange,
+                            controller: _packageLengthController,
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Width (cm)', context),
+                            inputType: TextInputType.number,
+                            focusNode: _packageWidthFocus,
+                            nextFocus: _packageHeightFocus,
+                            required: true,
+                            onChanged: _onPackageWidthChange,
+                            controller: _packageWidthController,
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Height (cm)', context),
+                            inputType: TextInputType.number,
+                            focusNode: _packageHeightFocus,
+                            nextFocus: _packageWeightVolFocus,
+                            required: true,
+                            onChanged: _onPackageHeightChange,
+                            controller: _packageHeightController,
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Weight Vol (kg)', context),
+                            focusNode: _packageWeightVolFocus,
+                            nextFocus: _packageShipmentInvoiceAmountFocus,
+                            required: true,
+                            readOnly: true,
+                            controller: _packageWeightVolController,
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText:
+                            getTranslated('Shipment Invoice Amount', context),
+                            inputType: TextInputType.number,
+                            focusNode: _packageShipmentInvoiceAmountFocus,
+                            nextFocus: _packageCurrencyFocus,
+                            required: true,
+                            controller: _packageShipmentInvoiceAmountController,
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                              labelText: getTranslated('Currency', context),
+                              inputType: TextInputType.name,
+                              focusNode: _packageCurrencyFocus,
+                              required: true,
+                              readOnly: true,
+                              onTap: _openPackageCurrencyBottomSheet,
+                              controller: _packageCurrencyController),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          Container(
+                            child: true
+                                ? CustomButton(
+                                onTap: _addPackage,
+                                buttonText:
+                                getTranslated('Add Package', context))
+                                : Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Theme.of(context).primaryColor),
+                                )),
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          ] ,
+
+
+                          Text(getTranslated('order_summary', context) ?? '',
+                              style: textMedium.copyWith(
+                                  fontSize: Dimensions.fontSizeLarge,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.color)),
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          Column(
+                            children: [
+                              AmountWidget(
+                                  title:
+                                  '${getTranslated('Weight', context)} ${'(${getTranslated('kg', context)})'}',
+                                  amount: "0.0"),
+                              AmountWidget(
+                                  title:
+                                  '${getTranslated('Volumetric Weight', context)} ${'(${getTranslated('kg', context)})'}',
+                                  amount: "0.0"),
+                              AmountWidget(
+                                  title:
+                                  '${getTranslated('Total Weight Calculation', context)} ${'(${getTranslated('kg', context)})'}',
+                                  amount: "0.0"),
+                              AmountWidget(
+                                  title: '${getTranslated('sub_total', context)}',
+                                  amount:
+                                  PriceConverter.convertPrice(context, 0)),
+                              AmountWidget(
+                                  title: getTranslated('Total', context),
+                                  amount: PriceConverter.convertPrice(context, 0))
+                            ],
+                          ),
+
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+                          // InkWell(
+                          //   child: const Text('HEllo'),
+                          //   onTap: (){
+                          //     Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ProfileScreen1()));
+                          //   },
+                          // ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                ] ,
+
+
 
                 Container(
                     margin: const EdgeInsets.symmetric(
@@ -1617,16 +3097,19 @@ class KolitrendShippingFormScreenState
                     child: Column(
                       children: [
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Expanded(
-                              child: Container(
+                            currentStep != "sender_info" ? Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                    0, 0,  Dimensions.paddingSizeSmall, 0),
                                 child: true
                                     ? CustomButton(
-                                        onTap: _updateUserAccount,
+                                        onTap: previousStep,
                                         backgroundColor:
                                             Theme.of(context).primaryColor,
                                         buttonText: getTranslated(
-                                            'Create Kolitrend Shipping Order',
+                                            'Back',
                                             context))
                                     : Center(
                                         child: CircularProgressIndicator(
@@ -1636,30 +3119,29 @@ class KolitrendShippingFormScreenState
                                                     .secondaryHeaderColor),
                                       )),
                               ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
+                            ) : SizedBox(width: 0),
+
                             Expanded(
-                              child: Container(
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB( currentStep!= "sender_info" ? Dimensions.paddingSizeSmall : 0 , 0, 0, 0),
                                 child: true
                                     ? CustomButton(
-                                        onTap: _updateUserAccount,
-                                        backgroundColor:
-                                            Theme.of(context).disabledColor,
-                                        buttonText: getTranslated(
-                                            'Kolitrend Shipping Requests',
-                                            context))
+                                    onTap: nextStep,
+                                    backgroundColor:
+                                    Theme.of(context).primaryColor,
+                                    buttonText: getTranslated(
+                                        'Next',
+                                        context))
                                     : Center(
-                                        child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Theme.of(context)
-                                                    .secondaryHeaderColor),
-                                      )),
+                                    child: CircularProgressIndicator(
+                                      valueColor:
+                                      AlwaysStoppedAnimation<Color>(
+                                          Theme.of(context)
+                                              .secondaryHeaderColor),
+                                    )),
                               ),
                             ),
+
                           ],
                         ),
                       ],
