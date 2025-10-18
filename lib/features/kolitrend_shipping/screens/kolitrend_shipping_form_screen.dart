@@ -1897,15 +1897,13 @@ class KolitrendShippingFormScreenState
                         children: [
 
                           InkWell(
-                            child: const Text('Recipient Information'),
-                            onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => const ProfileScreen1()));
-                            },
+                            child: const Text('Recipient Information')
                           ),
 
-                          const SizedBox(height: Dimensions.paddingSizeSmall),
+                          SizedBox(height: Dimensions.paddingSizeLarge),
 
+                          SizedBox(width: 0, height: 0),
+                          // Destination country
                           CustomCountryFieldWidget(
                               label:
                               getTranslated('Destination Country', context),
@@ -2258,10 +2256,30 @@ class KolitrendShippingFormScreenState
                         physics: const BouncingScrollPhysics(),
                         children: [
 
-                          InkWell(
-                            child: const Text('Package Information'),
-                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(child:
+                              InkWell(
+                                child:  Text('Package Information'),
+                              ),
+                              ),
+                              Expanded(
+                                  child:
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
 
+                                    Text("${packages.length} Added", style: textRegular.copyWith(fontWeight: FontWeight.bold))
+
+                                  ],
+
+                                   )
+                              )
+                            ],
+                          ),
+                          
+                       
                           const SizedBox(height: Dimensions.paddingSizeSmall),
 
                           CustomTextFieldWidget(
@@ -2423,18 +2441,19 @@ class KolitrendShippingFormScreenState
 
                           const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                          // Container(
-                          //   child: true
-                          //       ? CustomButton(
-                          //       onTap: _addPackage,
-                          //       buttonText:
-                          //       getTranslated('Add Package', context))
-                          //       : Center(
-                          //       child: CircularProgressIndicator(
-                          //         valueColor: AlwaysStoppedAnimation<Color>(
-                          //             Theme.of(context).primaryColor),
-                          //       )),
-                          // ),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 4),
+                            child: true
+                                ? CustomButton(
+                                onTap: _addPackage,
+                                buttonText:
+                                getTranslated('Add this Package', context))
+                                : Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Theme.of(context).primaryColor),
+                                )),
+                          ),
 
                         ],
                       ),

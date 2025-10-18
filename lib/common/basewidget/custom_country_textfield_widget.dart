@@ -48,6 +48,11 @@ class _CustomCountryFieldWidgetState extends State<CustomCountryFieldWidget> {
 
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void _openCountryBottomSheet() async {
     final value = await showModalBottomSheet<CountryModel?>(
         context: context,
