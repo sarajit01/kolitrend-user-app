@@ -8,6 +8,7 @@ import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/controll
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_company_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_deli_time_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_mode_model.dart';
+import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_order_summary.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_package.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_pkg_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_service_model.dart';
@@ -170,7 +171,6 @@ class KolitrendShippingFormScreenState
 
   final _debouncer = DebounceHelper(milliseconds: 2000); // 2s delay
 
-
   File? file;
   final picker = ImagePicker();
   final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
@@ -186,24 +186,49 @@ class KolitrendShippingFormScreenState
         currentStep = "recipient_info";
       });
     } else if (currentStep == "recipient_info") {
+      if (!_validateRecipientInfo()){
+        return;
+      }
       setState(() {
         currentStep = "shipping_info";
       });
     } else if (currentStep == "shipping_info") {
+      if (!_validateShippingInfo()){
+        return;
+      }
       setState(() {
         currentStep = "gallery";
       });
     } else if (currentStep == "gallery") {
+      if (!_validateFiles()){
+        return;
+      }
       setState(() {
         currentStep = "add_package";
       });
-    }
-    else if (currentStep == "add_package") {
+    } else if (currentStep == "add_package") {
+      if (!_validatePackages()){
+        return;
+      }
       setState(() {
         currentStep = "packages";
       });
-    }
-    else if (currentStep == "packages") {
+    } else if (currentStep == "packages") {
+      if (!_validatePackages()){
+        return;
+      }
+
+      // calculate summary
+      ShippingOrderSummary shippingOrderSummary = ShippingOrderSummary(
+        totalWeight: _calculatePackagesTotalWeight(),
+        totalVolWeight: _calculatePackagesTotalVolWeight(),
+        totalComparedWeight: _calculatePackagesTotalComparedWeight(),
+        subTotal: 0,
+        total: 0
+      );
+
+      Provider.of<KolitrendShippingController>(context, listen: false).shippingOrderSummary = shippingOrderSummary;
+
       setState(() {
         currentStep = "overview";
       });
@@ -211,7 +236,6 @@ class KolitrendShippingFormScreenState
   }
 
   void previousStep() {
-
     if (currentStep == "overview") {
       setState(() {
         currentStep = "packages";
@@ -220,13 +244,11 @@ class KolitrendShippingFormScreenState
       setState(() {
         currentStep = "add_package";
       });
-    }
-    else if (currentStep == "add_package") {
+    } else if (currentStep == "add_package") {
       setState(() {
         currentStep = "gallery";
       });
-    }
-    else if (currentStep == "gallery") {
+    } else if (currentStep == "gallery") {
       setState(() {
         currentStep = "shipping_info";
       });
@@ -234,14 +256,12 @@ class KolitrendShippingFormScreenState
       setState(() {
         currentStep = "recipient_info";
       });
-    }  else if (currentStep == "recipient_info") {
+    } else if (currentStep == "recipient_info") {
       setState(() {
         currentStep = "sender_info";
       });
     }
-
   }
-
 
   Future<void> _pickImages() async {
     final selected = await _picker.pickMultiImage();
@@ -489,18 +509,16 @@ class KolitrendShippingFormScreenState
         _calculateVolWeight();
       }
     });
-
   }
 
   _onPackageHeightChange(String value) {
-    _debouncer.run((){
+    _debouncer.run(() {
       if (value.isNotEmpty) {
         _packageHeightController.text =
             double.tryParse(value)?.toStringAsFixed(2) ?? value;
         _calculateVolWeight();
       }
     });
-
   }
 
   _onPackageLengthChange(String value) {
@@ -511,7 +529,6 @@ class KolitrendShippingFormScreenState
         _calculateVolWeight();
       }
     });
-
   }
 
   _calculateVolWeight() {
@@ -564,42 +581,191 @@ class KolitrendShippingFormScreenState
       return;
     }
 
-    if (_packageWidthController.text.isEmpty){
-      showCustomSnackBar( getTranslated('Please enter package width', context), context);
+    if (_packageWidthController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter package width', context), context);
       return;
     }
 
-    if (_packageHeightController.text.isEmpty){
-      showCustomSnackBar( getTranslated('Please enter package height', context), context);
+    if (_packageHeightController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter package height', context), context);
       return;
     }
 
-    if (_packageWeightVolController.text.isEmpty){
-      showCustomSnackBar( getTranslated('Please fill the fields so that package volumetric weight can be calculated',
-          context), context);
+    if (_packageWeightVolController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated(
+              'Please fill the fields so that package volumetric weight can be calculated',
+              context),
+          context);
       return;
     }
 
     setState(() {
       packages.add(ShippingPackageModel(
-        id: Uuid().v1() ,
-        quantity: int.tryParse(_packageQuantityController.text),
-        description: _packageDescController.text,
-        weight: double.tryParse(_packageWeightController.text),
-        length: double.tryParse(_packageLengthController.text),
-        width: double.tryParse(_packageWidthController.text),
-        height: double.tryParse(_packageHeightController.text),
-        vol_weight: double.tryParse(_packageWeightVolController.text),
-        shipment_invoice_amount: double.tryParse(_packageShipmentInvoiceAmountController.text),
-        currency: _packageCurrencyController.text ,
-        price: 0.00
-      )
-      );
+          id: Uuid().v1(),
+          quantity: int.tryParse(_packageQuantityController.text),
+          description: _packageDescController.text,
+          weight: double.tryParse(_packageWeightController.text),
+          length: double.tryParse(_packageLengthController.text),
+          width: double.tryParse(_packageWidthController.text),
+          height: double.tryParse(_packageHeightController.text),
+          vol_weight: double.tryParse(_packageWeightVolController.text),
+          shipment_invoice_amount:
+              double.tryParse(_packageShipmentInvoiceAmountController.text),
+          currency: _packageCurrencyController.text,
+          price: 0.00));
     });
 
-    showCustomSnackBar(getTranslated("Package Added Successfully", context), context, isError: false, isToaster: false);
+    showCustomSnackBar(
+        getTranslated("Package Added Successfully", context), context,
+        isError: false, isToaster: false);
     return;
+  }
 
+  // function for validating recipient information
+  bool _validateRecipientInfo() {
+    if (_recipientFirstNameController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter recipient first name', context), context);
+      return false;
+    }
+    if (_recipientLastNameController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter recipient last name', context), context);
+      return false;
+    }
+
+    if (_recipientCompanyController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter recipient company name', context),
+          context);
+      return false;
+    }
+
+    if (_recipientAddressController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter recipient address', context), context);
+      return false;
+    }
+
+    if (_recipientZipController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter recipient zip code', context), context);
+      return false;
+    }
+
+    if (_recipientCityController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter recipient city', context), context);
+      return false;
+    }
+
+    if (receipentCountryCode == null || receipentCountryCode!.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please select recipient country', context), context);
+      return false;
+    } else {
+      showCustomSnackBar("Selected country ${receipentCountryCode!}", context);
+    }
+
+    if (_recipientPhoneController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter recipient phone number', context),
+          context);
+      return false;
+    }
+
+    if (_recipientEmailController.text.isEmpty) {
+      showCustomSnackBar(
+          getTranslated('Please enter recipient email address', context),
+          context);
+      return false;
+    }
+
+    return true;
+  }
+
+  // function for validating shipping info
+  bool _validateShippingInfo() {
+    if (Provider.of<KolitrendShippingController>(context, listen: false).selectedShippingMode == null) {
+       showCustomSnackBar(getTranslated("Please select shipping mode", context), context);
+       return false ;
+    }
+    if (Provider.of<KolitrendShippingController>(context, listen: false).selectedShippingCompany == null) {
+      showCustomSnackBar(getTranslated("Please select shipping company", context), context);
+      return false ;
+    }
+    if (Provider.of<KolitrendShippingController>(context, listen: false).selectedShippingPackageType == null) {
+      showCustomSnackBar(getTranslated("Please select type of packaging", context), context);
+      return false ;
+    }
+    if (Provider.of<KolitrendShippingController>(context, listen: false).selectedShippingService == null) {
+      showCustomSnackBar(getTranslated("Please select shipping service", context), context);
+      return false ;
+    }
+    if (Provider.of<KolitrendShippingController>(context, listen: false).selectedShippingDeliveryTime == null) {
+      showCustomSnackBar(getTranslated("Please select delivery time", context), context);
+      return false ;
+    }
+
+    return true ;
+  }
+
+
+  // function for validating files upload
+  bool _validateFiles() {
+    if (_images.isEmpty){
+      showCustomSnackBar(getTranslated("Please upload at least one image", context), context);
+      return false ;
+    }
+
+    return true ;
+  }
+
+  // function for validating package step
+  bool _validatePackages(){
+    if (packages.isEmpty){
+      showCustomSnackBar(getTranslated("Please add at least one package to continue", context), context);
+      return false;
+    }
+    return true ;
+  }
+
+  double _calculatePackagesTotalWeight() {
+    double totalWeight = 0.0;
+    if (packages.isNotEmpty){
+      for (ShippingPackageModel package in packages)
+        if (package.weight != null){
+          totalWeight += package.weight!;
+        }
+    }
+    return totalWeight;
+  }
+
+  double _calculatePackagesTotalVolWeight() {
+    double totalWeight = 0.0;
+    if (packages.isNotEmpty){
+      for (ShippingPackageModel package in packages)
+        if (package.vol_weight != null){
+          totalWeight+= package.vol_weight!;
+        }
+    }
+    return totalWeight;
+  }
+
+  double _calculatePackagesTotalComparedWeight() {
+    double totalWeight = 0.0;
+    if (packages.isNotEmpty){
+      for (ShippingPackageModel package in packages)
+        if (package.weight != null && package.vol_weight != null && package.weight! > package.vol_weight!){
+          totalWeight += package.weight!;
+        } else {
+          totalWeight+= package.vol_weight!;
+      }
+    }
+    return totalWeight;
   }
 
   _updateUserAccount() async {
@@ -790,7 +956,6 @@ class KolitrendShippingFormScreenState
                           fontSize: 20, color: Colors.white),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
-
                 ])),
             Container(
               padding: const EdgeInsets.only(top: 75),
@@ -834,1053 +999,7 @@ class KolitrendShippingFormScreenState
 
                 const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                // if (currentStep == "sender_info") ... [
-                //
-                //   Expanded(
-                //     child: Container(
-                //       padding: const EdgeInsets.symmetric(
-                //           horizontal: Dimensions.paddingSizeDefault),
-                //       decoration: BoxDecoration(
-                //         color: Theme.of(context).highlightColor,
-                //         borderRadius: const BorderRadius.only(
-                //           topLeft: Radius.circular(Dimensions.marginSizeDefault),
-                //           topRight: Radius.circular(Dimensions.marginSizeDefault),
-                //         ),
-                //       ),
-                //       child: ListView(
-                //         physics: const BouncingScrollPhysics(),
-                //         children: [
-                //           InkWell(
-                //             child: const Text('Sender Information'),
-                //             onTap: () {
-                //               Navigator.of(context).push(MaterialPageRoute(
-                //                   builder: (context) => const ProfileScreen1()));
-                //             },
-                //           ),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeSmall),
-                //
-                //           // SizedBox(
-                //           //   height: 60,
-                //           //   child: Consumer<AddressController>(
-                //           //      builder: (context, addressController, _) {
-                //           //        return Column(
-                //           //          crossAxisAlignment: CrossAxisAlignment.start,
-                //           //          children: [
-                //           //            Container(
-                //           //              width: MediaQuery.of(context).size.width,
-                //           //              decoration: BoxDecoration(
-                //           //                color: Theme.of(context).cardColor,
-                //           //                borderRadius: BorderRadius.circular(5),
-                //           //                border: Border.all(
-                //           //                  width: .1,
-                //           //                  color: Theme.of(context).hintColor.withValues(alpha: 0.01)
-                //           //                )
-                //           //              ),
-                //           //              child: DropdownButtonFormField2<String>(
-                //           //                isExpanded: true,
-                //           //                isDense: true,
-                //           //
-                //           //                decoration: InputDecoration(
-                //           //                  contentPadding:
-                //           //                    const EdgeInsets.symmetric(vertical: 0),
-                //           //                  border: OutlineInputBorder(
-                //           //                    borderRadius: BorderRadius.circular(5)
-                //           //                  )
-                //           //                ),
-                //           //                hint: Row(
-                //           //                 children: [
-                //           //                   Image.asset(Images.country),
-                //           //                   const SizedBox(width: Dimensions.paddingSizeSmall) ,
-                //           //                   Text(_countryOfOriginCodeController.text, style: textRegular.copyWith(
-                //           //                     fontSize: Dimensions.fontSizeDefault ,
-                //           //                     color: Theme.of(context).textTheme.bodyLarge!.color
-                //           //                   )
-                //           //                   )
-                //           //                 ]
-                //           //                ),
-                //           //                items: addressController.countryList
-                //           //                .map((item) => DropdownMenuItem<String>(
-                //           //                  value: item.code,
-                //           //                  child: Text(item.name!, style: textRegular.copyWith(
-                //           //                    fontSize: Dimensions.fontSizeDefault,
-                //           //                    color: Theme.of(context)
-                //           //                      .textTheme.bodyLarge!.color
-                //           //                  )),
-                //           //                )).toList(),
-                //           //
-                //           //                buttonStyleData: const ButtonStyleData(
-                //           //                  padding: EdgeInsets.only(right: 8)
-                //           //                ),
-                //           //                dropdownStyleData: DropdownStyleData(
-                //           //                  decoration: BoxDecoration(
-                //           //                    borderRadius: BorderRadius.circular(5)
-                //           //                  )
-                //           //                ),
-                //           //                menuItemStyleData: const MenuItemStyleData(
-                //           //                  padding: EdgeInsets.symmetric(horizontal: 16)
-                //           //                ),
-                //           //              ),
-                //           //            )
-                //           //          ],
-                //           //        );
-                //           //      }
-                //           //   ),
-                //           //
-                //           // ),
-                //
-                //           CustomCountryFieldWidget(
-                //               label: getTranslated('Country of Origin', context),
-                //               selectedCountryCode: countryOfOriginCode,
-                //               onCountryChanged: _onCountryOfOriginCodeChanged),
-                //
-                //           SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           // Text('${kolitrendShippingController.branchesList[0].branchName}'),
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Select Branch', context),
-                //             // labelText: "Your First Name",
-                //             // hintText: kolitrendShippingController.branchesList[0]?.branchName,
-                //             inputType: TextInputType.name,
-                //             focusNode: _senderBranchFocus,
-                //             nextFocus: _senderFirstNameFocus,
-                //             required: true,
-                //             readOnly: true,
-                //             controller: _senderBranchController,
-                //             // onTap: () => showModalBottomSheet(
-                //             //   backgroundColor: Colors.transparent,
-                //             //   isScrollControlled: true,
-                //             //   context: context,
-                //             //   builder: (_) =>
-                //             //       const SelectBranchBottomSheetWidget(),
-                //             // ),
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('First Name', context),
-                //             // labelText: "Your First Name",
-                //             inputType: TextInputType.name,
-                //             focusNode: _senderFirstNameFocus,
-                //             nextFocus: _senderLastNameFocus,
-                //             required: true,
-                //             readOnly: true,
-                //             hintText: 'John',
-                //             controller: _senderFirstNameController,
-                //             onChanged: (text) {
-                //               setState(() {
-                //                 // Update whatever state is driven by this text
-                //                 _senderFirstName = text;
-                //               });
-                //             },
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Last Name', context),
-                //             // labelText: "Your First Name",
-                //             inputType: TextInputType.name,
-                //             focusNode: _senderLastNameFocus,
-                //             nextFocus: _senderCompanyFocus,
-                //             required: true,
-                //             readOnly: true,
-                //             hintText: 'Doe',
-                //             controller: _senderLastNameController,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Company', context),
-                //             // labelText: "Your First Name",
-                //             inputType: TextInputType.name,
-                //             focusNode: _senderCompanyFocus,
-                //             nextFocus: _senderAddressFocus,
-                //             required: true,
-                //             readOnly: true,
-                //             hintText: 'ABC LLC',
-                //             controller: _senderCompanyController,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Address', context),
-                //             // labelText: "Your First Name",
-                //             inputType: TextInputType.name,
-                //             focusNode: _senderAddressFocus,
-                //             nextFocus: _senderZipFocus,
-                //             required: true,
-                //             readOnly: true,
-                //             hintText: 'AD Street',
-                //             controller: _senderAddressController,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Zip Code', context),
-                //             // labelText: "Your First Name",
-                //             inputType: TextInputType.name,
-                //             focusNode: _senderZipFocus,
-                //             nextFocus: _senderCityFocus,
-                //             required: true,
-                //             readOnly: true,
-                //             hintText: '4534667',
-                //             controller: _senderZipController,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('City', context),
-                //             // labelText: "Your First Name",
-                //             inputType: TextInputType.name,
-                //             focusNode: _senderCityFocus,
-                //             nextFocus: _senderPhoneFocus,
-                //             required: true,
-                //             readOnly: true,
-                //             hintText: 'Narayanganj',
-                //             controller: _senderCityController,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomCountryFieldWidget(
-                //               label: getTranslated('Country', context),
-                //               selectedCountryCode: senderCountryCode,
-                //               onCountryChanged: _onSenderCountryCodeChanged),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeDefault),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Phone', context),
-                //             // labelText: "Your First Name",
-                //             inputType: TextInputType.name,
-                //             focusNode: _senderPhoneFocus,
-                //             nextFocus: _senderEmailFocus,
-                //             required: true,
-                //             hintText: '9054435454',
-                //             controller: _senderPhoneController,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Email', context),
-                //             // labelText: "Your First Name",
-                //             inputType: TextInputType.name,
-                //             focusNode: _senderEmailFocus,
-                //             nextFocus: _destinationCountryFocus,
-                //             required: true,
-                //             hintText: 'john@example.com',
-                //             controller: _senderEmailController,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           InkWell(
-                //             child: const Text('Recipient Information'),
-                //             onTap: () {
-                //               Navigator.of(context).push(MaterialPageRoute(
-                //                   builder: (context) => const ProfileScreen1()));
-                //             },
-                //           ),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeSmall),
-                //
-                //           CustomCountryFieldWidget(
-                //               label:
-                //               getTranslated('Destination Country', context),
-                //               selectedCountryCode: destinationCountryCode,
-                //               onCountryChanged: _onDestinationCountryCodeChanged),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('First Name', context),
-                //             inputType: TextInputType.name,
-                //             focusNode: _recipientFirstNameFocus,
-                //             nextFocus: _recipientLastNameFocus,
-                //             required: true,
-                //             hintText: 'John',
-                //             controller: _recipientFirstNameController,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Last Name', context),
-                //             inputType: TextInputType.name,
-                //             focusNode: _recipientLastNameFocus,
-                //             nextFocus: _recipientCompanyFocus,
-                //             required: true,
-                //             hintText: 'Doe',
-                //             controller: _recipientLastNameController,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Company', context),
-                //             inputType: TextInputType.name,
-                //             focusNode: _recipientCompanyFocus,
-                //             nextFocus: _recipientAddressFocus,
-                //             required: true,
-                //             hintText: 'ABC LTD',
-                //             controller: _recipientCompanyController,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Address', context),
-                //             inputType: TextInputType.name,
-                //             focusNode: _recipientAddressFocus,
-                //             nextFocus: _recipientZipFocus,
-                //             required: true,
-                //             hintText: 'RD Street',
-                //             controller: _recipientAddressController,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Zip Code', context),
-                //             inputType: TextInputType.name,
-                //             focusNode: _recipientZipFocus,
-                //             nextFocus: _recipientCityFocus,
-                //             required: true,
-                //             hintText: '556544',
-                //             controller: _recipientZipController,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('City', context),
-                //             inputType: TextInputType.name,
-                //             focusNode: _recipientCityFocus,
-                //             nextFocus: _recipientCountryFocus,
-                //             required: true,
-                //             hintText: 'Narayanganj',
-                //             controller: _recipientCityController,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomCountryFieldWidget(
-                //               label: getTranslated('Country', context),
-                //               selectedCountryCode: receipentCountryCode,
-                //               onCountryChanged: _onReceipentCodeChanged),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Phone', context),
-                //             inputType: TextInputType.name,
-                //             focusNode: _recipientPhoneFocus,
-                //             nextFocus: _recipientEmailFocus,
-                //             required: true,
-                //             controller: _recipientPhoneController,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Email', context),
-                //             inputType: TextInputType.name,
-                //             focusNode: _recipientEmailFocus,
-                //             nextFocus: _shippingModeFocus,
-                //             required: true,
-                //             hintText: 'john@example.com',
-                //             controller: _recipientEmailController,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           InkWell(
-                //             child: const Text('Shipping Information'),
-                //             onTap: () {
-                //               Navigator.of(context).push(MaterialPageRoute(
-                //                   builder: (context) => const ProfileScreen1()));
-                //             },
-                //           ),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeSmall),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Shipping Mode', context),
-                //             inputType: TextInputType.name,
-                //             focusNode: _shippingModeFocus,
-                //             nextFocus: _shippingCompanyFocus,
-                //             required: true,
-                //             readOnly: true,
-                //             hintText: getTranslated('Select', context),
-                //             controller: _shippingModeController,
-                //             onTap: _openShippingModesBottomSheet,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Shipping Company', context),
-                //             inputType: TextInputType.name,
-                //             focusNode: _shippingCompanyFocus,
-                //             nextFocus: _shippingPackageTypeFocus,
-                //             required: true,
-                //             readOnly: true,
-                //             controller: _shippingCompanyController,
-                //             hintText: getTranslated('Select', context),
-                //             onTap: _openShippingCompaniesBottomSheet,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText:
-                //             getTranslated('Type of Packaging', context),
-                //             inputType: TextInputType.name,
-                //             focusNode: _shippingPackageTypeFocus,
-                //             nextFocus: _shippingServiceFocus,
-                //             required: true,
-                //             readOnly: true,
-                //             controller: _shippingPackageTypeController,
-                //             hintText: getTranslated("Select", context),
-                //             onTap: _openShippingPackageTypesBottomSheet,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Shipping Service', context),
-                //             inputType: TextInputType.name,
-                //             focusNode: _shippingServiceFocus,
-                //             nextFocus: _shippingDeliveryTimeFocus,
-                //             required: true,
-                //             readOnly: true,
-                //             controller: _shippingServiceController,
-                //             hintText: getTranslated("Select", context),
-                //             onTap: _openShippingServicesBottomSheet,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Delivery Time', context),
-                //             inputType: TextInputType.name,
-                //             focusNode: _shippingDeliveryTimeFocus,
-                //             required: true,
-                //             readOnly: true,
-                //             controller: _shippingDeliveryTimeController,
-                //             hintText: getTranslated("Select", context),
-                //             onTap: _openShippingDeliveryTimesBottomSheet,
-                //           ),
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           if (_images.isNotEmpty)
-                //             Container(
-                //               height: 250,
-                //               child: ListView(
-                //                   physics: const BouncingScrollPhysics(),
-                //                   children: [
-                //                     SizedBox(height: 12),
-                //                     Container(
-                //                       height: 250,
-                //                       child: GridView.builder(
-                //                         itemCount: _images.length,
-                //                         gridDelegate:
-                //                         SliverGridDelegateWithFixedCrossAxisCount(
-                //                           crossAxisCount: 3,
-                //                           crossAxisSpacing: 8,
-                //                           mainAxisSpacing: 8,
-                //                         ),
-                //                         itemBuilder: (context, index) {
-                //                           return Stack(
-                //                             children: [
-                //                               Positioned.fill(
-                //                                 child: Image.file(
-                //                                   File(_images[index].path),
-                //                                   fit: BoxFit.cover,
-                //                                 ),
-                //                               ),
-                //                               Positioned(
-                //                                 top: 2,
-                //                                 right: 2,
-                //                                 child: GestureDetector(
-                //                                   onTap: () =>
-                //                                       _removeImage(index),
-                //                                   child: Container(
-                //                                     decoration: BoxDecoration(
-                //                                       color: Colors.black54,
-                //                                       shape: BoxShape.circle,
-                //                                     ),
-                //                                     child: Icon(Icons.close,
-                //                                         color: Colors.white,
-                //                                         size: 20),
-                //                                   ),
-                //                                 ),
-                //                               ),
-                //                             ],
-                //                           );
-                //                         },
-                //                       ),
-                //                     ),
-                //                     SizedBox(height: 12)
-                //                   ]),
-                //             ),
-                //
-                //           InkWell(
-                //             onTap: _pickImages,
-                //             child: Column(children: [
-                //               _images.isEmpty
-                //                   ? Container(
-                //                 margin: const EdgeInsets.only(
-                //                     top: Dimensions.marginSizeExtraLarge),
-                //                 alignment: Alignment.center,
-                //                 decoration: BoxDecoration(
-                //                   color: Theme.of(context).cardColor,
-                //                   border: Border.all(
-                //                       color: Colors.white, width: 3),
-                //                   shape: BoxShape.circle,
-                //                 ),
-                //                 child: Stack(
-                //                     clipBehavior: Clip.none,
-                //                     children: [
-                //                       ClipRRect(
-                //                           borderRadius:
-                //                           BorderRadius.circular(20),
-                //                           child: CustomImageWidget(
-                //                             image: "",
-                //                             // "${profile.userInfoModel!.imageFullUrl?.path}",
-                //                             height:
-                //                             Dimensions.profileImageSize,
-                //                             fit: BoxFit.cover,
-                //                             width:
-                //                             Dimensions.profileImageSize,
-                //                           )),
-                //                     ]),
-                //               )
-                //                   : SizedBox(height: 12),
-                //               Text(
-                //                 _images.isEmpty
-                //                     ? getTranslated(
-                //                     "Upload Photos", Get.context!)!
-                //                     : getTranslated(
-                //                     "Add More Photos", Get.context!)!,
-                //                 style: textBold.copyWith(
-                //                     color: Theme.of(context).colorScheme.primary,
-                //                     fontSize: Dimensions.fontSizeLarge),
-                //               ),
-                //             ]),
-                //           ),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           if (showForm == false || showForm == true) ...[
-                //             SizedBox(height: 16),
-                //
-                //             InkWell(
-                //               child: const Text('Packages Added'),
-                //             ),
-                //
-                //             // Container holding the ListView
-                //             Expanded(
-                //               child: Container(
-                //                 height: 400,
-                //                 padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                //                 decoration: BoxDecoration(
-                //                   color: Colors.white,
-                //                   boxShadow: [
-                //                     BoxShadow(
-                //                       color: Colors.grey.withOpacity(0.3),
-                //                       spreadRadius: 2,
-                //                       blurRadius: 5,
-                //                       offset: Offset(0, 3),
-                //                     ),
-                //                   ],
-                //                 ),
-                //                 child: packages.isEmpty
-                //                     ? Center(
-                //                     child: Text(
-                //                       'No items yet!',
-                //                       style: TextStyle(
-                //                           fontSize: 18, color: Colors.grey),
-                //                     ))
-                //                     : ListView.builder(
-                //                   itemCount: packages.length,
-                //                   itemBuilder: (context, index) {
-                //                     final item = packages[index];
-                //                     return Card(
-                //                       elevation:
-                //                       2.0, // Slight elevation for each card
-                //                       margin: const EdgeInsets.symmetric(
-                //                           vertical: 8.0, horizontal: 4.0),
-                //                       shape: RoundedRectangleBorder(
-                //                         borderRadius:
-                //                         BorderRadius.circular(10.0),
-                //                       ),
-                //                       child: Padding(
-                //                         padding: const EdgeInsets.all(12.0),
-                //                         child: Row(
-                //                           mainAxisAlignment:
-                //                           MainAxisAlignment
-                //                               .spaceBetween,
-                //                           children: <Widget>[
-                //                             // Left side: Name and Category
-                //                             Expanded(
-                //                               // Use Expanded to prevent overflow if text is long
-                //                               child: Column(
-                //                                 crossAxisAlignment:
-                //                                 CrossAxisAlignment
-                //                                     .start,
-                //                                 children: <Widget>[
-                //                                   Text(
-                //                                     "${getTranslated("Quantity", context)}: " + item.quantity
-                //                                         .toString()!,
-                //                                     style: TextStyle(
-                //                                       fontSize: 16.0,
-                //                                       fontWeight:
-                //                                       FontWeight.bold,
-                //                                     ),
-                //                                     overflow: TextOverflow
-                //                                         .ellipsis,
-                //                                   ),
-                //                                   SizedBox(height: 4.0),
-                //                                   Text(
-                //                                     "${getTranslated("Volumetric Weight", context)}: ${item.weight!.toStringAsFixed(2)} kg", // Format price
-                //                                     style: TextStyle(
-                //                                       fontSize: 14.0,
-                //                                       color: Colors.grey.shade700,
-                //                                     ),
-                //                                   ),
-                //
-                //                                   SizedBox(height: 4.0),
-                //                                   Text(
-                //                                     "${getTranslated("Weight", context)}: ${item.weight!.toStringAsFixed(2)} kg", // Format price
-                //                                     style: TextStyle(
-                //                                       fontSize: 14.0,
-                //                                       color: Colors.grey.shade700,
-                //                                     ),
-                //                                   ),
-                //                                   SizedBox(height: 4.0),
-                //                                   Text(
-                //                                     "${item.width} X ${item.length} X ${item.height} cm"
-                //                                     ,
-                //                                     style: TextStyle(
-                //                                       fontSize: 14.0,
-                //                                       color: Colors
-                //                                           .grey.shade700,
-                //                                     ),
-                //                                     overflow: TextOverflow
-                //                                         .ellipsis,
-                //                                   )
-                //
-                //                                 ],
-                //                               ),
-                //                             ),
-                //                             SizedBox(
-                //                                 width:
-                //                                 16), // Spacing between left and right content
-                //
-                //                             // Right side: Price and Delete Icon
-                //                             Row(
-                //                               mainAxisAlignment: MainAxisAlignment
-                //                                   .end,
-                //                               children: <Widget>[
-                //                                 Column(
-                //                                   children: [
-                //
-                //
-                //                                   ],
-                //                                 ),
-                //                                 SizedBox(width: 8.0),
-                //                                 IconButton(
-                //                                   icon: Icon(Icons
-                //                                       .delete_outline_rounded),
-                //                                   color:
-                //                                   Colors.red.shade400,
-                //                                   onPressed: () {
-                //                                     _deleteItem(item.id!);
-                //                                   },
-                //                                   tooltip: 'Delete Item',
-                //                                   constraints:
-                //                                   BoxConstraints(), // Removes default padding if needed
-                //                                   padding: EdgeInsets
-                //                                       .zero, // Removes default padding
-                //                                 ),
-                //                               ],
-                //                             ),
-                //                           ],
-                //                         ),
-                //                       ),
-                //                     );
-                //                   },
-                //                 ),
-                //               ),
-                //             ),
-                //
-                //             SizedBox(height: Dimensions.paddingSizeSmall),
-                //
-                //             Container(
-                //               padding: EdgeInsets.fromLTRB(
-                //                   Dimensions.paddingSizeDefault,
-                //                   0,
-                //                   Dimensions.paddingSizeDefault,
-                //                   6),
-                //               child: true
-                //                   ? CustomButton(
-                //                   onTap: () => {
-                //                     setState(() {
-                //                       showForm = true;
-                //                     })
-                //                   },
-                //                   buttonText: getTranslated(
-                //                       'Add New Package', context))
-                //                   : Center(
-                //                   child: CircularProgressIndicator(
-                //                     valueColor: AlwaysStoppedAnimation<Color>(
-                //                         Theme.of(context).primaryColor),
-                //                   )),
-                //             ),
-                //           ],
-                //
-                //           InkWell(
-                //             child: const Text('Package Information'),
-                //           ),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeSmall),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Quantity', context),
-                //             inputType: TextInputType.number,
-                //             focusNode: _packageQuantityFocus,
-                //             nextFocus: _packageDescFocus,
-                //             required: true,
-                //             controller: _packageQuantityController,
-                //           ),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText:
-                //             getTranslated('Package Description', context),
-                //             inputType: TextInputType.name,
-                //             focusNode: _packageDescFocus,
-                //             nextFocus: _packageWeightFocus,
-                //             required: true,
-                //             controller: _packageDescController,
-                //           ),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Weight (kg)', context),
-                //             inputType: TextInputType.number,
-                //             focusNode: _packageWeightFocus,
-                //             nextFocus: _packageLengthFocus,
-                //             required: true,
-                //             controller: _packageWeightController,
-                //           ),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Length (cm)', context),
-                //             inputType: TextInputType.number,
-                //             focusNode: _packageLengthFocus,
-                //             nextFocus: _packageWidthFocus,
-                //             required: true,
-                //             onChanged: _onPackageLengthChange,
-                //             controller: _packageLengthController,
-                //           ),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Width (cm)', context),
-                //             inputType: TextInputType.number,
-                //             focusNode: _packageWidthFocus,
-                //             nextFocus: _packageHeightFocus,
-                //             required: true,
-                //             onChanged: _onPackageWidthChange,
-                //             controller: _packageWidthController,
-                //           ),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Height (cm)', context),
-                //             inputType: TextInputType.number,
-                //             focusNode: _packageHeightFocus,
-                //             nextFocus: _packageWeightVolFocus,
-                //             required: true,
-                //             onChanged: _onPackageHeightChange,
-                //             controller: _packageHeightController,
-                //           ),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText: getTranslated('Weight Vol (kg)', context),
-                //             focusNode: _packageWeightVolFocus,
-                //             nextFocus: _packageShipmentInvoiceAmountFocus,
-                //             required: true,
-                //             readOnly: true,
-                //             controller: _packageWeightVolController,
-                //           ),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //             labelText:
-                //             getTranslated('Shipment Invoice Amount', context),
-                //             inputType: TextInputType.number,
-                //             focusNode: _packageShipmentInvoiceAmountFocus,
-                //             nextFocus: _packageCurrencyFocus,
-                //             required: true,
-                //             controller: _packageShipmentInvoiceAmountController,
-                //           ),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           CustomTextFieldWidget(
-                //               labelText: getTranslated('Currency', context),
-                //               inputType: TextInputType.name,
-                //               focusNode: _packageCurrencyFocus,
-                //               required: true,
-                //               readOnly: true,
-                //               onTap: _openPackageCurrencyBottomSheet,
-                //               controller: _packageCurrencyController),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           Container(
-                //             child: true
-                //                 ? CustomButton(
-                //                 onTap: _addPackage,
-                //                 buttonText:
-                //                 getTranslated('Add Package', context))
-                //                 : Center(
-                //                 child: CircularProgressIndicator(
-                //                   valueColor: AlwaysStoppedAnimation<Color>(
-                //                       Theme.of(context).primaryColor),
-                //                 )),
-                //           ),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //
-                //           Text(getTranslated('order_summary', context) ?? '',
-                //               style: textMedium.copyWith(
-                //                   fontSize: Dimensions.fontSizeLarge,
-                //                   color: Theme.of(context)
-                //                       .textTheme
-                //                       .bodyLarge
-                //                       ?.color)),
-                //           const SizedBox(height: Dimensions.paddingSizeSmall),
-                //
-                //           Column(
-                //             children: [
-                //               AmountWidget(
-                //                   title:
-                //                   '${getTranslated('Weight', context)} ${'(${getTranslated('kg', context)})'}',
-                //                   amount: "0.0"),
-                //               AmountWidget(
-                //                   title:
-                //                   '${getTranslated('Volumetric Weight', context)} ${'(${getTranslated('kg', context)})'}',
-                //                   amount: "0.0"),
-                //               AmountWidget(
-                //                   title:
-                //                   '${getTranslated('Total Weight Calculation', context)} ${'(${getTranslated('kg', context)})'}',
-                //                   amount: "0.0"),
-                //               AmountWidget(
-                //                   title: '${getTranslated('sub_total', context)}',
-                //                   amount:
-                //                   PriceConverter.convertPrice(context, 0)),
-                //               AmountWidget(
-                //                   title: getTranslated('Total', context),
-                //                   amount: PriceConverter.convertPrice(context, 0))
-                //             ],
-                //           ),
-                //
-                //           const SizedBox(height: Dimensions.paddingSizeLarge),
-                //           // InkWell(
-                //           //   child: const Text('HEllo'),
-                //           //   onTap: (){
-                //           //     Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ProfileScreen1()));
-                //           //   },
-                //           // ),
-                //         ],
-                //       ),
-                //     ),
-                //   ),
-                //
-                // ] ,
-
-
-                // For sender info step
-                if (currentStep == "sender_info") ... [
-
-                  Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: Dimensions.paddingSizeDefault),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).highlightColor,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(Dimensions.marginSizeDefault),
-                        topRight: Radius.circular(Dimensions.marginSizeDefault),
-                      ),
-                    ),
-                    child: ListView(
-                      physics: const BouncingScrollPhysics(),
-                      children: [
-                        InkWell(
-                          child: const Text('Sender Information'),
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const ProfileScreen1()));
-                          },
-                        ),
-
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
-
-
-                        CustomCountryFieldWidget(
-                            label: getTranslated('Country of Origin', context),
-                            selectedCountryCode: countryOfOriginCode,
-                            onCountryChanged: _onCountryOfOriginCodeChanged),
-
-                        SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        // Text('${kolitrendShippingController.branchesList[0].branchName}'),
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Select Branch', context),
-                          // labelText: "Your First Name",
-                          // hintText: kolitrendShippingController.branchesList[0]?.branchName,
-                          inputType: TextInputType.name,
-                          focusNode: _senderBranchFocus,
-                          nextFocus: _senderFirstNameFocus,
-                          required: true,
-                          readOnly: true,
-                          controller: _senderBranchController,
-                          // onTap: () => showModalBottomSheet(
-                          //   backgroundColor: Colors.transparent,
-                          //   isScrollControlled: true,
-                          //   context: context,
-                          //   builder: (_) =>
-                          //       const SelectBranchBottomSheetWidget(),
-                          // ),
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('First Name', context),
-                          // labelText: "Your First Name",
-                          inputType: TextInputType.name,
-                          focusNode: _senderFirstNameFocus,
-                          nextFocus: _senderLastNameFocus,
-                          required: true,
-                          readOnly: true,
-                          hintText: 'John',
-                          controller: _senderFirstNameController,
-                          onChanged: (text) {
-                            setState(() {
-                              // Update whatever state is driven by this text
-                              _senderFirstName = text;
-                            });
-                          },
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Last Name', context),
-                          // labelText: "Your First Name",
-                          inputType: TextInputType.name,
-                          focusNode: _senderLastNameFocus,
-                          nextFocus: _senderCompanyFocus,
-                          required: true,
-                          readOnly: true,
-                          hintText: 'Doe',
-                          controller: _senderLastNameController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Company', context),
-                          // labelText: "Your First Name",
-                          inputType: TextInputType.name,
-                          focusNode: _senderCompanyFocus,
-                          nextFocus: _senderAddressFocus,
-                          required: true,
-                          readOnly: true,
-                          hintText: 'ABC LLC',
-                          controller: _senderCompanyController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Address', context),
-                          // labelText: "Your First Name",
-                          inputType: TextInputType.name,
-                          focusNode: _senderAddressFocus,
-                          nextFocus: _senderZipFocus,
-                          required: true,
-                          readOnly: true,
-                          hintText: 'AD Street',
-                          controller: _senderAddressController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Zip Code', context),
-                          // labelText: "Your First Name",
-                          inputType: TextInputType.name,
-                          focusNode: _senderZipFocus,
-                          nextFocus: _senderCityFocus,
-                          required: true,
-                          readOnly: true,
-                          hintText: '4534667',
-                          controller: _senderZipController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('City', context),
-                          // labelText: "Your First Name",
-                          inputType: TextInputType.name,
-                          focusNode: _senderCityFocus,
-                          nextFocus: _senderPhoneFocus,
-                          required: true,
-                          readOnly: true,
-                          hintText: 'Narayanganj',
-                          controller: _senderCityController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomCountryFieldWidget(
-                            label: getTranslated('Country', context),
-                            selectedCountryCode: senderCountryCode,
-                            onCountryChanged: _onSenderCountryCodeChanged),
-
-                        const SizedBox(height: Dimensions.paddingSizeDefault),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Phone', context),
-                          // labelText: "Your First Name",
-                          inputType: TextInputType.name,
-                          focusNode: _senderPhoneFocus,
-                          nextFocus: _senderEmailFocus,
-                          required: true,
-                          hintText: '9054435454',
-                          controller: _senderPhoneController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
-                          labelText: getTranslated('Email', context),
-                          // labelText: "Your First Name",
-                          inputType: TextInputType.name,
-                          focusNode: _senderEmailFocus,
-                          nextFocus: _destinationCountryFocus,
-                          required: true,
-                          hintText: 'john@example.com',
-                          controller: _senderEmailController,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-
-                      ],
-                    ),
-                  ),
-                ),
-
-                ] ,
-
-                // For recipient info step
-                if (currentStep == "recipient_info") ... [
-
+                if (currentStep == "sender_info") ...[
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -1888,17 +1007,194 @@ class KolitrendShippingFormScreenState
                       decoration: BoxDecoration(
                         color: Theme.of(context).highlightColor,
                         borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(Dimensions.marginSizeDefault),
-                          topRight: Radius.circular(Dimensions.marginSizeDefault),
+                          topLeft:
+                              Radius.circular(Dimensions.marginSizeDefault),
+                          topRight:
+                              Radius.circular(Dimensions.marginSizeDefault),
                         ),
                       ),
                       child: ListView(
                         physics: const BouncingScrollPhysics(),
                         children: [
-
                           InkWell(
-                            child: const Text('Recipient Information')
+                            child: const Text('Sender Information'),
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ProfileScreen1()));
+                            },
                           ),
+
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          CustomCountryFieldWidget(
+                              label:
+                                  getTranslated('Country of Origin', context),
+                              selectedCountryCode: countryOfOriginCode,
+                              onCountryChanged: _onCountryOfOriginCodeChanged),
+
+                          SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          // Text('${kolitrendShippingController.branchesList[0].branchName}'),
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Select Branch', context),
+                            // labelText: "Your First Name",
+                            // hintText: kolitrendShippingController.branchesList[0]?.branchName,
+                            inputType: TextInputType.name,
+                            focusNode: _senderBranchFocus,
+                            nextFocus: _senderFirstNameFocus,
+                            required: true,
+                            readOnly: true,
+                            controller: _senderBranchController,
+                            // onTap: () => showModalBottomSheet(
+                            //   backgroundColor: Colors.transparent,
+                            //   isScrollControlled: true,
+                            //   context: context,
+                            //   builder: (_) =>
+                            //       const SelectBranchBottomSheetWidget(),
+                            // ),
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('First Name', context),
+                            // labelText: "Your First Name",
+                            inputType: TextInputType.name,
+                            focusNode: _senderFirstNameFocus,
+                            nextFocus: _senderLastNameFocus,
+                            required: true,
+                            readOnly: true,
+                            hintText: 'John',
+                            controller: _senderFirstNameController,
+                            onChanged: (text) {
+                              setState(() {
+                                // Update whatever state is driven by this text
+                                _senderFirstName = text;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Last Name', context),
+                            // labelText: "Your First Name",
+                            inputType: TextInputType.name,
+                            focusNode: _senderLastNameFocus,
+                            nextFocus: _senderCompanyFocus,
+                            required: true,
+                            readOnly: true,
+                            hintText: 'Doe',
+                            controller: _senderLastNameController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Company', context),
+                            // labelText: "Your First Name",
+                            inputType: TextInputType.name,
+                            focusNode: _senderCompanyFocus,
+                            nextFocus: _senderAddressFocus,
+                            required: true,
+                            readOnly: true,
+                            hintText: 'ABC LLC',
+                            controller: _senderCompanyController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Address', context),
+                            // labelText: "Your First Name",
+                            inputType: TextInputType.name,
+                            focusNode: _senderAddressFocus,
+                            nextFocus: _senderZipFocus,
+                            required: true,
+                            readOnly: true,
+                            hintText: 'AD Street',
+                            controller: _senderAddressController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Zip Code', context),
+                            // labelText: "Your First Name",
+                            inputType: TextInputType.name,
+                            focusNode: _senderZipFocus,
+                            nextFocus: _senderCityFocus,
+                            required: true,
+                            readOnly: true,
+                            hintText: '4534667',
+                            controller: _senderZipController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('City', context),
+                            // labelText: "Your First Name",
+                            inputType: TextInputType.name,
+                            focusNode: _senderCityFocus,
+                            nextFocus: _senderPhoneFocus,
+                            required: true,
+                            readOnly: true,
+                            hintText: 'Narayanganj',
+                            controller: _senderCityController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomCountryFieldWidget(
+                              label: getTranslated('Country', context),
+                              selectedCountryCode: senderCountryCode,
+                              onCountryChanged: _onSenderCountryCodeChanged),
+
+                          const SizedBox(height: Dimensions.paddingSizeDefault),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Phone', context),
+                            // labelText: "Your First Name",
+                            inputType: TextInputType.name,
+                            focusNode: _senderPhoneFocus,
+                            nextFocus: _senderEmailFocus,
+                            required: true,
+                            hintText: '9054435454',
+                            controller: _senderPhoneController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          CustomTextFieldWidget(
+                            labelText: getTranslated('Email', context),
+                            // labelText: "Your First Name",
+                            inputType: TextInputType.name,
+                            focusNode: _senderEmailFocus,
+                            nextFocus: _destinationCountryFocus,
+                            required: true,
+                            hintText: 'john@example.com',
+                            controller: _senderEmailController,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+
+                // For recipient info step
+                if (currentStep == "recipient_info") ...[
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeDefault),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).highlightColor,
+                        borderRadius: const BorderRadius.only(
+                          topLeft:
+                              Radius.circular(Dimensions.marginSizeDefault),
+                          topRight:
+                              Radius.circular(Dimensions.marginSizeDefault),
+                        ),
+                      ),
+                      child: ListView(
+                        physics: const BouncingScrollPhysics(),
+                        children: [
+                          InkWell(child: const Text('Recipient Information')),
 
                           SizedBox(height: Dimensions.paddingSizeLarge),
 
@@ -1906,9 +1202,10 @@ class KolitrendShippingFormScreenState
                           // Destination country
                           CustomCountryFieldWidget(
                               label:
-                              getTranslated('Destination Country', context),
+                                  getTranslated('Destination Country', context),
                               selectedCountryCode: destinationCountryCode,
-                              onCountryChanged: _onDestinationCountryCodeChanged),
+                              onCountryChanged:
+                                  _onDestinationCountryCodeChanged),
 
                           const SizedBox(height: Dimensions.paddingSizeLarge),
 
@@ -2005,17 +1302,14 @@ class KolitrendShippingFormScreenState
                             controller: _recipientEmailController,
                           ),
                           const SizedBox(height: Dimensions.paddingSizeLarge),
-
                         ],
                       ),
                     ),
                   ),
-
-                ] ,
+                ],
 
                 // For shipping info step
-                if (currentStep == "shipping_info") ... [
-
+                if (currentStep == "shipping_info") ...[
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -2023,25 +1317,24 @@ class KolitrendShippingFormScreenState
                       decoration: BoxDecoration(
                         color: Theme.of(context).highlightColor,
                         borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(Dimensions.marginSizeDefault),
-                          topRight: Radius.circular(Dimensions.marginSizeDefault),
+                          topLeft:
+                              Radius.circular(Dimensions.marginSizeDefault),
+                          topRight:
+                              Radius.circular(Dimensions.marginSizeDefault),
                         ),
                       ),
                       child: ListView(
                         physics: const BouncingScrollPhysics(),
                         children: [
-
-
                           InkWell(
                             child: const Text('Shipping Information'),
                             onTap: () {
                               Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => const ProfileScreen1()));
+                                  builder: (context) =>
+                                      const ProfileScreen1()));
                             },
                           ),
-
                           const SizedBox(height: Dimensions.paddingSizeSmall),
-
                           CustomTextFieldWidget(
                             labelText: getTranslated('Shipping Mode', context),
                             inputType: TextInputType.name,
@@ -2054,9 +1347,9 @@ class KolitrendShippingFormScreenState
                             onTap: _openShippingModesBottomSheet,
                           ),
                           const SizedBox(height: Dimensions.paddingSizeLarge),
-
                           CustomTextFieldWidget(
-                            labelText: getTranslated('Shipping Company', context),
+                            labelText:
+                                getTranslated('Shipping Company', context),
                             inputType: TextInputType.name,
                             focusNode: _shippingCompanyFocus,
                             nextFocus: _shippingPackageTypeFocus,
@@ -2067,10 +1360,9 @@ class KolitrendShippingFormScreenState
                             onTap: _openShippingCompaniesBottomSheet,
                           ),
                           const SizedBox(height: Dimensions.paddingSizeLarge),
-
                           CustomTextFieldWidget(
                             labelText:
-                            getTranslated('Type of Packaging', context),
+                                getTranslated('Type of Packaging', context),
                             inputType: TextInputType.name,
                             focusNode: _shippingPackageTypeFocus,
                             nextFocus: _shippingServiceFocus,
@@ -2081,9 +1373,9 @@ class KolitrendShippingFormScreenState
                             onTap: _openShippingPackageTypesBottomSheet,
                           ),
                           const SizedBox(height: Dimensions.paddingSizeLarge),
-
                           CustomTextFieldWidget(
-                            labelText: getTranslated('Shipping Service', context),
+                            labelText:
+                                getTranslated('Shipping Service', context),
                             inputType: TextInputType.name,
                             focusNode: _shippingServiceFocus,
                             nextFocus: _shippingDeliveryTimeFocus,
@@ -2094,7 +1386,6 @@ class KolitrendShippingFormScreenState
                             onTap: _openShippingServicesBottomSheet,
                           ),
                           const SizedBox(height: Dimensions.paddingSizeLarge),
-
                           CustomTextFieldWidget(
                             labelText: getTranslated('Delivery Time', context),
                             inputType: TextInputType.name,
@@ -2106,17 +1397,14 @@ class KolitrendShippingFormScreenState
                             onTap: _openShippingDeliveryTimesBottomSheet,
                           ),
                           const SizedBox(height: Dimensions.paddingSizeLarge),
-
                         ],
                       ),
                     ),
                   ),
-
-                ] ,
+                ],
 
                 // For gallery step
-                if (currentStep == "gallery") ... [
-
+                if (currentStep == "gallery") ...[
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -2124,15 +1412,15 @@ class KolitrendShippingFormScreenState
                       decoration: BoxDecoration(
                         color: Theme.of(context).highlightColor,
                         borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(Dimensions.marginSizeDefault),
-                          topRight: Radius.circular(Dimensions.marginSizeDefault),
+                          topLeft:
+                              Radius.circular(Dimensions.marginSizeDefault),
+                          topRight:
+                              Radius.circular(Dimensions.marginSizeDefault),
                         ),
                       ),
                       child: ListView(
                         physics: const BouncingScrollPhysics(),
                         children: [
-
-
                           if (_images.isNotEmpty)
                             Container(
                               height: 250,
@@ -2145,7 +1433,7 @@ class KolitrendShippingFormScreenState
                                       child: GridView.builder(
                                         itemCount: _images.length,
                                         gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                            SliverGridDelegateWithFixedCrossAxisCount(
                                           crossAxisCount: 3,
                                           crossAxisSpacing: 8,
                                           mainAxisSpacing: 8,
@@ -2184,63 +1472,59 @@ class KolitrendShippingFormScreenState
                                     SizedBox(height: 12)
                                   ]),
                             ),
-
                           InkWell(
                             onTap: _pickImages,
                             child: Column(children: [
                               _images.isEmpty
                                   ? Container(
-                                margin: const EdgeInsets.only(
-                                    top: Dimensions.marginSizeExtraLarge),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor,
-                                  border: Border.all(
-                                      color: Colors.white, width: 3),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Stack(
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      ClipRRect(
-                                          borderRadius:
-                                          BorderRadius.circular(20),
-                                          child: CustomImageWidget(
-                                            image: "",
-                                            // "${profile.userInfoModel!.imageFullUrl?.path}",
-                                            height:
-                                            Dimensions.profileImageSize,
-                                            fit: BoxFit.cover,
-                                            width:
-                                            Dimensions.profileImageSize,
-                                          )),
-                                    ]),
-                              )
+                                      margin: const EdgeInsets.only(
+                                          top: Dimensions.marginSizeExtraLarge),
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).cardColor,
+                                        border: Border.all(
+                                            color: Colors.white, width: 3),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Stack(
+                                          clipBehavior: Clip.none,
+                                          children: [
+                                            ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                child: CustomImageWidget(
+                                                  image: "",
+                                                  // "${profile.userInfoModel!.imageFullUrl?.path}",
+                                                  height: Dimensions
+                                                      .profileImageSize,
+                                                  fit: BoxFit.cover,
+                                                  width: Dimensions
+                                                      .profileImageSize,
+                                                )),
+                                          ]),
+                                    )
                                   : SizedBox(height: 12),
                               Text(
                                 _images.isEmpty
                                     ? getTranslated(
-                                    "Upload Photos", Get.context!)!
+                                        "Upload Photos", Get.context!)!
                                     : getTranslated(
-                                    "Add More Photos", Get.context!)!,
+                                        "Add More Photos", Get.context!)!,
                                 style: textBold.copyWith(
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     fontSize: Dimensions.fontSizeLarge),
                               ),
                             ]),
                           ),
-
                         ],
                       ),
                     ),
                   ),
-
-                ] ,
-
+                ],
 
                 // For add package step
-                if (currentStep == "add_package") ... [
-
+                if (currentStep == "add_package") ...[
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -2248,187 +1532,151 @@ class KolitrendShippingFormScreenState
                       decoration: BoxDecoration(
                         color: Theme.of(context).highlightColor,
                         borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(Dimensions.marginSizeDefault),
-                          topRight: Radius.circular(Dimensions.marginSizeDefault),
+                          topLeft:
+                              Radius.circular(Dimensions.marginSizeDefault),
+                          topRight:
+                              Radius.circular(Dimensions.marginSizeDefault),
                         ),
                       ),
                       child: ListView(
                         physics: const BouncingScrollPhysics(),
                         children: [
-
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(child:
-                              InkWell(
-                                child:  Text('Package Information'),
-                              ),
+                              Expanded(
+                                child: InkWell(
+                                  child: Text('Package Information'),
+                                ),
                               ),
                               Expanded(
-                                  child:
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-
-                                    Text("${packages.length} Added", style: textRegular.copyWith(fontWeight: FontWeight.bold))
-
-                                  ],
-
-                                   )
-                              )
+                                  child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text("${packages.length} Added",
+                                      style: textRegular.copyWith(
+                                          fontWeight: FontWeight.bold))
+                                ],
+                              ))
                             ],
                           ),
-                          
-                       
                           const SizedBox(height: Dimensions.paddingSizeSmall),
-
                           CustomTextFieldWidget(
                             labelText:
-                            getTranslated('Package Description', context),
+                                getTranslated('Package Description', context),
                             inputType: TextInputType.name,
                             focusNode: _packageDescFocus,
                             nextFocus: _packageWeightFocus,
                             required: true,
                             controller: _packageDescController,
                           ),
-
                           const SizedBox(height: Dimensions.paddingSizeLarge),
-
-
                           Row(
                             children: [
-                              Expanded(child:
-                              CustomTextFieldWidget(
-                                labelText: getTranslated('Quantity', context),
-                                inputType: TextInputType.number,
-                                focusNode: _packageQuantityFocus,
-                                nextFocus: _packageDescFocus,
-                                required: true,
-                                controller: _packageQuantityController,
+                              Expanded(
+                                child: CustomTextFieldWidget(
+                                  labelText: getTranslated('Quantity', context),
+                                  inputType: TextInputType.number,
+                                  focusNode: _packageQuantityFocus,
+                                  nextFocus: _packageDescFocus,
+                                  required: true,
+                                  controller: _packageQuantityController,
+                                ),
                               ),
-                              ) ,
-
                               SizedBox(width: 12),
-
-                              Expanded(child:
-                              CustomTextFieldWidget(
-                                labelText: getTranslated('Weight (kg)', context),
-                                inputType: TextInputType.number,
-                                focusNode: _packageWeightFocus,
-                                nextFocus: _packageLengthFocus,
-                                required: true,
-                                controller: _packageWeightController,
-                              ),
+                              Expanded(
+                                child: CustomTextFieldWidget(
+                                  labelText:
+                                      getTranslated('Weight (kg)', context),
+                                  inputType: TextInputType.number,
+                                  focusNode: _packageWeightFocus,
+                                  nextFocus: _packageLengthFocus,
+                                  required: true,
+                                  controller: _packageWeightController,
+                                ),
                               )
-
                             ],
                           ),
-
-
-
                           const SizedBox(height: Dimensions.paddingSizeLarge),
-
-
                           Row(
                             children: [
-                              Expanded(child:
-                              CustomTextFieldWidget(
-                                labelText: getTranslated('Length (cm)', context),
-                                inputType: TextInputType.number,
-                                focusNode: _packageLengthFocus,
-                                nextFocus: _packageWidthFocus,
-                                required: true,
-                                onChanged: _onPackageLengthChange,
-                                controller: _packageLengthController,
+                              Expanded(
+                                child: CustomTextFieldWidget(
+                                  labelText:
+                                      getTranslated('Length (cm)', context),
+                                  inputType: TextInputType.number,
+                                  focusNode: _packageLengthFocus,
+                                  nextFocus: _packageWidthFocus,
+                                  required: true,
+                                  onChanged: _onPackageLengthChange,
+                                  controller: _packageLengthController,
+                                ),
                               ),
-                              ) ,
-
                               SizedBox(width: 12),
-
-                              Expanded(child:
-
-                              CustomTextFieldWidget(
-                                labelText: getTranslated('Width (cm)', context),
-                                inputType: TextInputType.number,
-                                focusNode: _packageWidthFocus,
-                                nextFocus: _packageHeightFocus,
-                                required: true,
-                                onChanged: _onPackageWidthChange,
-                                controller: _packageWidthController,
+                              Expanded(
+                                child: CustomTextFieldWidget(
+                                  labelText:
+                                      getTranslated('Width (cm)', context),
+                                  inputType: TextInputType.number,
+                                  focusNode: _packageWidthFocus,
+                                  nextFocus: _packageHeightFocus,
+                                  required: true,
+                                  onChanged: _onPackageWidthChange,
+                                  controller: _packageWidthController,
+                                ),
                               ),
-                              ) ,
-
                             ],
                           ),
-
                           const SizedBox(height: Dimensions.paddingSizeLarge),
-
-
                           Row(
                             children: [
                               Expanded(
                                 flex: 1,
-                                child:
-                              CustomTextFieldWidget(
-                                labelText: getTranslated('Height (cm)', context),
-                                inputType: TextInputType.number,
-                                focusNode: _packageHeightFocus,
-                                nextFocus: _packageWeightVolFocus,
-                                required: true,
-                                onChanged: _onPackageHeightChange,
-                                controller: _packageHeightController,
+                                child: CustomTextFieldWidget(
+                                  labelText:
+                                      getTranslated('Height (cm)', context),
+                                  inputType: TextInputType.number,
+                                  focusNode: _packageHeightFocus,
+                                  nextFocus: _packageWeightVolFocus,
+                                  required: true,
+                                  onChanged: _onPackageHeightChange,
+                                  controller: _packageHeightController,
+                                ),
                               ),
-                              ) ,
-
                             ],
-
-
                           ),
-
-
                           const SizedBox(height: Dimensions.paddingSizeLarge),
-
-
                           CustomTextFieldWidget(
-                            labelText: getTranslated('Volumetric Weight (kg)', context),
+                            labelText: getTranslated(
+                                'Volumetric Weight (kg)', context),
                             focusNode: _packageWeightVolFocus,
                             nextFocus: _packageShipmentInvoiceAmountFocus,
                             required: true,
                             readOnly: true,
                             controller: _packageWeightVolController,
                           ),
-
-
                           const SizedBox(height: Dimensions.paddingSizeLarge),
-
                           Row(
                             children: [
                               Expanded(
-
                                 flex: 2,
-
-                                child:
-
-                              CustomTextFieldWidget(
-                                labelText:
-                                getTranslated('Shipment Invoice Amount', context),
-                                inputType: TextInputType.number,
-                                focusNode: _packageShipmentInvoiceAmountFocus,
-                                nextFocus: _packageCurrencyFocus,
-                                required: true,
-                                controller: _packageShipmentInvoiceAmountController,
+                                child: CustomTextFieldWidget(
+                                  labelText: getTranslated(
+                                      'Shipment Invoice Amount', context),
+                                  inputType: TextInputType.number,
+                                  focusNode: _packageShipmentInvoiceAmountFocus,
+                                  nextFocus: _packageCurrencyFocus,
+                                  required: true,
+                                  controller:
+                                      _packageShipmentInvoiceAmountController,
+                                ),
                               ),
-                              ) ,
-
                             ],
                           ),
-
                           const SizedBox(height: Dimensions.paddingSizeLarge),
-
                           Expanded(
                             flex: 1,
-                            child:
-                            CustomTextFieldWidget(
+                            child: CustomTextFieldWidget(
                                 labelText: getTranslated('Currency', context),
                                 inputType: TextInputType.name,
                                 focusNode: _packageCurrencyFocus,
@@ -2437,35 +1685,28 @@ class KolitrendShippingFormScreenState
                                 onTap: _openPackageCurrencyBottomSheet,
                                 controller: _packageCurrencyController),
                           ),
-
-
                           const SizedBox(height: Dimensions.paddingSizeLarge),
-
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 4),
                             child: true
                                 ? CustomButton(
-                                onTap: _addPackage,
-                                buttonText:
-                                getTranslated('Add this Package', context))
+                                    onTap: _addPackage,
+                                    buttonText: getTranslated(
+                                        'Add this Package', context))
                                 : Center(
-                                child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Theme.of(context).primaryColor),
-                                )),
+                                    child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Theme.of(context).primaryColor),
+                                  )),
                           ),
-
                         ],
                       ),
                     ),
                   ),
-
-                ] ,
-
+                ],
 
                 // For packages step
-                if (currentStep == "packages") ... [
-
+                if (currentStep == "packages") ...[
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -2473,46 +1714,38 @@ class KolitrendShippingFormScreenState
                       decoration: BoxDecoration(
                         color: Theme.of(context).highlightColor,
                         borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(Dimensions.marginSizeDefault),
-                          topRight: Radius.circular(Dimensions.marginSizeDefault),
+                          topLeft:
+                              Radius.circular(Dimensions.marginSizeDefault),
+                          topRight:
+                              Radius.circular(Dimensions.marginSizeDefault),
                         ),
                       ),
                       child: ListView(
                         physics: const BouncingScrollPhysics(),
                         children: [
-
-
                           if (showForm == false || showForm == true) ...[
-
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Expanded(child:
-                                InkWell(
-                                  child: Text("${getTranslated("Packages Added", Get.context!)!} (${packages.length})"),
+                                Expanded(
+                                  child: InkWell(
+                                    child: Text(
+                                        "${getTranslated("Packages Added", Get.context!)!} (${packages.length})"),
+                                  ),
                                 ),
-
-                                ),
-
-
-                                Expanded(child:
-
-                                CustomButton(
-                                    onTap: () => {
-                                      setState(() {
-                                        currentStep = "add_package";
-                                      })
-                                    },
-                                    buttonText: getTranslated(
-                                        'Add Another', context))
-                                ),
-
+                                Expanded(
+                                    child: CustomButton(
+                                        onTap: () => {
+                                              setState(() {
+                                                currentStep = "add_package";
+                                              })
+                                            },
+                                        buttonText: getTranslated(
+                                            'Add Another', context))),
                               ],
                             ),
 
-
                             SizedBox(height: 16),
-
 
                             // Container holding the ListView
                             Expanded(
@@ -2532,139 +1765,132 @@ class KolitrendShippingFormScreenState
                                 ),
                                 child: packages.isEmpty
                                     ? Center(
-                                    child: Text(
-                                      'No items yet!',
-                                      style: TextStyle(
-                                          fontSize: 18, color: Colors.grey),
-                                    ))
+                                        child: Text(
+                                        'No items yet!',
+                                        style: TextStyle(
+                                            fontSize: 18, color: Colors.grey),
+                                      ))
                                     : ListView.builder(
-                                  itemCount: packages.length,
-                                  itemBuilder: (context, index) {
-                                    final item = packages[index];
-                                    return Card(
-                                      elevation:
-                                      2.0, // Slight elevation for each card
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 8.0, horizontal: 4.0),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(10.0),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment
-                                              .spaceBetween,
-                                          children: <Widget>[
-                                            // Left side: Name and Category
-                                            Expanded(
-                                              // Use Expanded to prevent overflow if text is long
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment
-                                                    .start,
+                                        itemCount: packages.length,
+                                        itemBuilder: (context, index) {
+                                          final item = packages[index];
+                                          return Card(
+                                            elevation:
+                                                2.0, // Slight elevation for each card
+                                            margin: const EdgeInsets.symmetric(
+                                                vertical: 8.0, horizontal: 4.0),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(12.0),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                 children: <Widget>[
-                                                  Text(
-                                                    "${getTranslated("Quantity", context)}: " + item.quantity
-                                                        .toString()!,
-                                                    style: TextStyle(
-                                                      fontSize: 16.0,
-                                                      fontWeight:
-                                                      FontWeight.bold,
+                                                  // Left side: Name and Category
+                                                  Expanded(
+                                                    // Use Expanded to prevent overflow if text is long
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: <Widget>[
+                                                        Text(
+                                                          "${getTranslated("Quantity", context)}: " +
+                                                              item.quantity
+                                                                  .toString()!,
+                                                          style: TextStyle(
+                                                            fontSize: 16.0,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                        SizedBox(height: 4.0),
+                                                        Text(
+                                                          "${getTranslated("Volumetric Weight", context)}: ${item.weight!.toStringAsFixed(2)} kg", // Format price
+                                                          style: TextStyle(
+                                                            fontSize: 14.0,
+                                                            color: Colors
+                                                                .grey.shade700,
+                                                          ),
+                                                        ),
+                                                        SizedBox(height: 4.0),
+                                                        Text(
+                                                          "${getTranslated("Weight", context)}: ${item.weight!.toStringAsFixed(2)} kg", // Format price
+                                                          style: TextStyle(
+                                                            fontSize: 14.0,
+                                                            color: Colors
+                                                                .grey.shade700,
+                                                          ),
+                                                        ),
+                                                        SizedBox(height: 4.0),
+                                                        Text(
+                                                          "${item.width} X ${item.length} X ${item.height} cm",
+                                                          style: TextStyle(
+                                                            fontSize: 14.0,
+                                                            color: Colors
+                                                                .grey.shade700,
+                                                          ),
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        )
+                                                      ],
                                                     ),
-                                                    overflow: TextOverflow
-                                                        .ellipsis,
                                                   ),
-                                                  SizedBox(height: 4.0),
-                                                  Text(
-                                                    "${getTranslated("Volumetric Weight", context)}: ${item.weight!.toStringAsFixed(2)} kg", // Format price
-                                                    style: TextStyle(
-                                                      fontSize: 14.0,
-                                                      color: Colors.grey.shade700,
-                                                    ),
-                                                  ),
+                                                  SizedBox(
+                                                      width:
+                                                          16), // Spacing between left and right content
 
-                                                  SizedBox(height: 4.0),
-                                                  Text(
-                                                    "${getTranslated("Weight", context)}: ${item.weight!.toStringAsFixed(2)} kg", // Format price
-                                                    style: TextStyle(
-                                                      fontSize: 14.0,
-                                                      color: Colors.grey.shade700,
-                                                    ),
+                                                  // Right side: Price and Delete Icon
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    children: <Widget>[
+                                                      Column(
+                                                        children: [],
+                                                      ),
+                                                      SizedBox(width: 8.0),
+                                                      IconButton(
+                                                        icon: Icon(Icons
+                                                            .delete_outline_rounded),
+                                                        color:
+                                                            Colors.red.shade400,
+                                                        onPressed: () {
+                                                          _deleteItem(item.id!);
+                                                        },
+                                                        tooltip: 'Delete Item',
+                                                        constraints:
+                                                            BoxConstraints(), // Removes default padding if needed
+                                                        padding: EdgeInsets
+                                                            .zero, // Removes default padding
+                                                      ),
+                                                    ],
                                                   ),
-                                                  SizedBox(height: 4.0),
-                                                  Text(
-                                                    "${item.width} X ${item.length} X ${item.height} cm"
-                                                    ,
-                                                    style: TextStyle(
-                                                      fontSize: 14.0,
-                                                      color: Colors
-                                                          .grey.shade700,
-                                                    ),
-                                                    overflow: TextOverflow
-                                                        .ellipsis,
-                                                  )
-
                                                 ],
                                               ),
                                             ),
-                                            SizedBox(
-                                                width:
-                                                16), // Spacing between left and right content
-
-                                            // Right side: Price and Delete Icon
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment
-                                                  .end,
-                                              children: <Widget>[
-                                                Column(
-                                                  children: [
-
-
-                                                  ],
-                                                ),
-                                                SizedBox(width: 8.0),
-                                                IconButton(
-                                                  icon: Icon(Icons
-                                                      .delete_outline_rounded),
-                                                  color:
-                                                  Colors.red.shade400,
-                                                  onPressed: () {
-                                                    _deleteItem(item.id!);
-                                                  },
-                                                  tooltip: 'Delete Item',
-                                                  constraints:
-                                                  BoxConstraints(), // Removes default padding if needed
-                                                  padding: EdgeInsets
-                                                      .zero, // Removes default padding
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
+                                          );
+                                        },
                                       ),
-                                    );
-                                  },
-                                ),
                               ),
                             ),
 
                             SizedBox(height: Dimensions.paddingSizeSmall),
-
                           ],
-
                         ],
                       ),
                     ),
                   ),
-
-                ] ,
-
+                ],
 
                 // For sender info step
-                if (currentStep == "overview") ... [
-
+                if (currentStep == "overview") ...[
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -2672,14 +1898,15 @@ class KolitrendShippingFormScreenState
                       decoration: BoxDecoration(
                         color: Theme.of(context).highlightColor,
                         borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(Dimensions.marginSizeDefault),
-                          topRight: Radius.circular(Dimensions.marginSizeDefault),
+                          topLeft:
+                              Radius.circular(Dimensions.marginSizeDefault),
+                          topRight:
+                              Radius.circular(Dimensions.marginSizeDefault),
                         ),
                       ),
                       child: ListView(
                         physics: const BouncingScrollPhysics(),
                         children: [
-
                           Text(getTranslated('order_summary', context) ?? '',
                               style: textMedium.copyWith(
                                   fontSize: Dimensions.fontSizeLarge,
@@ -2694,22 +1921,25 @@ class KolitrendShippingFormScreenState
                               AmountWidget(
                                   title:
                                   '${getTranslated('Weight', context)} ${'(${getTranslated('kg', context)})'}',
-                                  amount: "0.0"),
+                                  amount: "${kolitrendShippingController.shippingOrderSummary?.totalWeight ?? 0.0}"),
                               AmountWidget(
                                   title:
                                   '${getTranslated('Volumetric Weight', context)} ${'(${getTranslated('kg', context)})'}',
-                                  amount: "0.0"),
+                                  amount: "${kolitrendShippingController.shippingOrderSummary?.totalVolWeight ?? 0.0}"),
                               AmountWidget(
                                   title:
                                   '${getTranslated('Total Weight Calculation', context)} ${'(${getTranslated('kg', context)})'}',
-                                  amount: "0.0"),
+                                  amount: "${kolitrendShippingController.shippingOrderSummary?.totalComparedWeight ?? 0}"),
                               AmountWidget(
-                                  title: '${getTranslated('sub_total', context)}',
+                                  title:
+                                  '${getTranslated('sub_total', context)}',
                                   amount:
-                                  PriceConverter.convertPrice(context, 0)),
+                                  PriceConverter.convertPrice(context, kolitrendShippingController.shippingOrderSummary?.subTotal ?? 0)),
                               AmountWidget(
                                   title: getTranslated('Total', context),
-                                  amount: PriceConverter.convertPrice(context, 0))
+                                  amount:
+                                  PriceConverter.convertPrice(context, kolitrendShippingController.shippingOrderSummary?.total ?? 0))
+
                             ],
                           ),
 
@@ -2724,12 +1954,9 @@ class KolitrendShippingFormScreenState
                       ),
                     ),
                   ),
+                ],
 
-                ] ,
-
-
-                if (showPackages == true) ... [
-
+                if (showPackages == true) ...[
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -2737,30 +1964,32 @@ class KolitrendShippingFormScreenState
                       decoration: BoxDecoration(
                         color: Theme.of(context).highlightColor,
                         borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(Dimensions.marginSizeDefault),
-                          topRight: Radius.circular(Dimensions.marginSizeDefault),
+                          topLeft:
+                              Radius.circular(Dimensions.marginSizeDefault),
+                          topRight:
+                              Radius.circular(Dimensions.marginSizeDefault),
                         ),
                       ),
                       child: ListView(
                         physics: const BouncingScrollPhysics(),
                         children: [
-                          
-                              CustomButton(
-                                  onTap: () => {
+                          CustomButton(
+                              onTap: () => {
                                     setState(() {
-                                       if (showAddPackageForm == false) {
-                                         showAddPackageForm = true ;
-                                         showPackages = false ;
-                                       } else {
-                                         showPackages = true;
-                                         showAddPackageForm = false;
-                                       }
+                                      if (showAddPackageForm == false) {
+                                        showAddPackageForm = true;
+                                        showPackages = false;
+                                      } else {
+                                        showPackages = true;
+                                        showAddPackageForm = false;
+                                      }
                                     })
                                   },
-                                  buttonText: getTranslated(
-                                     showAddPackageForm == false ? 'Add New Package' : 'Add Another Package' ,
-                                      context)
-                              ),
+                              buttonText: getTranslated(
+                                  showAddPackageForm == false
+                                      ? 'Add New Package'
+                                      : 'Add Another Package',
+                                  context)),
 
                           // Row(
                           //   children: [
@@ -2781,11 +2010,9 @@ class KolitrendShippingFormScreenState
                           //   ],
                           // ),
 
-
                           // Container holding the ListView
 
-                          if (showPackages == true) ... [
-
+                          if (showPackages == true) ...[
                             Expanded(
                               child: Container(
                                 height: 400,
@@ -2803,261 +2030,235 @@ class KolitrendShippingFormScreenState
                                 ),
                                 child: packages.isEmpty
                                     ? Center(
-                                    child: Padding(padding: EdgeInsets.all(12),
-                                         child:   Text(
-                                           'No items yet!',
-                                           style: TextStyle(
-                                               fontSize: 18, color: Colors.grey),
-                                         )
-                                      )
-                                   )
+                                        child: Padding(
+                                            padding: EdgeInsets.all(12),
+                                            child: Text(
+                                              'No items yet!',
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.grey),
+                                            )))
                                     : ListView.builder(
-                                  itemCount: packages.length,
-                                  itemBuilder: (context, index) {
-                                    final item = packages[index];
-                                    return Card(
-                                      elevation:
-                                      2.0, // Slight elevation for each card
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 8.0, horizontal: 4.0),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(10.0),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment
-                                              .spaceBetween,
-                                          children: <Widget>[
-                                            // Left side: Name and Category
-                                            Expanded(
-                                              // Use Expanded to prevent overflow if text is long
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment
-                                                    .start,
+                                        itemCount: packages.length,
+                                        itemBuilder: (context, index) {
+                                          final item = packages[index];
+                                          return Card(
+                                            elevation:
+                                                2.0, // Slight elevation for each card
+                                            margin: const EdgeInsets.symmetric(
+                                                vertical: 8.0, horizontal: 4.0),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(12.0),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                 children: <Widget>[
-                                                  Text(
-                                                    "${getTranslated("Quantity", context)}: " + item.quantity
-                                                        .toString()!,
-                                                    style: TextStyle(
-                                                      fontSize: 16.0,
-                                                      fontWeight:
-                                                      FontWeight.bold,
+                                                  // Left side: Name and Category
+                                                  Expanded(
+                                                    // Use Expanded to prevent overflow if text is long
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: <Widget>[
+                                                        Text(
+                                                          "${getTranslated("Quantity", context)}: " +
+                                                              item.quantity
+                                                                  .toString()!,
+                                                          style: TextStyle(
+                                                            fontSize: 16.0,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                        SizedBox(height: 4.0),
+                                                        Text(
+                                                          "${getTranslated("Volumetric Weight", context)}: ${item.vol_weight!.toStringAsFixed(2)} kg", // Format price
+                                                          style: TextStyle(
+                                                            fontSize: 14.0,
+                                                            color: Colors
+                                                                .grey.shade700,
+                                                          ),
+                                                        ),
+                                                        SizedBox(height: 4.0),
+                                                        Text(
+                                                          "${getTranslated("Weight", context)}: ${item.weight!.toStringAsFixed(2)} kg", // Format price
+                                                          style: TextStyle(
+                                                            fontSize: 14.0,
+                                                            color: Colors
+                                                                .grey.shade700,
+                                                          ),
+                                                        ),
+                                                        SizedBox(height: 4.0),
+                                                        Text(
+                                                          "${item.width} X ${item.length} X ${item.height} cm",
+                                                          style: TextStyle(
+                                                            fontSize: 14.0,
+                                                            color: Colors
+                                                                .grey.shade700,
+                                                          ),
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        )
+                                                      ],
                                                     ),
-                                                    overflow: TextOverflow
-                                                        .ellipsis,
                                                   ),
-                                                  SizedBox(height: 4.0),
-                                                  Text(
-                                                    "${getTranslated("Volumetric Weight", context)}: ${item.vol_weight!.toStringAsFixed(2)} kg", // Format price
-                                                    style: TextStyle(
-                                                      fontSize: 14.0,
-                                                      color: Colors.grey.shade700,
-                                                    ),
-                                                  ),
+                                                  SizedBox(
+                                                      width:
+                                                          16), // Spacing between left and right content
 
-                                                  SizedBox(height: 4.0),
-                                                  Text(
-                                                    "${getTranslated("Weight", context)}: ${item.weight!.toStringAsFixed(2)} kg", // Format price
-                                                    style: TextStyle(
-                                                      fontSize: 14.0,
-                                                      color: Colors.grey.shade700,
-                                                    ),
+                                                  // Right side: Price and Delete Icon
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    children: <Widget>[
+                                                      Column(
+                                                        children: [],
+                                                      ),
+                                                      SizedBox(width: 8.0),
+                                                      IconButton(
+                                                        icon: Icon(Icons
+                                                            .delete_outline_rounded),
+                                                        color:
+                                                            Colors.red.shade400,
+                                                        onPressed: () {
+                                                          _deleteItem(item.id!);
+                                                        },
+                                                        tooltip: 'Delete Item',
+                                                        constraints:
+                                                            BoxConstraints(), // Removes default padding if needed
+                                                        padding: EdgeInsets
+                                                            .zero, // Removes default padding
+                                                      ),
+                                                    ],
                                                   ),
-                                                  SizedBox(height: 4.0),
-                                                  Text(
-                                                    "${item.width} X ${item.length} X ${item.height} cm"
-                                                    ,
-                                                    style: TextStyle(
-                                                      fontSize: 14.0,
-                                                      color: Colors
-                                                          .grey.shade700,
-                                                    ),
-                                                    overflow: TextOverflow
-                                                        .ellipsis,
-                                                  )
-
                                                 ],
                                               ),
                                             ),
-                                            SizedBox(
-                                                width:
-                                                16), // Spacing between left and right content
-
-                                            // Right side: Price and Delete Icon
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment
-                                                  .end,
-                                              children: <Widget>[
-                                                Column(
-                                                  children: [
-
-
-                                                  ],
-                                                ),
-                                                SizedBox(width: 8.0),
-                                                IconButton(
-                                                  icon: Icon(Icons
-                                                      .delete_outline_rounded),
-                                                  color:
-                                                  Colors.red.shade400,
-                                                  onPressed: () {
-                                                    _deleteItem(item.id!);
-                                                  },
-                                                  tooltip: 'Delete Item',
-                                                  constraints:
-                                                  BoxConstraints(), // Removes default padding if needed
-                                                  padding: EdgeInsets
-                                                      .zero, // Removes default padding
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
+                                          );
+                                        },
                                       ),
-                                    );
-                                  },
-                                ),
                               ),
                             ),
-
                             SizedBox(height: Dimensions.paddingSizeSmall),
+                          ],
 
-                          ] ,
-
-
-                          if (showAddPackageForm == true && showForm == false) ...[
-
-                          InkWell(
-                            child: const Text('Package Information'),
-                          ),
-
-                          const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                          CustomTextFieldWidget(
-                            labelText: getTranslated('Quantity', context),
-                            inputType: TextInputType.number,
-                            focusNode: _packageQuantityFocus,
-                            nextFocus: _packageDescFocus,
-                            required: true,
-                            controller: _packageQuantityController,
-                          ),
-
-                          const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                          CustomTextFieldWidget(
-                            labelText:
-                            getTranslated('Package Description', context),
-                            inputType: TextInputType.name,
-                            focusNode: _packageDescFocus,
-                            nextFocus: _packageWeightFocus,
-                            required: true,
-                            controller: _packageDescController,
-                          ),
-
-                          const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                          CustomTextFieldWidget(
-                            labelText: getTranslated('Weight (kg)', context),
-                            inputType: TextInputType.number,
-                            focusNode: _packageWeightFocus,
-                            nextFocus: _packageLengthFocus,
-                            required: true,
-                            controller: _packageWeightController,
-                          ),
-
-                          const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                          CustomTextFieldWidget(
-                            labelText: getTranslated('Length (cm)', context),
-                            inputType: TextInputType.number,
-                            focusNode: _packageLengthFocus,
-                            nextFocus: _packageWidthFocus,
-                            required: true,
-                            onChanged: _onPackageLengthChange,
-                            controller: _packageLengthController,
-                          ),
-
-                          const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                          CustomTextFieldWidget(
-                            labelText: getTranslated('Width (cm)', context),
-                            inputType: TextInputType.number,
-                            focusNode: _packageWidthFocus,
-                            nextFocus: _packageHeightFocus,
-                            required: true,
-                            onChanged: _onPackageWidthChange,
-                            controller: _packageWidthController,
-                          ),
-
-                          const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                          CustomTextFieldWidget(
-                            labelText: getTranslated('Height (cm)', context),
-                            inputType: TextInputType.number,
-                            focusNode: _packageHeightFocus,
-                            nextFocus: _packageWeightVolFocus,
-                            required: true,
-                            onChanged: _onPackageHeightChange,
-                            controller: _packageHeightController,
-                          ),
-
-                          const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                          CustomTextFieldWidget(
-                            labelText: getTranslated('Weight Vol (kg)', context),
-                            focusNode: _packageWeightVolFocus,
-                            nextFocus: _packageShipmentInvoiceAmountFocus,
-                            required: true,
-                            readOnly: true,
-                            controller: _packageWeightVolController,
-                          ),
-
-                          const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                          CustomTextFieldWidget(
-                            labelText:
-                            getTranslated('Shipment Invoice Amount', context),
-                            inputType: TextInputType.number,
-                            focusNode: _packageShipmentInvoiceAmountFocus,
-                            nextFocus: _packageCurrencyFocus,
-                            required: true,
-                            controller: _packageShipmentInvoiceAmountController,
-                          ),
-
-                          const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                          CustomTextFieldWidget(
-                              labelText: getTranslated('Currency', context),
+                          if (showAddPackageForm == true &&
+                              showForm == false) ...[
+                            InkWell(
+                              child: const Text('Package Information'),
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeSmall),
+                            CustomTextFieldWidget(
+                              labelText: getTranslated('Quantity', context),
+                              inputType: TextInputType.number,
+                              focusNode: _packageQuantityFocus,
+                              nextFocus: _packageDescFocus,
+                              required: true,
+                              controller: _packageQuantityController,
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeLarge),
+                            CustomTextFieldWidget(
+                              labelText:
+                                  getTranslated('Package Description', context),
                               inputType: TextInputType.name,
-                              focusNode: _packageCurrencyFocus,
+                              focusNode: _packageDescFocus,
+                              nextFocus: _packageWeightFocus,
+                              required: true,
+                              controller: _packageDescController,
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeLarge),
+                            CustomTextFieldWidget(
+                              labelText: getTranslated('Weight (kg)', context),
+                              inputType: TextInputType.number,
+                              focusNode: _packageWeightFocus,
+                              nextFocus: _packageLengthFocus,
+                              required: true,
+                              controller: _packageWeightController,
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeLarge),
+                            CustomTextFieldWidget(
+                              labelText: getTranslated('Length (cm)', context),
+                              inputType: TextInputType.number,
+                              focusNode: _packageLengthFocus,
+                              nextFocus: _packageWidthFocus,
+                              required: true,
+                              onChanged: _onPackageLengthChange,
+                              controller: _packageLengthController,
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeLarge),
+                            CustomTextFieldWidget(
+                              labelText: getTranslated('Width (cm)', context),
+                              inputType: TextInputType.number,
+                              focusNode: _packageWidthFocus,
+                              nextFocus: _packageHeightFocus,
+                              required: true,
+                              onChanged: _onPackageWidthChange,
+                              controller: _packageWidthController,
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeLarge),
+                            CustomTextFieldWidget(
+                              labelText: getTranslated('Height (cm)', context),
+                              inputType: TextInputType.number,
+                              focusNode: _packageHeightFocus,
+                              nextFocus: _packageWeightVolFocus,
+                              required: true,
+                              onChanged: _onPackageHeightChange,
+                              controller: _packageHeightController,
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeLarge),
+                            CustomTextFieldWidget(
+                              labelText:
+                                  getTranslated('Weight Vol (kg)', context),
+                              focusNode: _packageWeightVolFocus,
+                              nextFocus: _packageShipmentInvoiceAmountFocus,
                               required: true,
                               readOnly: true,
-                              onTap: _openPackageCurrencyBottomSheet,
-                              controller: _packageCurrencyController),
-
-                          const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                          Container(
-                            child: true
-                                ? CustomButton(
-                                onTap: _addPackage,
-                                buttonText:
-                                getTranslated('Add Package', context))
-                                : Center(
-                                child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Theme.of(context).primaryColor),
-                                )),
-                          ),
-
-                          const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                          ] ,
-
+                              controller: _packageWeightVolController,
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeLarge),
+                            CustomTextFieldWidget(
+                              labelText: getTranslated(
+                                  'Shipment Invoice Amount', context),
+                              inputType: TextInputType.number,
+                              focusNode: _packageShipmentInvoiceAmountFocus,
+                              nextFocus: _packageCurrencyFocus,
+                              required: true,
+                              controller:
+                                  _packageShipmentInvoiceAmountController,
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeLarge),
+                            CustomTextFieldWidget(
+                                labelText: getTranslated('Currency', context),
+                                inputType: TextInputType.name,
+                                focusNode: _packageCurrencyFocus,
+                                required: true,
+                                readOnly: true,
+                                onTap: _openPackageCurrencyBottomSheet,
+                                controller: _packageCurrencyController),
+                            const SizedBox(height: Dimensions.paddingSizeLarge),
+                            Container(
+                              child: true
+                                  ? CustomButton(
+                                      onTap: _addPackage,
+                                      buttonText:
+                                          getTranslated('Add Package', context))
+                                  : Center(
+                                      child: CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Theme.of(context).primaryColor),
+                                    )),
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeLarge),
+                          ],
 
                           Text(getTranslated('order_summary', context) ?? '',
                               style: textMedium.copyWith(
@@ -3072,23 +2273,28 @@ class KolitrendShippingFormScreenState
                             children: [
                               AmountWidget(
                                   title:
-                                  '${getTranslated('Weight', context)} ${'(${getTranslated('kg', context)})'}',
-                                  amount: "0.0"),
+                                      '${getTranslated('Weight', context)} ${'(${getTranslated('kg', context)})'}',
+                                  amount: "${kolitrendShippingController.shippingOrderSummary?.totalWeight ?? 0.0}"),
                               AmountWidget(
                                   title:
-                                  '${getTranslated('Volumetric Weight', context)} ${'(${getTranslated('kg', context)})'}',
-                                  amount: "0.0"),
+                                      '${getTranslated('Volumetric Weight', context)} ${'(${getTranslated('kg', context)})'}',
+                                  amount: "${kolitrendShippingController.shippingOrderSummary?.totalVolWeight ?? 0.0}"),
                               AmountWidget(
                                   title:
-                                  '${getTranslated('Total Weight Calculation', context)} ${'(${getTranslated('kg', context)})'}',
-                                  amount: "0.0"),
+                                      '${getTranslated('Total Weight Calculation', context)} ${'(${getTranslated('kg', context)})'}',
+                                  amount: "${kolitrendShippingController.shippingOrderSummary?.totalComparedWeight ?? 0}"),
                               AmountWidget(
-                                  title: '${getTranslated('sub_total', context)}',
+                                  title:
+                                      '${getTranslated('sub_total', context)}',
                                   amount:
-                                  PriceConverter.convertPrice(context, 0)),
+                                      PriceConverter.convertPrice(context, kolitrendShippingController.shippingOrderSummary?.subTotal ?? 0)),
                               AmountWidget(
                                   title: getTranslated('Total', context),
-                                  amount: PriceConverter.convertPrice(context, 0))
+                                  amount:
+                                      PriceConverter.convertPrice(context, kolitrendShippingController.shippingOrderSummary?.total ?? 0))
+
+
+
                             ],
                           ),
 
@@ -3103,10 +2309,7 @@ class KolitrendShippingFormScreenState
                       ),
                     ),
                   ),
-
-                ] ,
-
-
+                ],
 
                 Container(
                     margin: const EdgeInsets.symmetric(
@@ -3118,18 +2321,45 @@ class KolitrendShippingFormScreenState
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            currentStep != "sender_info" ? Expanded(
+                            currentStep != "sender_info"
+                                ? Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.fromLTRB(
+                                          0, 0, Dimensions.paddingSizeSmall, 0),
+                                      child: true
+                                          ? CustomButton(
+                                              onTap: previousStep,
+                                              backgroundColor: Theme.of(context)
+                                                  .primaryColor,
+                                              buttonText: getTranslated(
+                                                  'Back', context))
+                                          : Center(
+                                              child: CircularProgressIndicator(
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<
+                                                      Color>(Theme.of(
+                                                          context)
+                                                      .secondaryHeaderColor),
+                                            )),
+                                    ),
+                                  )
+                                : SizedBox(width: 0),
+                            Expanded(
                               child: Padding(
                                 padding: EdgeInsets.fromLTRB(
-                                    0, 0,  Dimensions.paddingSizeSmall, 0),
+                                    currentStep != "sender_info"
+                                        ? Dimensions.paddingSizeSmall
+                                        : 0,
+                                    0,
+                                    0,
+                                    0),
                                 child: true
                                     ? CustomButton(
-                                        onTap: previousStep,
+                                        onTap: nextStep,
                                         backgroundColor:
                                             Theme.of(context).primaryColor,
-                                        buttonText: getTranslated(
-                                            'Back',
-                                            context))
+                                        buttonText:
+                                            getTranslated('Next', context))
                                     : Center(
                                         child: CircularProgressIndicator(
                                         valueColor:
@@ -3138,29 +2368,7 @@ class KolitrendShippingFormScreenState
                                                     .secondaryHeaderColor),
                                       )),
                               ),
-                            ) : SizedBox(width: 0),
-
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.fromLTRB( currentStep!= "sender_info" ? Dimensions.paddingSizeSmall : 0 , 0, 0, 0),
-                                child: true
-                                    ? CustomButton(
-                                    onTap: nextStep,
-                                    backgroundColor:
-                                    Theme.of(context).primaryColor,
-                                    buttonText: getTranslated(
-                                        'Next',
-                                        context))
-                                    : Center(
-                                    child: CircularProgressIndicator(
-                                      valueColor:
-                                      AlwaysStoppedAnimation<Color>(
-                                          Theme.of(context)
-                                              .secondaryHeaderColor),
-                                    )),
-                              ),
                             ),
-
                           ],
                         ),
                       ],

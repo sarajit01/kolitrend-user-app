@@ -12,6 +12,7 @@ import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/m
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_company_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_deli_time_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_mode_model.dart';
+import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_order_summary.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_pkg_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_service_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/services/kolitrend_shipping_service.dart';
@@ -66,6 +67,8 @@ class KolitrendShippingController with ChangeNotifier {
   ShippingPackageType? selectedShippingPackageType;
   ShippingService? selectedShippingService;
   ShippingDeliveryTime? selectedShippingDeliveryTime;
+
+  ShippingOrderSummary? shippingOrderSummary;
 
   OrderModel? combineShipRelatedOrdersModel;
   List<Orders> _combineShipRelatedOrders = [];
