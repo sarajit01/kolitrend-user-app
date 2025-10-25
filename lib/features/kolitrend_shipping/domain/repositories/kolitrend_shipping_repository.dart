@@ -89,5 +89,24 @@ class KolitrendShippingRepository implements KolitrendShippingRepositoryInterfac
     }
   }
 
+  Future<ApiResponseModel> getClientShippingRate(
+      String countryOfOrigin,
+      String destinationCountry,
+      int shippingModeId,
+      int shippingCompanyId,
+      int shippingPackageTypeId,
+      int shippingServiceId,
+      int deliveryTimeId,
+      double weight
+      ) async {
+    try {
+      final response = await dioClient!.get('${AppConstants.shippingRates}?country_of_origin=$countryOfOrigin&destination_country=$destinationCountry&shipping_mode_id=$shippingModeId&shipping_company_id=$shippingCompanyId&package_type_id=$shippingPackageTypeId&shipping_service_id=$shippingServiceId&delivery_time_id=$deliveryTimeId&weight=$weight');
+      print(response);
+      return ApiResponseModel.withSuccess(response);
+    } catch (e) {
+      return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
+    }
+  }
+
 
 }

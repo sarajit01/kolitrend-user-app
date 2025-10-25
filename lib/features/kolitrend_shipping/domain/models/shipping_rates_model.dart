@@ -4,14 +4,18 @@ import 'dart:ffi';
 
 class ClientShippingRate {
 
-  Double? rate;
-  Double? unitRate;
+  // String? error;
+  // double? weight;
+  double? rate;
+  double? unitRate;
 
-  ClientShippingRate({this.rate, this.unitRate});
+  ClientShippingRate({ this.rate, this.unitRate});
 
   ClientShippingRate.fromJson(Map<String, dynamic> json) {
-    rate = json["rate"];
-    unitRate = json["unit_rate"];
+    rate = double.tryParse(json["rate"]) ?? 0.00;
+    unitRate = double.tryParse(json["unit_rate"]) ?? 0.00;
+   // weight = double.tryParse(json["weight"]) ?? 0;
+   //  error = json["error"];
   }
 
 }

@@ -76,4 +76,28 @@ class KolitrendShippingService implements KolitrendShippingServiceInterface {
         shippingPackageTypeId,
         shippingServiceId);
   }
+
+  @override
+  Future<void> getClientShippingRate(
+      String countryOfOrigin,
+      String destinationCountry,
+      int shippingModeId,
+      int shippingCompanyId,
+      int shippingPackageTypeId,
+      int shippingServiceId,
+      int deliveryTimeId,
+      double weight
+      ) async {
+    return await kolitrendShippingRepositoryInterface.getClientShippingRate(
+        countryOfOrigin,
+        destinationCountry,
+        shippingModeId,
+        shippingCompanyId,
+        shippingPackageTypeId,
+        shippingServiceId,
+        deliveryTimeId,
+        weight
+    );
+  }
+
 }

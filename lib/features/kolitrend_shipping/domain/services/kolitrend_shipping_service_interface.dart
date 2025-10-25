@@ -22,6 +22,17 @@ abstract class KolitrendShippingServiceInterface {
       int shippingServiceId
       );
 
+  Future<dynamic> getClientShippingRate(
+      String countryOfOrigin,
+      String destinationCountry,
+      int shippingModeId,
+      int shippingCompanyId,
+      int shippingPackageTypeId,
+      int shippingServiceId,
+      int deliveryTimeId,
+      double weight
+      );
+
 // Future<dynamic> add(AddressModel addressModel);
   //
   // Future<dynamic> update(Map<String, dynamic> body, int addressId);

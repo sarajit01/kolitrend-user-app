@@ -227,7 +227,21 @@ class KolitrendShippingFormScreenState
         total: 0
       );
 
-      Provider.of<KolitrendShippingController>(context, listen: false).shippingOrderSummary = shippingOrderSummary;
+
+      setState(() {
+        Provider.of<KolitrendShippingController>(context, listen: false).shippingOrderSummary = shippingOrderSummary;
+        Provider.of<KolitrendShippingController>(context, listen: false).getShippingRate(
+            countryOfOriginCode!,
+            destinationCountryCode! ,
+            shippingOrderSummary.totalComparedWeight ?? 0
+        );
+
+        print("shipping order summary internal");
+        print(shippingOrderSummary);
+        print("shipping order summart controller");
+        print( Provider.of<KolitrendShippingController>(context, listen: false).shippingOrderSummary);
+
+      });
 
       setState(() {
         currentStep = "overview";
@@ -1813,7 +1827,7 @@ class KolitrendShippingFormScreenState
                                                         ),
                                                         SizedBox(height: 4.0),
                                                         Text(
-                                                          "${getTranslated("Volumetric Weight", context)}: ${item.weight!.toStringAsFixed(2)} kg", // Format price
+                                                          "${getTranslated("Volumetric Weight", context)}: ${item.vol_weight!.toStringAsFixed(2)} kg", // Format price
                                                           style: TextStyle(
                                                             fontSize: 14.0,
                                                             color: Colors
@@ -1934,7 +1948,8 @@ class KolitrendShippingFormScreenState
                                   title:
                                   '${getTranslated('sub_total', context)}',
                                   amount:
-                                  PriceConverter.convertPrice(context, kolitrendShippingController.shippingOrderSummary?.subTotal ?? 0)),
+                                  PriceConverter.convertPrice(context,
+                                      kolitrendShippingController.shippingOrderSummary?.subTotal ?? 0)),
                               AmountWidget(
                                   title: getTranslated('Total', context),
                                   amount:
@@ -2012,293 +2027,7 @@ class KolitrendShippingFormScreenState
 
                           // Container holding the ListView
 
-                          if (showPackages == true) ...[
-                            Expanded(
-                              child: Container(
-                                height: 400,
-                                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.3),
-                                      spreadRadius: 2,
-                                      blurRadius: 5,
-                                      offset: Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: packages.isEmpty
-                                    ? Center(
-                                        child: Padding(
-                                            padding: EdgeInsets.all(12),
-                                            child: Text(
-                                              'No items yet!',
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  color: Colors.grey),
-                                            )))
-                                    : ListView.builder(
-                                        itemCount: packages.length,
-                                        itemBuilder: (context, index) {
-                                          final item = packages[index];
-                                          return Card(
-                                            elevation:
-                                                2.0, // Slight elevation for each card
-                                            margin: const EdgeInsets.symmetric(
-                                                vertical: 8.0, horizontal: 4.0),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                            ),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(12.0),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: <Widget>[
-                                                  // Left side: Name and Category
-                                                  Expanded(
-                                                    // Use Expanded to prevent overflow if text is long
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: <Widget>[
-                                                        Text(
-                                                          "${getTranslated("Quantity", context)}: " +
-                                                              item.quantity
-                                                                  .toString()!,
-                                                          style: TextStyle(
-                                                            fontSize: 16.0,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                        SizedBox(height: 4.0),
-                                                        Text(
-                                                          "${getTranslated("Volumetric Weight", context)}: ${item.vol_weight!.toStringAsFixed(2)} kg", // Format price
-                                                          style: TextStyle(
-                                                            fontSize: 14.0,
-                                                            color: Colors
-                                                                .grey.shade700,
-                                                          ),
-                                                        ),
-                                                        SizedBox(height: 4.0),
-                                                        Text(
-                                                          "${getTranslated("Weight", context)}: ${item.weight!.toStringAsFixed(2)} kg", // Format price
-                                                          style: TextStyle(
-                                                            fontSize: 14.0,
-                                                            color: Colors
-                                                                .grey.shade700,
-                                                          ),
-                                                        ),
-                                                        SizedBox(height: 4.0),
-                                                        Text(
-                                                          "${item.width} X ${item.length} X ${item.height} cm",
-                                                          style: TextStyle(
-                                                            fontSize: 14.0,
-                                                            color: Colors
-                                                                .grey.shade700,
-                                                          ),
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                      width:
-                                                          16), // Spacing between left and right content
 
-                                                  // Right side: Price and Delete Icon
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.end,
-                                                    children: <Widget>[
-                                                      Column(
-                                                        children: [],
-                                                      ),
-                                                      SizedBox(width: 8.0),
-                                                      IconButton(
-                                                        icon: Icon(Icons
-                                                            .delete_outline_rounded),
-                                                        color:
-                                                            Colors.red.shade400,
-                                                        onPressed: () {
-                                                          _deleteItem(item.id!);
-                                                        },
-                                                        tooltip: 'Delete Item',
-                                                        constraints:
-                                                            BoxConstraints(), // Removes default padding if needed
-                                                        padding: EdgeInsets
-                                                            .zero, // Removes default padding
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                              ),
-                            ),
-                            SizedBox(height: Dimensions.paddingSizeSmall),
-                          ],
-
-                          if (showAddPackageForm == true &&
-                              showForm == false) ...[
-                            InkWell(
-                              child: const Text('Package Information'),
-                            ),
-                            const SizedBox(height: Dimensions.paddingSizeSmall),
-                            CustomTextFieldWidget(
-                              labelText: getTranslated('Quantity', context),
-                              inputType: TextInputType.number,
-                              focusNode: _packageQuantityFocus,
-                              nextFocus: _packageDescFocus,
-                              required: true,
-                              controller: _packageQuantityController,
-                            ),
-                            const SizedBox(height: Dimensions.paddingSizeLarge),
-                            CustomTextFieldWidget(
-                              labelText:
-                                  getTranslated('Package Description', context),
-                              inputType: TextInputType.name,
-                              focusNode: _packageDescFocus,
-                              nextFocus: _packageWeightFocus,
-                              required: true,
-                              controller: _packageDescController,
-                            ),
-                            const SizedBox(height: Dimensions.paddingSizeLarge),
-                            CustomTextFieldWidget(
-                              labelText: getTranslated('Weight (kg)', context),
-                              inputType: TextInputType.number,
-                              focusNode: _packageWeightFocus,
-                              nextFocus: _packageLengthFocus,
-                              required: true,
-                              controller: _packageWeightController,
-                            ),
-                            const SizedBox(height: Dimensions.paddingSizeLarge),
-                            CustomTextFieldWidget(
-                              labelText: getTranslated('Length (cm)', context),
-                              inputType: TextInputType.number,
-                              focusNode: _packageLengthFocus,
-                              nextFocus: _packageWidthFocus,
-                              required: true,
-                              onChanged: _onPackageLengthChange,
-                              controller: _packageLengthController,
-                            ),
-                            const SizedBox(height: Dimensions.paddingSizeLarge),
-                            CustomTextFieldWidget(
-                              labelText: getTranslated('Width (cm)', context),
-                              inputType: TextInputType.number,
-                              focusNode: _packageWidthFocus,
-                              nextFocus: _packageHeightFocus,
-                              required: true,
-                              onChanged: _onPackageWidthChange,
-                              controller: _packageWidthController,
-                            ),
-                            const SizedBox(height: Dimensions.paddingSizeLarge),
-                            CustomTextFieldWidget(
-                              labelText: getTranslated('Height (cm)', context),
-                              inputType: TextInputType.number,
-                              focusNode: _packageHeightFocus,
-                              nextFocus: _packageWeightVolFocus,
-                              required: true,
-                              onChanged: _onPackageHeightChange,
-                              controller: _packageHeightController,
-                            ),
-                            const SizedBox(height: Dimensions.paddingSizeLarge),
-                            CustomTextFieldWidget(
-                              labelText:
-                                  getTranslated('Weight Vol (kg)', context),
-                              focusNode: _packageWeightVolFocus,
-                              nextFocus: _packageShipmentInvoiceAmountFocus,
-                              required: true,
-                              readOnly: true,
-                              controller: _packageWeightVolController,
-                            ),
-                            const SizedBox(height: Dimensions.paddingSizeLarge),
-                            CustomTextFieldWidget(
-                              labelText: getTranslated(
-                                  'Shipment Invoice Amount', context),
-                              inputType: TextInputType.number,
-                              focusNode: _packageShipmentInvoiceAmountFocus,
-                              nextFocus: _packageCurrencyFocus,
-                              required: true,
-                              controller:
-                                  _packageShipmentInvoiceAmountController,
-                            ),
-                            const SizedBox(height: Dimensions.paddingSizeLarge),
-                            CustomTextFieldWidget(
-                                labelText: getTranslated('Currency', context),
-                                inputType: TextInputType.name,
-                                focusNode: _packageCurrencyFocus,
-                                required: true,
-                                readOnly: true,
-                                onTap: _openPackageCurrencyBottomSheet,
-                                controller: _packageCurrencyController),
-                            const SizedBox(height: Dimensions.paddingSizeLarge),
-                            Container(
-                              child: true
-                                  ? CustomButton(
-                                      onTap: _addPackage,
-                                      buttonText:
-                                          getTranslated('Add Package', context))
-                                  : Center(
-                                      child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Theme.of(context).primaryColor),
-                                    )),
-                            ),
-                            const SizedBox(height: Dimensions.paddingSizeLarge),
-                          ],
-
-                          Text(getTranslated('order_summary', context) ?? '',
-                              style: textMedium.copyWith(
-                                  fontSize: Dimensions.fontSizeLarge,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge
-                                      ?.color)),
-                          const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                          Column(
-                            children: [
-                              AmountWidget(
-                                  title:
-                                      '${getTranslated('Weight', context)} ${'(${getTranslated('kg', context)})'}',
-                                  amount: "${kolitrendShippingController.shippingOrderSummary?.totalWeight ?? 0.0}"),
-                              AmountWidget(
-                                  title:
-                                      '${getTranslated('Volumetric Weight', context)} ${'(${getTranslated('kg', context)})'}',
-                                  amount: "${kolitrendShippingController.shippingOrderSummary?.totalVolWeight ?? 0.0}"),
-                              AmountWidget(
-                                  title:
-                                      '${getTranslated('Total Weight Calculation', context)} ${'(${getTranslated('kg', context)})'}',
-                                  amount: "${kolitrendShippingController.shippingOrderSummary?.totalComparedWeight ?? 0}"),
-                              AmountWidget(
-                                  title:
-                                      '${getTranslated('sub_total', context)}',
-                                  amount:
-                                      PriceConverter.convertPrice(context, kolitrendShippingController.shippingOrderSummary?.subTotal ?? 0)),
-                              AmountWidget(
-                                  title: getTranslated('Total', context),
-                                  amount:
-                                      PriceConverter.convertPrice(context, kolitrendShippingController.shippingOrderSummary?.total ?? 0))
-
-
-
-                            ],
-                          ),
-
-                          const SizedBox(height: Dimensions.paddingSizeLarge),
                           // InkWell(
                           //   child: const Text('HEllo'),
                           //   onTap: (){
@@ -2359,7 +2088,10 @@ class KolitrendShippingFormScreenState
                                         backgroundColor:
                                             Theme.of(context).primaryColor,
                                         buttonText:
-                                            getTranslated('Next', context))
+                                            getTranslated(
+                                               currentStep == "overview" ? "Submit" : "Next"
+
+                                                , context))
                                     : Center(
                                         child: CircularProgressIndicator(
                                         valueColor:

@@ -14,6 +14,7 @@ import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/m
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_mode_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_order_summary.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_pkg_model.dart';
+import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_rates_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/models/shipping_service_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/services/kolitrend_shipping_service.dart';
 import 'package:flutter_sixvalley_ecommerce/features/kolitrend_shipping/domain/services/kolitrend_shipping_service_interface.dart';
@@ -89,6 +90,7 @@ class KolitrendShippingController with ChangeNotifier {
   ShippingPackageTypesModel? shippingPackageTypesModel;
   ShippingServicesModel? shippingServicesModel;
   ShippingDeliveryTimesModel? shippingDeliveryTimesModel;
+  ClientShippingRate? clientShippingRateModel;
 
   Future<void> getBranches(String countryOfOrigin) async {
     _branches = [];
@@ -385,6 +387,92 @@ class KolitrendShippingController with ChangeNotifier {
           ShippingDeliveryTimesModel.fromJson(apiResponse.response?.data);
       shippingDeliveryTimesModel?.deliveryTimes
           ?.forEach((deliveryTime) => _shippingDeliveryTimes.add(deliveryTime));
+    } else {
+      ApiChecker.checkApi(apiResponse);
+    }
+    notifyListeners();
+  }
+
+  Future<void> getShippingRate(
+      String countryOfOrigin,
+      String destinationCountry,
+      double weight
+      ) async {
+    if (selectedShippingMode == null) {
+      showCustomSnackBar(
+          getTranslated('Please select shipping mode', Get.context!),
+          Get.context!,
+          isError: true);
+      return;
+    }
+
+    if (selectedShippingCompany == null) {
+      showCustomSnackBar(
+          getTranslated('Please select shipping company', Get.context!),
+          Get.context!,
+          isError: true);
+      return;
+    }
+
+    if (selectedShippingPackageType == null) {
+      showCustomSnackBar(
+          getTranslated('Please select package type', Get.context!),
+          Get.context!,
+          isError: true);
+      return;
+    }
+
+    if (selectedShippingService == null) {
+      showCustomSnackBar(
+          getTranslated('Please select shipping service', Get.context!),
+          Get.context!,
+          isError: true);
+      return;
+    }
+
+    if (selectedShippingDeliveryTime == null) {
+      showCustomSnackBar(
+          getTranslated('Please select delivery time', Get.context!),
+          Get.context!,
+          isError: true);
+      return;
+    }
+
+    if (weight <= 0) {
+      showCustomSnackBar(
+          getTranslated('Please add packages, rate cannot be calculated for 0 weight', Get.context!),
+          Get.context!,
+          isError: true);
+      return;
+    }
+
+
+    ApiResponseModel apiResponse =
+    await kolitrendShippingServiceInterface.getClientShippingRate(
+        countryOfOrigin!,
+        destinationCountry!,
+        selectedShippingMode!.id!,
+        selectedShippingCompany!.id!,
+        selectedShippingPackageType!.id!,
+        selectedShippingService!.id!,
+        selectedShippingDeliveryTime!.id!,
+        weight
+    );
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
+
+      print("List of Shipping rates from API:");
+
+      clientShippingRateModel =
+          ClientShippingRate.fromJson(apiResponse.response?.data);
+      if (clientShippingRateModel?.rate != null){
+        shippingOrderSummary?.subTotal = clientShippingRateModel!.rate;
+        shippingOrderSummary?.total = clientShippingRateModel!.rate;
+      }
+      // if (clientShippingRateModel?.error != null){
+      //   showCustomSnackBar(getTranslated(clientShippingRateModel!.error!, Get.context!), Get.context!);
+      // }
+      print("client shipping rates ${clientShippingRateModel.toString()}");
     } else {
       ApiChecker.checkApi(apiResponse);
     }
