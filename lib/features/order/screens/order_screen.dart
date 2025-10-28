@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_app_bar_with_action_widget.dart';
+import 'package:flutter_sixvalley_ecommerce/common/basewidget/order_filter_dialog_widget.dart';
+import 'package:flutter_sixvalley_ecommerce/common/basewidget/show_custom_snakbar_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/features/order/controllers/order_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/order/widgets/order_shimmer_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/features/order/widgets/order_status_button_widget.dart';
@@ -57,10 +60,43 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    Widget filterIconWidget =  Container(
+        decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            border: Border.all(
+                color:
+                Theme.of(context).primaryColor.withValues(alpha: .5)),
+            borderRadius:
+            BorderRadius.circular(Dimensions.paddingSizeExtraSmall)),
+        width: 30,
+        height: 30,
+        child: Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Image.asset(Images.filterImage,
+                color: Theme.of(context).textTheme.bodyLarge?.color)
+        )
+    );
+
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: CustomAppBarWithAction(
           title: getTranslated('order', context),
-          isBackButtonExist: widget.isBacButtonExist),
+          showActionButton: true,
+          isBackButtonExist: widget.isBacButtonExist,
+          actionIconWidget: filterIconWidget,
+          onActionPressed: () {
+            showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor:
+                Colors.transparent,
+                builder: (c) =>
+                    OrderFilterDialog()
+            );
+          },
+
+      ),
+
       body: isGuestMode
           ? NotLoggedInWidget(
               message: getTranslated('to_view_the_order_history', context))
@@ -73,43 +109,45 @@ class _OrderScreenState extends State<OrderScreen> {
 
               return Column(
                 children: [
-                  if (orderController.orderStatusList != null &&
-                      orderController.orderStatusList!.isNotEmpty)
-                    Padding(
-                        padding:
-                            const EdgeInsets.all(Dimensions.paddingSizeLarge),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          child: Row(
-                            children: List.generate(
-                              orderController.orderStatusList!.length,
-                              (int index) {
-                                // IMPORTANT: Replace 'localizationKey' with the actual property name
-                                // in your status object that holds the translation key.
-                                // If the name itself is the key (like 'RUNNING'), use status.name or similar.
-                                var status = orderController.orderStatusList![index];
-                                String buttonText = getTranslated(getTranslated(status.statusName, context), context) ?? status.statusName!;
+                  // if (orderController.orderStatusList != null &&
+                  //     orderController.orderStatusList!.isNotEmpty)
+                  //   Padding(
+                  //       padding:
+                  //           const EdgeInsets.all(Dimensions.paddingSizeLarge),
+                  //       child: SingleChildScrollView(
+                  //         scrollDirection: Axis.horizontal,
+                  //         physics: const BouncingScrollPhysics(),
+                  //         child: Row(
+                  //           children: List.generate(
+                  //             orderController.orderStatusList!.length,
+                  //             (int index) {
+                  //               // IMPORTANT: Replace 'localizationKey' with the actual property name
+                  //               // in your status object that holds the translation key.
+                  //               // If the name itself is the key (like 'RUNNING'), use status.name or similar.
+                  //               var status = orderController.orderStatusList![index];
+                  //               String buttonText = getTranslated(getTranslated(status.statusName, context), context) ?? status.statusName!;
+                  //
+                  //               return Padding(
+                  //                 padding: EdgeInsetsDirectional.only(
+                  //                     end: index == orderController.orderStatusList!.length - 1
+                  //                         ? 0
+                  //                         : Dimensions.paddingSizeSmall),
+                  //                 child: OrderStatusTypeButton( // Ensure OrderTypeButton is the correct widget name
+                  //                   orderStatus: status, // Use the correct property name
+                  //                 ),
+                  //               );
+                  //             },
+                  //           ),
+                  //         ),
+                  //       ))
+                  // else
+                  //   Container( // Placeholder while statuses are loading or if empty
+                  //     height: 50, // Adjust height as needed
+                  //     alignment: Alignment.center,
+                  //     // child: CircularProgressIndicator(), // Optional: show a loader
+                  //   ),
 
-                                return Padding(
-                                  padding: EdgeInsetsDirectional.only(
-                                      end: index == orderController.orderStatusList!.length - 1
-                                          ? 0
-                                          : Dimensions.paddingSizeSmall),
-                                  child: OrderStatusTypeButton( // Ensure OrderTypeButton is the correct widget name
-                                    orderStatus: status, // Use the correct property name
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ))
-                  else
-                    Container( // Placeholder while statuses are loading or if empty
-                      height: 50, // Adjust height as needed
-                      alignment: Alignment.center,
-                      // child: CircularProgressIndicator(), // Optional: show a loader
-                    ),
+                  SizedBox(height: 12),
 
                   Expanded(
                       child: orderController.orderModel != null

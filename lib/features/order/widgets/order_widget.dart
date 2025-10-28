@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_image_widget.dart';
+import 'package:flutter_sixvalley_ecommerce/features/order/controllers/order_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/order/domain/models/order_model.dart';
 import 'package:flutter_sixvalley_ecommerce/features/order_details/screens/order_details_screen.dart';
 import 'package:flutter_sixvalley_ecommerce/features/splash/controllers/splash_controller.dart';
@@ -163,6 +164,7 @@ class OrderWidget extends StatelessWidget {
                                             ?.color)))
                           ]),
                           const SizedBox(height: Dimensions.paddingSizeSmall),
+                          // Text("${Provider.of<OrderController>(context, listen: false).isLoading}"),
                           Text(
                               DateConverter.localDateToIsoStringAMPMOrder(
                                   DateTime.parse(orderModel!.createdAt!)),

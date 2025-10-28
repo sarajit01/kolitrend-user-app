@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:flutter_sixvalley_ecommerce/common/basewidget/show_custom_snakbar_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/data/local/cache_response.dart';
 import 'package:flutter_sixvalley_ecommerce/data/model/api_response.dart';
 import 'package:flutter_sixvalley_ecommerce/features/order/domain/models/order_model.dart';
@@ -16,14 +17,15 @@ class OrderController with ChangeNotifier {
   final OrderServiceInterface orderServiceInterface;
   OrderController({required this.orderServiceInterface});
 
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
+  bool isLoading = false;
 
   OrderModel? orderModel;
   OrderModel? deliveredOrderModel;
 
   List<OrderStatusModel> orderStatusList = [];
   OrderStatusModel? selectedStatus;
+
+
 
   Future<void> getOrderStatuses() async {
     orderStatusList = [];
@@ -58,8 +60,10 @@ class OrderController with ChangeNotifier {
     }
 
     if (offset == 1) {
-      orderModel = null;
+      orderModel?.orders = [];
     }
+
+
     ApiResponseModel apiResponse =
         await orderServiceInterface.getOrderList(offset, status, type: type);
     print("API response for orders");
@@ -72,6 +76,7 @@ class OrderController with ChangeNotifier {
           deliveredOrderModel = OrderModel.fromJson(apiResponse.response?.data);
 
           if (localData != null) {
+            showCustomSnackBar("Loaded from cache", Get.context!);
             await database.updateCacheResponse(
                 AppConstants.orderUri,
                 CacheResponseCompanion(
@@ -125,8 +130,14 @@ class OrderController with ChangeNotifier {
   }
 
   void setSelectedStatus(OrderStatusModel status) {
+    if (selectedStatus?.value != status.value){
+      showCustomSnackBar("Loading ${status.statusName} orders", Get.context! , isError: false);
+      orderModel = null ;
+    }
     selectedStatus = status;
+    isLoading = true;
     getOrderList(1, status.value!);
+    isLoading = false;
   }
 
   Orders? trackingModel;
@@ -142,14 +153,14 @@ class OrderController with ChangeNotifier {
 
   Future<ApiResponseModel> cancelOrder(
       BuildContext context, int? orderId) async {
-    _isLoading = true;
+    isLoading = true;
     ApiResponseModel apiResponse =
         await orderServiceInterface.cancelOrder(orderId);
     if (apiResponse.response != null &&
         apiResponse.response!.statusCode == 200) {
-      _isLoading = false;
+      isLoading = false;
     } else {
-      _isLoading = false;
+      isLoading = false;
       ApiChecker.checkApi(apiResponse);
     }
     notifyListeners();

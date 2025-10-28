@@ -5,16 +5,40 @@ import 'package:flutter_sixvalley_ecommerce/theme/controllers/theme_controller.d
 import 'package:flutter_sixvalley_ecommerce/utill/custom_themes.dart';
 import 'package:provider/provider.dart';
 
-class OrderStatusTypeButton extends StatelessWidget {
+class OrderStatusTypeButton extends StatefulWidget {
   final OrderStatusModel orderStatus;
 
   const OrderStatusTypeButton({super.key, required this.orderStatus});
+
+  @override
+  State<OrderStatusTypeButton> createState() => _OrderStatusTypeButtonState();
+}
+
+class _OrderStatusTypeButtonState extends State<OrderStatusTypeButton> {
+  late OrderStatusModel orderStatus;
+
+  @override
+  void initState() {
+    super.initState();
+    orderStatus = widget.orderStatus;
+  }
+
+  void onStatusTapped() {
+    setState(() {
+      Provider.of<OrderController>(context,listen: false).setSelectedStatus(orderStatus);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Consumer<OrderController>(builder: (context, orderController, _) {
         return TextButton(
-          onPressed: () => orderController.setSelectedStatus(orderStatus),
+          onPressed: () => setState(() {
+            Provider.of<OrderController>(context,listen: false).setSelectedStatus(orderStatus);
+            Provider.of<OrderController>(context,listen: false).isLoading = true ;
+
+          }),
           style: TextButton.styleFrom(padding: const EdgeInsets.all(0)),
           child: Container(
             height: 35,
@@ -34,8 +58,8 @@ class OrderStatusTypeButton extends StatelessWidget {
                         color: Provider.of<ThemeController>(context).darkTheme
                             ? Theme.of(context).textTheme.bodyLarge?.color
                             : orderController.selectedStatus?.value != orderStatus.value
-                                ? Theme.of(context).textTheme.bodyLarge?.color
-                                : Theme.of(context).cardColor)),
+                            ? Theme.of(context).textTheme.bodyLarge?.color
+                            : Theme.of(context).cardColor)),
                 const SizedBox(width: 5),
               ],
             ),
@@ -45,3 +69,5 @@ class OrderStatusTypeButton extends StatelessWidget {
     );
   }
 }
+
+

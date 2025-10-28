@@ -233,7 +233,10 @@ class _TopSellerProductScreenState extends State<TopSellerProductScreen>
                                                         Colors.transparent,
                                                     builder: (c) =>
                                                         ProductFilterDialog(sellerId: widget.sellerId!)),
-                                                child: Container(decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: .5)), borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraSmall)), width: 30, height: 30, child: Padding(padding: const EdgeInsets.all(5.0), child: Image.asset(Images.filterImage, color: Theme.of(context).textTheme.bodyLarge?.color)))))
+                                                child:
+                                                Container(decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: .5)), borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraSmall)), width: 30, height: 30, child: Padding(padding: const EdgeInsets.all(5.0), child: Image.asset(Images.filterImage, color: Theme.of(context).textTheme.bodyLarge?.color)))))
+
+
                                     ]),
                                 if (sellerProvider.shopMenuIndex == 1)
                                   Container(

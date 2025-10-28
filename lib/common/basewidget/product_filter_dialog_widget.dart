@@ -212,6 +212,7 @@ class ProductFilterDialogState extends State<ProductFilterDialog> {
                                     children: [
                                       const SizedBox(
                                           height: Dimensions.paddingSizeSmall),
+
                                       Text(
                                           getTranslated(
                                               'product_type', context)!,
@@ -273,6 +274,7 @@ class ProductFilterDialogState extends State<ProductFilterDialog> {
                                           underline: const SizedBox(),
                                         ),
                                       ),
+
                                     ]),
                               ),
                               const SizedBox(
