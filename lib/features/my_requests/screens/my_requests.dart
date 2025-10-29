@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_app_bar_with_action_widget.dart';
+import 'package:flutter_sixvalley_ecommerce/common/basewidget/request_filter_dialog_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/features/my_requests/controllers/my_requests_controller.dart';
 import 'package:flutter_sixvalley_ecommerce/features/my_requests/widgets/my_request_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/features/order/controllers/order_controller.dart';
@@ -41,9 +43,38 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    Widget filterIconWidget =  Container(
+        decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            border: Border.all(
+                color:
+                Theme.of(context).primaryColor.withValues(alpha: .5)),
+            borderRadius:
+            BorderRadius.circular(Dimensions.paddingSizeExtraSmall)),
+        width: 30,
+        height: 30,
+        child: Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Image.asset(Images.filterImage,
+                color: Theme.of(context).textTheme.bodyLarge?.color)
+        )
+    );
+
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: CustomAppBarWithAction(
           title: getTranslated('My Requests', context),
+          actionIconWidget: filterIconWidget,
+          onActionPressed: () {
+            showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor:
+                Colors.transparent,
+                builder: (c) =>
+                    RequestsFilterDialog()
+            );
+          },
           isBackButtonExist: widget.isBacButtonExist),
       body: isGuestMode
           ? NotLoggedInWidget(
@@ -52,22 +83,22 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
               builder: (context, myRequestController, child) {
               return Column(
                 children: [
-                  Padding(
-                      padding:
-                          const EdgeInsets.all(Dimensions.paddingSizeLarge),
-                      child: Row(children: [
-                        OrderTypeButton(
-                            text: getTranslated('Buy For Me', context),
-                            index: 0),
-                        const SizedBox(width: Dimensions.paddingSizeSmall),
-                        OrderTypeButton(
-                            text: getTranslated('Kolitrend', context),
-                            index: 1),
-                        const SizedBox(width: Dimensions.paddingSizeSmall),
-                        OrderTypeButton(
-                            text: getTranslated('Combine & Ship', context),
-                            index: 2)
-                      ])),
+                  // Padding(
+                  //     padding:
+                  //         const EdgeInsets.all(Dimensions.paddingSizeLarge),
+                  //     child: Row(children: [
+                  //       OrderTypeButton(
+                  //           text: getTranslated('Buy For Me', context),
+                  //           index: 0),
+                  //       const SizedBox(width: Dimensions.paddingSizeSmall),
+                  //       OrderTypeButton(
+                  //           text: getTranslated('Kolitrend', context),
+                  //           index: 1),
+                  //       const SizedBox(width: Dimensions.paddingSizeSmall),
+                  //       OrderTypeButton(
+                  //           text: getTranslated('Combine & Ship', context),
+                  //           index: 2)
+                  //     ])),
                   Expanded(
                       child: myRequestController.myRequestModel != null
                           ? (myRequestController.myRequestModel!.myRequests !=
